@@ -153,7 +153,8 @@ nuke_everything()
 	export TEMP=$OLDTEMP
 	export TMP=$OLDTMP
 	export USERPROFILE=$OLDUSERPROFILE
-	export LOCALAPPDATA=$OLDLOCALAPPDATA	}
+	export LOCALAPPDATA=$OLDLOCALAPPDATA	
+}
 
 ! nuke_everything
 true

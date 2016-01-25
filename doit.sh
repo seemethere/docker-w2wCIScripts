@@ -251,14 +251,10 @@ if [ $ec -eq 0 ]; then
 	else
 		echo "INFO: Root for testing is $TESTROOT"
 	
-		# Set the WORKSPACE if not set through Jenkins
-		if [ -z $WORKSPACE ]; then
-			export WORKSPACE=$TESTROOT/src/github.com/docker/docker
-			echo "INFO: Setting WORKSPACE to $WORKSPACE"
-		else
-			echo "INFO: WORKSPACE is $WORKSPACE"
-		fi
-		
+		# Set the WORKSPACE
+		export WORKSPACE=$TESTROOT/src/github.com/docker/docker
+		echo "INFO: Workspace for sources is $WORKSPACE"
+
 		# Set the GOPATH to the root and the vendor directory
 		export GOPATH=$TESTROOT/src/github.com/docker/docker/vendor:$TESTROOT
 		echo "INFO: GOPATH set to $GOPATH"
