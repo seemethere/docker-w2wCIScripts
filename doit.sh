@@ -551,7 +551,7 @@ if [ $ec -eq 0 ]; then
 	docker run --rm docker sh -c \
 	'cd /c/go/src/github.com/docker/docker; \
  	 sleep 5; \
-	 hack/make.sh validate-dco validate-gofmt validate-pkg validate-lint validate-vet'
+	 hack/make.sh validate-dco validate-gofmt validate-pkg'
 	ec=$?
 	set +x
 	if [ 0 -ne $ec ]; then
