@@ -1,2 +1,2 @@
-set TESTROOT=/c/go
+set TESTROOT=/c/gopath
 sh ./doit.sh
