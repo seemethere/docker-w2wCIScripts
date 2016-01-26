@@ -16,6 +16,8 @@ nuke_everything()
 	if [ $containerCount -gt 0 ]; then
 		echo "INFO: Container count on control daemon to delete is $containerCount"	
 		! docker rm -f $(docker ps -aq)
+		# TODO Loop round 10 times
+		# eg https://jenkins.dockerproject.org/job/Docker-PRs-WoW-TP4/92/console
 	fi
 
 	# TODO Remove this reliability hack after TP4 is no longer supported
@@ -47,15 +49,35 @@ nuke_everything()
 	do
 		echo "INFO: Killing daemon with PID $PID"
 		taskkill -f -t -pid $PID
-		sleep 5  # Make sure
 	done
 
 	# Even more paranoid - kill a bunch of stuff that might be locking files
-	! taskkill -F -IM link.exe -T 		>& /dev/null
-	! taskkill -F -IM compile.exe -T 	>& /dev/null
-	! taskkill -F -IM go.exe -T 		>& /dev/null
-	! taskkill -F -IM git.exe -T 		>& /dev/null
+	! taskkill -F -IM link.exe -T 				>& /dev/null
+	! taskkill -F -IM compile.exe -T 			>& /dev/null
+	! taskkill -F -IM go.exe -T 				>& /dev/null
+	! taskkill -F -IM git.exe -T 				>& /dev/null
+	
+	# Note: This one is interesting. Found a case where the workspace could not be deleted
+	# by Jenkins as the bundles directory couldn't be cleaned. Pretty strongly suspect
+	# it is integration-cli-test as the command line run is something like
+	# c:\ci\ci-commit\go-buildID\github.com\docker\docker\integration-cli\_test\integration-cli.test.exe
+	#  -test.coverprofile=C:/gopath/src/github.com/docker/docker/bundles/VERSION/test-integration-cli/coverprofiles/docker-integration-cli -test.timeout=nnn
+	! taskkill -F -IM integration-cli.test.exe -T	>& /dev/null
 
+	sleep 10  # Make sure
+
+	# Yet more paranoia - kill anything that's running under the commit ID directory, just in
+	# case integration-cli (or test-unit?) leaves behind some spurious process
+	processes=$(ps -W | grep CI-$COMMITID | grep .exe | awk '{ print $1 }')  
+	processCount=$(echo $processes | wc -w)
+	if [ $processCount > 0 ]; then
+		echo "INFO: Found $processCount other processes to kill"
+		for proc in $processes; do 
+			! taskkill -F -T -PID $proc	>& /dev/null
+			echo $proc
+		done
+		sleep 10  # Just to be sure
+	fi
 
 	if [[ -e /c/CI ]]; then
 		for DIR in /c/CI/CI-*; do
