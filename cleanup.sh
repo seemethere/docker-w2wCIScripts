@@ -36,7 +36,7 @@ nuke_everything()
 			cleanupImages=1
 		fi
 		
-		if [ -n "$cleanupImages"]; then
+		if [ -n "$cleanupImages" ]; then
 			! docker rmi -f $(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | awk '{ print $3 }' )
 		fi	
 	fi

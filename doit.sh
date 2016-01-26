@@ -19,6 +19,7 @@ nuke_everything()
 	if [ $containerCount -gt 0 ]; then
 		echo "INFO: Container count on control daemon to delete is $containerCount"	
 		! docker rm -f $(docker ps -aq)
+		# TODO Loop round 10 times
 	fi
 
 	# TODO Remove this reliability hack after TP4 is no longer supported
@@ -39,7 +40,7 @@ nuke_everything()
 			cleanupImages=1
 		fi
 		
-		if [ -n "$cleanupImages"]; then
+		if [ -n "$cleanupImages" ]; then
 			! docker rmi -f $(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | awk '{ print $3 }' )
 		fi	
 	fi
