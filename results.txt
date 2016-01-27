@@ -1,1738 +1,0 @@
-INFO: Started at Mon Jan 25 15:13:57 PST 2016.
-INFO: Script version 25-Jan-2016 15:03 PDT
-INFO: Running bash version 4.3.42(5)-release
-INFO: Running git version 2.7.0.windows.1
-INFO: Running Windows version 10586.63.amd64fre.th2_release.160104-1513
-INFO: Running Windows Server 2016 Technical Preview 4 Standard
-INFO: Root for testing is /c/gopath
-INFO: Setting WORKSPACE to /c/gopath/src/github.com/docker/docker
-INFO: GOPATH set to /c/gopath/src/github.com/docker/docker/vendor:/c/gopath
-INFO: Seeing if the control daemon is up and responding...
-INFO: The control daemon replied to a ping. Good!
-INFO: Repository was found
-INFO: Commit hash is c8efefc
-INFO: Container count on control daemon to delete is 1
-4db4c0bfaa8b
-INFO: Cleaning /c/CI/CI-9600991
-INFO: Nuking /c/CI/CI-9600991
-WARN: Failed to completely clean /c/CI/CI-9600991
-INFO: Cleaning /c/CI/CI-c8efefc
-INFO: Nuking /c/CI/CI-c8efefc
-INFO: Starting daemon to cleanup...
-INFO: Waiting for daemon to start...
-INFO: Daemon started ready for cleanup
-INFO: Container count on this daemon is 0
-INFO: Image count on this daemon is 0
-SUCCESS: The process with PID 7768 (child process of PID 7644) has been terminated.
-INFO: End of cleanup
-INFO: Location for testing is /c/CI/CI-c8efefc
-INFO: Validating installed GOLang version go1.5.3 is correct...
-INFO: Validating GOLang consistency in Dockerfile.windows...
-INFO: Docker version of control daemon
-
-Client:
- Version:      1.10.0-dev
- API version:  1.22
- Go version:   go1.5.1
- Git commit:   18c9fe0
- Built:        Mon Nov 23 22:32:50 UTC 2015
- OS/Arch:      windows/amd64
-
-Server:
- Version:      1.10.0-dev
- API version:  1.22
- Go version:   go1.5.1
- Git commit:   18c9fe0
- Built:        Mon Nov 23 22:32:50 UTC 2015
- OS/Arch:      windows/amd64
-
-INFO: Docker info of control daemon
-
-Containers: 0
-Images: 25
-Server Version: 1.10.0-dev
-Storage Driver: windowsfilter
- Windows: 
-Execution Driver: 
- Name: Windows 1854
- Build: 1.10.0-dev 18c9fe0 
- Default Isolation: process
-Logging Driver: json-file
-Plugins: 
- Volume: local
- Network:
-Kernel Version: 10.0 10586 (10586.63.amd64fre.th2_release.160104-1513)
-Operating System: Windows Server 2016 Technical Preview 4 Standard
-OSType: windows
-Architecture: x86_64
-CPUs: 8
-Total Memory: 3.335 GiB
-Name: WIN-52B0VQKBQA4
-ID: 7FAD:QG5I:I2XC:CY7Q:7G2D:KQTT:RQ62:J5LM:VTJ3:XA3D:QM4F:S5C7
-Debug mode (server): true
- File Descriptors: -1
- Goroutines: 23
- System Time: 2016-01-25T15:14:05.6570696-08:00
- EventsListeners: 0
- Init SHA1: 
- Init Path: C:\Windows\System32\docker.exe
- Docker Root Dir: C:\ProgramData\docker
-
-INFO: Building the image from Dockerfile.windows...
-Sending build context to Docker daemon 557.1 kBSending build context to Docker daemon 1.114 MBSending build context to Docker daemon 1.671 MBSending build context to Docker daemon 2.228 MBSending build context to Docker daemon 2.775 MBSending build context to Docker daemon  3.31 MBSending build context to Docker daemon 3.867 MBSending build context to Docker daemon 4.424 MBSending build context to Docker daemon 4.981 MBSending build context to Docker daemon 5.538 MBSending build context to Docker daemon 6.095 MBSending build context to Docker daemon 6.652 MBSending build context to Docker daemon 7.209 MBSending build context to Docker daemon 7.766 MBSending build context to Docker daemon 8.323 MBSending build context to Docker daemon  8.88 MBSending build context to Docker daemon 9.437 MBSending build context to Docker daemon 9.994 MBSending build context to Docker daemon 10.55 MBSending build context to Docker daemon 11.11 MBSending build context to Docker daemon 11.67 MBSending build context to Docker daemon 12.22 MBSending build context to Docker daemon 12.78 MBSending build context to Docker daemon 13.34 MBSending build context to Docker daemon 13.89 MBSending build context to Docker daemon 14.45 MBSending build context to Docker daemon 15.01 MBSending build context to Docker daemon 15.56 MBSending build context to Docker daemon 16.12 MBSending build context to Docker daemon 16.68 MBSending build context to Docker daemon 17.24 MBSending build context to Docker daemon 17.79 MBSending build context to Docker daemon 18.35 MBSending build context to Docker daemon 18.91 MBSending build context to Docker daemon 19.46 MBSending build context to Docker daemon 20.02 MBSending build context to Docker daemon 20.58 MBSending build context to Docker daemon 21.14 MBSending build context to Docker daemon 21.69 MBSending build context to Docker daemon 22.25 MBSending build context to Docker daemon 22.81 MBSending build context to Docker daemon 23.36 MBSending build context to Docker daemon 23.92 MBSending build context to Docker daemon 24.48 MBSending build context to Docker daemon 25.03 MBSending build context to Docker daemon 25.59 MBSending build context to Docker daemon 26.15 MBSending build context to Docker daemon 26.71 MBSending build context to Docker daemon 27.26 MBSending build context to Docker daemon 27.82 MBSending build context to Docker daemon 28.38 MBSending build context to Docker daemon 28.93 MBSending build context to Docker daemon 29.49 MBSending build context to Docker daemon 30.05 MBSending build context to Docker daemon 30.61 MBSending build context to Docker daemon 31.16 MBSending build context to Docker daemon 31.72 MBSending build context to Docker daemon 32.28 MBSending build context to Docker daemon 32.83 MBSending build context to Docker daemon 33.39 MBSending build context to Docker daemon 33.95 MBSending build context to Docker daemon  34.5 MBSending build context to Docker daemon 35.06 MBSending build context to Docker daemon 35.62 MBSending build context to Docker daemon 36.18 MBSending build context to Docker daemon 36.73 MBSending build context to Docker daemon 37.29 MBSending build context to Docker daemon 37.85 MBSending build context to Docker daemon  38.4 MBSending build context to Docker daemon 38.96 MBSending build context to Docker daemon 39.52 MBSending build context to Docker daemon 40.08 MBSending build context to Docker daemon 40.63 MBSending build context to Docker daemon 41.19 MBSending build context to Docker daemon 41.75 MBSending build context to Docker daemon  42.3 MBSending build context to Docker daemon 42.86 MBSending build context to Docker daemon 43.42 MBSending build context to Docker daemon 43.97 MBSending build context to Docker daemon 44.53 MBSending build context to Docker daemon 45.09 MBSending build context to Docker daemon 45.65 MBSending build context to Docker daemon  46.2 MBSending build context to Docker daemon 46.76 MBSending build context to Docker daemon 47.32 MBSending build context to Docker daemon 47.87 MBSending build context to Docker daemon 48.43 MBSending build context to Docker daemon 48.99 MBSending build context to Docker daemon 49.55 MBSending build context to Docker daemon  50.1 MBSending build context to Docker daemon 50.66 MBSending build context to Docker daemon 51.22 MBSending build context to Docker daemon 51.77 MBSending build context to Docker daemon 52.33 MBSending build context to Docker daemon 52.89 MBSending build context to Docker daemon 53.44 MBSending build context to Docker daemon    54 MBSending build context to Docker daemon 54.56 MBSending build context to Docker daemon 55.12 MBSending build context to Docker daemon 55.67 MBSending build context to Docker daemon 56.23 MBSending build context to Docker daemon 56.79 MBSending build context to Docker daemon 57.34 MBSending build context to Docker daemon  57.9 MBSending build context to Docker daemon 58.46 MBSending build context to Docker daemon 59.02 MBSending build context to Docker daemon 59.57 MBSending build context to Docker daemon 60.13 MBSending build context to Docker daemon 60.69 MBSending build context to Docker daemon 61.24 MBSending build context to Docker daemon  61.8 MBSending build context to Docker daemon 62.36 MBSending build context to Docker daemon 62.91 MBSending build context to Docker daemon 63.47 MBSending build context to Docker daemon 64.03 MBSending build context to Docker daemon 64.59 MBSending build context to Docker daemon 65.14 MBSending build context to Docker daemon  65.7 MBSending build context to Docker daemon 66.26 MBSending build context to Docker daemon 66.81 MBSending build context to Docker daemon 67.37 MBSending build context to Docker daemon 67.93 MBSending build context to Docker daemon 68.49 MBSending build context to Docker daemon 69.04 MBSending build context to Docker daemon  69.6 MBSending build context to Docker daemon 70.16 MBSending build context to Docker daemon 70.71 MBSending build context to Docker daemon 71.27 MBSending build context to Docker daemon 71.83 MBSending build context to Docker daemon 72.38 MBSending build context to Docker daemon 72.94 MBSending build context to Docker daemon  73.5 MBSending build context to Docker daemon 74.06 MBSending build context to Docker daemon 74.61 MBSending build context to Docker daemon 75.17 MBSending build context to Docker daemon 75.73 MBSending build context to Docker daemon 76.28 MBSending build context to Docker daemon 76.84 MBSending build context to Docker daemon  77.4 MBSending build context to Docker daemon 77.96 MBSending build context to Docker daemon 78.51 MBSending build context to Docker daemon 79.07 MBSending build context to Docker daemon 79.63 MBSending build context to Docker daemon 80.18 MBSending build context to Docker daemon 80.74 MBSending build context to Docker daemon  81.3 MBSending build context to Docker daemon 81.85 MBSending build context to Docker daemon 82.41 MBSending build context to Docker daemon 82.97 MBSending build context to Docker daemon 83.53 MBSending build context to Docker daemon 84.08 MBSending build context to Docker daemon 84.64 MBSending build context to Docker daemon  85.2 MBSending build context to Docker daemon 85.75 MBSending build context to Docker daemon 86.31 MBSending build context to Docker daemon 86.87 MBSending build context to Docker daemon 87.43 MBSending build context to Docker daemon 87.98 MBSending build context to Docker daemon 88.52 MBSending build context to Docker daemon 89.04 MBSending build context to Docker daemon 89.59 MBSending build context to Docker daemon 90.11 MBSending build context to Docker daemon 90.64 MBSending build context to Docker daemon 91.17 MBSending build context to Docker daemon  91.7 MBSending build context to Docker daemon 92.24 MBSending build context to Docker daemon 92.77 MBSending build context to Docker daemon 93.32 MBSending build context to Docker daemon 93.87 MBSending build context to Docker daemon  94.4 MBSending build context to Docker daemon 94.93 MBSending build context to Docker daemon 95.49 MBSending build context to Docker daemon 96.04 MBSending build context to Docker daemon 96.57 MBSending build context to Docker daemon 97.09 MBSending build context to Docker daemon 97.65 MBSending build context to Docker daemon 98.21 MBSending build context to Docker daemon 98.73 MBSending build context to Docker daemon 99.28 MBSending build context to Docker daemon 99.81 MBSending build context to Docker daemon 100.3 MBSending build context to Docker daemon 100.9 MBSending build context to Docker daemon 101.4 MBSending build context to Docker daemon   102 MBSending build context to Docker daemon 102.5 MBSending build context to Docker daemon   103 MBSending build context to Docker daemon 103.6 MBSending build context to Docker daemon 104.1 MBSending build context to Docker daemon 104.6 MBSending build context to Docker daemon 105.2 MBSending build context to Docker daemon 105.7 MBSending build context to Docker daemon 106.2 MBSending build context to Docker daemon 106.7 MBSending build context to Docker daemon 107.3 MBSending build context to Docker daemon 107.8 MBSending build context to Docker daemon 108.3 MBSending build context to Docker daemon 108.9 MBSending build context to Docker daemon 109.4 MBSending build context to Docker daemon 109.9 MBSending build context to Docker daemon 110.5 MBSending build context to Docker daemon 111.1 MBSending build context to Docker daemon 111.6 MBSending build context to Docker daemon 112.2 MBSending build context to Docker daemon 112.7 MBSending build context to Docker daemon 113.3 MBSending build context to Docker daemon 113.8 MBSending build context to Docker daemon 114.4 MBSending build context to Docker daemon   115 MBSending build context to Docker daemon 115.5 MBSending build context to Docker daemon   116 MBSending build context to Docker daemon 116.5 MBSending build context to Docker daemon 117.1 MBSending build context to Docker daemon 117.6 MBSending build context to Docker daemon 118.1 MBSending build context to Docker daemon 118.7 MBSending build context to Docker daemon 118.8 MBSending build context to Docker daemon 118.8 MB
-Step 1 : FROM windowsservercore
- ---> 6801d964fda5
-Step 2 : ENV GOLANG_VERSION 1.5.3 GIT_VERSION 2.7.0 RSRC_COMMIT ba14da1f827188454a4591717fff29999010887f GOPATH C:/go;C:/go/src/github.com/docker/docker/vendor FROM_DOCKERFILE 1
- ---> Using cache
- ---> a932f7839b1d
-Step 3 : WORKDIR c:/windows/temp
- ---> Using cache
- ---> dc82b8daa106
-Step 4 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile make.zip http://downloads.sourceforge.net/project/mingw-w64/External%20binary%20packages%20%28Win64%20hosted%29/make/make-3.82.90-20111115.zip
- ---> Using cache
- ---> 5a4200330edb
-Step 5 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile gcc.zip http://downloads.sourceforge.net/project/tdm-gcc/TDM-GCC%205%20series/5.1.0-tdm64-1/gcc-5.1.0-tdm64-1-core.zip
- ---> Using cache
- ---> 1213159f00ba
-Step 6 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile runtime.zip http://downloads.sourceforge.net/project/tdm-gcc/MinGW-w64%20runtime/GCC%205%20series/mingw64runtime-v4-git20150618-gcc5-tdm64-1.zip
- ---> Using cache
- ---> 77dd28e78fc4
-Step 7 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile binutils.zip http://downloads.sourceforge.net/project/tdm-gcc/GNU%20binutils/binutils-2.25-tdm64-1.zip
- ---> Using cache
- ---> 600fc356c030
-Step 8 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile 7zsetup.exe http://www.7-zip.org/a/7z1514-x64.exe
- ---> Using cache
- ---> 8bc0c3d30522
-Step 9 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile lzma.7z http://www.7-zip.org/a/lzma1514.7z
- ---> Using cache
- ---> a889d423c6da
-Step 10 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile gitsetup.exe https://github.com/git-for-windows/git/releases/download/v%GIT_VERSION%.windows.1/Git-%GIT_VERSION%-64-bit.exe
- ---> Using cache
- ---> ea294d152b0f
-Step 11 : RUN powershell -command sleep 5; Invoke-WebRequest -UserAgent 'DockerCI' -outfile go.msi https://storage.googleapis.com/golang/go%GOLANG_VERSION%.windows-amd64.msi
- ---> Using cache
- ---> 6c2da58d9ca7
-Step 12 : RUN setx /M Path "c:\git\cmd;c:\git\bin;c:\git\usr\bin;%Path%;c:\gcc\bin;c:\7zip"
- ---> Using cache
- ---> 720c81bcabf5
-Step 13 : RUN powershell -command start-process .\gitsetup.exe -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=c:\git' -Wait
- ---> Using cache
- ---> 529f397101d2
-Step 14 : RUN powershell -command start-process .\7zsetup -ArgumentList '/S /D=c:/7zip' -Wait
- ---> Using cache
- ---> 5dcbdeed76d2
-Step 15 : RUN powershell -command start-process .\go.msi -ArgumentList '/quiet' -Wait
- ---> Using cache
- ---> 79353b06ba56
-Step 16 : RUN powershell -command Expand-Archive gcc.zip \gcc -Force
- ---> Using cache
- ---> acb060bbb4b6
-Step 17 : RUN powershell -command Expand-Archive runtime.zip \gcc -Force
- ---> Using cache
- ---> 254e6ce6c741
-Step 18 : RUN powershell -command Expand-Archive binutils.zip \gcc -Force
- ---> Using cache
- ---> a0e2df94f7bf
-Step 19 : RUN powershell -command 7z e lzma.7z bin/lzma.exe
- ---> Using cache
- ---> f5e2445d5817
-Step 20 : RUN powershell -command 7z x make.zip  make-3.82.90-20111115/bin_amd64/make.exe
- ---> Using cache
- ---> b764358661cc
-Step 21 : RUN powershell -command mv make-3.82.90-20111115/bin_amd64/make.exe /gcc/bin/
- ---> Using cache
- ---> 845bb0068555
-Step 22 : RUN powershell -command sleep 5 ; git clone https://github.com/akavel/rsrc.git c:\go\src\github.com\akavel\rsrc
- ---> Using cache
- ---> 48a059cd1878
-Step 23 : RUN cd c:/go/src/github.com/akavel/rsrc && git checkout -q %RSRC_COMMIT% && go install -v
- ---> Using cache
- ---> 09b0ca9b0203
-Step 24 : WORKDIR c:/
- ---> Using cache
- ---> 8be826c2d2e9
-Step 25 : COPY . /go/src/github.com/docker/docker
- ---> Using cache
- ---> 1648527360c4
-Successfully built 1648527360c4
-INFO: Building the test binary...
-
----> Making bundle: binary (in bundles/1.10.0-dev/binary)
-Building: bundles/1.10.0-dev/binary/docker-1.10.0-dev.exe
-Created binary: bundles/1.10.0-dev/binary/docker-1.10.0-dev.exe
-
-
--------------------------------------------------------------------------------
-   ROBOCOPY     ::     Robust File Copy for Windows                              
--------------------------------------------------------------------------------
-
-  Started : Monday, January 25, 2016 3:15:22 PM
-   Source : C:\go\src\github.com\docker\docker\bundles\1.10.0-dev\binary\
-     Dest : C:\target\binary\
-
-    Files : *.*
-	    
-  Options : *.* /DCOPY:DA /COPY:DAT /R:1000000 /W:30 
-
-------------------------------------------------------------------------------
-
-	                   4	C:\go\src\github.com\docker\docker\bundles\1.10.0-dev\binary\
-	    New File  		  27.3 m	docker-1.10.0-dev.exe  0.0%  3.6%  7.3% 10.9% 14.6% 18.2% 21.9% 25.5% 29.2% 32.8% 36.5% 40.1% 43.8% 47.4% 51.1% 54.8% 58.4% 62.1% 65.7% 69.4% 73.0% 76.7% 80.3% 84.0% 87.6% 91.3% 94.9% 98.6%100%  
-	    New File  		      56	docker-1.10.0-dev.exe.md5  0%  100%  
-	    New File  		      88	docker-1.10.0-dev.exe.sha256  0%  100%  
-	    New File  		  27.3 m	docker.exe  0.0%  3.6%  7.3% 10.9% 14.6% 18.2% 21.9% 25.5% 29.2% 32.8% 36.5% 40.1% 43.8% 47.4% 51.1% 54.8% 58.4% 62.1% 65.7% 69.4% 73.0% 76.7% 80.3% 84.0% 87.6% 91.3% 94.9% 98.6%100%  
-
-------------------------------------------------------------------------------
-
-               Total    Copied   Skipped  Mismatch    FAILED    Extras
-    Dirs :         1         0         1         0         0         0
-   Files :         4         4         0         0         0         0
-   Bytes :   54.74 m   54.74 m         0         0         0         0
-   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
-
-
-   Speed :           1171422163 Bytes/sec.
-   Speed :            67029.313 MegaBytes/min.
-   Ended : Monday, January 25, 2016 3:15:22 PM
-
-INFO: Linking the built binary to /c/CI/CI-c8efefc/docker-c8efefc...
-INFO: Starting a daemon under test...
-INFO: Process started successfully.
-INFO: Waiting for daemon under test to reply to ping...
-INFO: Daemon under test started and replied!
-INFO: Docker version of the daemon under test
-
-Client:
- Version:      1.10.0-dev
- API version:  1.23
- Go version:   go1.5.3
- Git commit:   c8efefc-unsupported
- Built:        Mon Jan 25 15:14:22 2016
- OS/Arch:      windows/amd64
-
-Server:
- Version:      1.10.0-dev
- API version:  1.23
- Go version:   go1.5.3
- Git commit:   c8efefc-unsupported
- Built:        Mon Jan 25 15:14:22 2016
- OS/Arch:      windows/amd64
-
-INFO: Docker info of the daemon under test
-
-Containers: 0
- Running: 0
- Paused: 0
- Stopped: 0
-Images: 1
-Server Version: 1.10.0-dev
-Storage Driver: windowsfilter
- Windows: 
-Execution Driver: 
- Name: Windows 1854
- Build: 1.10.0-dev c8efefc-unsupported 
- Default Isolation: process
-Logging Driver: json-file
-Plugins: 
- Volume: local
- Network: 
-Kernel Version: 10.0 10586 (10586.63.amd64fre.th2_release.160104-1513)
-Operating System: Windows Server 2016 Technical Preview 4 Standard
-OSType: windows
-Architecture: x86_64
-CPUs: 8
-Total Memory: 3.335 GiB
-Name: WIN-52B0VQKBQA4
-ID: 7FAD:QG5I:I2XC:CY7Q:7G2D:KQTT:RQ62:J5LM:VTJ3:XA3D:QM4F:S5C7
-Debug mode (server): true
- File Descriptors: -1
- Goroutines: 23
- System Time: 2016-01-25T15:15:25.0420293-08:00
- EventsListeners: 0
- Init SHA1: 
- Init Path: C:\CI\CI-c8efefc\binary\docker-c8efefc.exe
- Docker Root Dir: C:\CI\CI-c8efefc\daemon\graph
-
-INFO: Running validation tests...
-
----> Making bundle: validate-dco (in bundles/1.10.0-dev/validate-dco)
-Congratulations!  All commits are properly signed with the DCO!
-
----> Making bundle: validate-gofmt (in bundles/1.10.0-dev/validate-gofmt)
-Congratulations!  All Go source files are properly formatted.
-
----> Making bundle: validate-pkg (in bundles/1.10.0-dev/validate-pkg)
-Congratulations! "./pkg/..." is safely isolated from internal code.
-
----> Making bundle: validate-lint (in bundles/1.10.0-dev/validate-lint)
-Congratulations!  All Go source files have been linted.
-
----> Making bundle: validate-vet (in bundles/1.10.0-dev/validate-vet)
-Congratulations!  All Go source files have been vetted.
-
-INFO: Running unit tests...
-
----> Making bundle: test-unit (in bundles/1.10.0-dev/test-unit)
-Mon Jan 25 15:16:02 PST 2016
-ok  	github.com/docker/docker/api	0.101s	coverage: 92.5% of statements
-ok  	github.com/docker/docker/api/client	0.202s	coverage: 1.3% of statements
-ok  	github.com/docker/docker/api/client/formatter	0.141s	coverage: 99.4% of statements
-ok  	github.com/docker/docker/api/client/inspect	0.126s	coverage: 92.7% of statements
-# github.com/docker/docker/pkg/archive
-C:\Go\src\github.com\docker\docker\pkg\archive\archive_test.go:916: undefined: syscall.Stat_t
-C:\Go\src\github.com\docker\docker\pkg\archive\archive_test.go:929: undefined: syscall.Stat_t
-# github.com/docker/docker/daemon
-C:\Go\src\github.com\docker\docker\daemon\daemon_test.go:145: container.AppArmorProfile undefined (type *"github.com/docker/docker/container".Container has no field or method AppArmorProfile)
-C:\Go\src\github.com\docker\docker\daemon\daemon_test.go:146: container.AppArmorProfile undefined (type *"github.com/docker/docker/container".Container has no field or method AppArmorProfile)
-C:\Go\src\github.com\docker\docker\daemon\daemon_test.go:155: container.SeccompProfile undefined (type *"github.com/docker/docker/container".Container has no field or method SeccompProfile)
-C:\Go\src\github.com\docker\docker\daemon\daemon_test.go:156: container.SeccompProfile undefined (type *"github.com/docker/docker/container".Container has no field or method SeccompProfile)
-C:\Go\src\github.com\docker\docker\daemon\daemon_test.go:187: daemon.networkOptions undefined (type *Daemon has no field or method networkOptions)
-C:\Go\src\github.com\docker\docker\daemon\daemon_test.go:197: daemon.networkOptions undefined (type *Daemon has no field or method networkOptions)
-ok  	github.com/docker/docker/api/server	0.251s	coverage: 13.4% of statements
-ok  	github.com/docker/docker/api/server/httputils	0.085s	coverage: 19.5% of statements
-?   	github.com/docker/docker/api/server/router	[no test files]
-?   	github.com/docker/docker/api/server/router/build	[no test files]
-?   	github.com/docker/docker/api/server/router/container	[no test files]
-?   	github.com/docker/docker/api/server/router/local	[no test files]
-?   	github.com/docker/docker/api/server/router/network	[no test files]
-?   	github.com/docker/docker/api/server/router/system	[no test files]
-?   	github.com/docker/docker/api/server/router/volume	[no test files]
-?   	github.com/docker/docker/autogen/winresources	[no test files]
-ok  	github.com/docker/docker/builder	0.103s	coverage: 15.1% of statements
-ok  	github.com/docker/docker/builder/dockerfile	0.188s	coverage: 20.7% of statements
-?   	github.com/docker/docker/builder/dockerfile/command	[no test files]
-ok  	github.com/docker/docker/builder/dockerfile/parser	0.111s	coverage: 80.9% of statements
-?   	github.com/docker/docker/builder/dockerfile/parser/dumper	[no test files]
---- FAIL: TestReadAll (0.00s)
-	dockerignore_test.go:47: Second element is not /test2
-FAIL
-coverage: 92.9% of statements
-FAIL	github.com/docker/docker/builder/dockerignore	0.105s
-?   	github.com/docker/docker/cli	[no test files]
-ok  	github.com/docker/docker/cliconfig	0.193s	coverage: 91.8% of statements
-ok  	github.com/docker/docker/container	0.334s	coverage: 18.1% of statements
-?   	github.com/docker/docker/contrib/apparmor	[no test files]
-?   	github.com/docker/docker/contrib/docker-device-tool	[no test files]
-?   	github.com/docker/docker/contrib/httpserver	[no test files]
-FAIL	github.com/docker/docker/daemon [build failed]
-?   	github.com/docker/docker/daemon/daemonbuilder	[no test files]
-ok  	github.com/docker/docker/daemon/events	0.179s	coverage: 39.1% of statements
-?   	github.com/docker/docker/daemon/exec	[no test files]
-?   	github.com/docker/docker/daemon/execdriver	[no test files]
-?   	github.com/docker/docker/daemon/execdriver/execdrivers	[no test files]
-?   	github.com/docker/docker/daemon/execdriver/native	[no test files]
-?   	github.com/docker/docker/daemon/execdriver/native/template	[no test files]
-?   	github.com/docker/docker/daemon/execdriver/windows	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/aufs	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/btrfs	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/devmapper	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/graphtest	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/overlay	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/register	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/vfs	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/windows	[no test files]
-?   	github.com/docker/docker/daemon/graphdriver/zfs	[no test files]
-ok  	github.com/docker/docker/daemon/links	0.088s	coverage: 93.0% of statements
-ok  	github.com/docker/docker/daemon/logger	0.368s	coverage: 21.3% of statements
-ok  	github.com/docker/docker/daemon/logger/awslogs	0.194s	coverage: 77.2% of statements
-?   	github.com/docker/docker/daemon/logger/fluentd	[no test files]
-?   	github.com/docker/docker/daemon/logger/gelf	[no test files]
-?   	github.com/docker/docker/daemon/logger/journald	[no test files]
-ok  	github.com/docker/docker/daemon/logger/jsonfilelog	0.160s	coverage: 20.9% of statements
-ok  	github.com/docker/docker/daemon/logger/loggerutils	0.085s	coverage: 24.2% of statements
-?   	github.com/docker/docker/daemon/logger/splunk	[no test files]
-?   	github.com/docker/docker/daemon/logger/syslog	[no test files]
-?   	github.com/docker/docker/daemon/network	[no test files]
---- FAIL: TestFixManifestLayersBaseLayerParent (0.00s)
-	pull_v2_test.go:79: expected an invalid parent ID error from fixManifestLayers
---- FAIL: TestValidateManifest (0.00s)
-	pull_v2_test.go:123: error unmarshaling manifest: invalid character '\n' in string literal
-FAIL
-coverage: 6.1% of statements
-FAIL	github.com/docker/docker/distribution	0.166s
-ok  	github.com/docker/docker/distribution/metadata	0.677s	coverage: 65.0% of statements
-time="2016-01-25T15:16:37-08:00" level=error msg="Download failed, retrying: simulating retry" 
---- FAIL: TestSuccessfulDownload (5.60s)
-	download_test.go:267: download error: failed to register layer: layer does not exist
-time="2016-01-25T15:16:43-08:00" level=error msg="Upload failed, retrying: simulating retry" 
-FAIL
-coverage: 76.1% of statements
-FAIL	github.com/docker/docker/distribution/xfer	12.145s
-ok  	github.com/docker/docker/docker	0.225s	coverage: 23.2% of statements
-?   	github.com/docker/docker/dockerinit	[no test files]
-?   	github.com/docker/docker/dockerversion	[no test files]
-?   	github.com/docker/docker/errors	[no test files]
-ok  	github.com/docker/docker/image	0.184s	coverage: 86.0% of statements
-?   	github.com/docker/docker/image/tarexport	[no test files]
-?   	github.com/docker/docker/image/v1	[no test files]
---- FAIL: TestLayerRelease (0.07s)
-	layer_test.go:340: Layer1:  sha256:07cf084fc355e716df626c6eeec10de8332a39eff8319add6030115a2824c0b0
-	layer_test.go:341: Layer2:  sha256:f7a91c3054b33feb9ae3c94d6fd2f95b930c985a03f03beb9fc13c141ddbb405
-	layer_test.go:342: Layer3a: sha256:5498b34b0f7d396fb2d7713234edd9908aadd9cc6191f0f9368bcd7ee4ad2478
-	layer_test.go:343: Layer3b: sha256:5498b34b0f7d396fb2d7713234edd9908aadd9cc6191f0f9368bcd7ee4ad2478
-	layer_test.go:346: Unexpected number of layers 3, expected 4
---- FAIL: TestStoreRestore (0.08s)
-	layer_test.go:415: Expected error creating mount with same name
---- FAIL: TestLayerSize (0.03s)
-	layer_test.go:756: Unexpected diff size 0, expected 14
---- FAIL: TestLayerMigration (0.03s)
-	migration_test.go:105: rename C:\Windows\TEMP\migration-test-162087452\layers\tmp\layer-741672757 C:\Windows\TEMP\migration-test-162087452\layers\sha256\dcf7b405a9ba5adb133a9ffb24886d0bdb4c488f6366edbd1b691752dc3e7578: Access is denied.
---- FAIL: TestLayerMigrationNoTarsplit (0.05s)
-	migration_test.go:229: rename C:\Windows\TEMP\migration-test-179589904\layers\tmp\layer-162678585 C:\Windows\TEMP\migration-test-179589904\layers\sha256\dcf7b405a9ba5adb133a9ffb24886d0bdb4c488f6366edbd1b691752dc3e7578: Access is denied.
---- FAIL: TestMountMigration (0.06s)
-	mount_test.go:189: Unexpected change path \etc, expected /etc
---- FAIL: TestMountInit (0.02s)
-	mount_test.go:61: Unexpected filemode 666, expecting 777
---- FAIL: TestMountSize (0.03s)
-	mount_test.go:103: Unexpected mount size 51, expected 16
---- FAIL: TestMountChanges (0.03s)
-	mount_test.go:164: Wrong number of changes 3, expected 4
-FAIL
-coverage: 67.0% of statements
-FAIL	github.com/docker/docker/layer	0.738s
-time="2016-01-25T15:16:38-08:00" level=info msg="migrated tag busybox:latest to point to sha256:fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" 
-time="2016-01-25T15:16:38-08:00" level=info msg="migrated tag busybox:sha256:16a2a52884c2a9481ed267c2d46483eac7693b813a63132368ab098a71303f8a to point to sha256:fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" 
-time="2016-01-25T15:16:38-08:00" level=info msg="migrated tag registry:2 to point to sha256:2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae" 
-time="2016-01-25T15:16:38-08:00" level=error msg="image not migrated " 
-time="2016-01-25T15:16:38-08:00" level=info msg="migrated container f780ee3f80e66e9b432a57049597118a66aab8932be88e5628d4c824edbee37c to point to sha256:32ef8bbc595aad206c91d61fe6446f292852cf0d7c6baf00f0f8b9cd4069d6f6" 
---- FAIL: TestMigrateContainers (0.01s)
-	migratev1_test.go:112: invalid mounts: expected [{"f780ee3f80e66e9b432a57049597118a66aab8932be88e5628d4c824edbee37c" "f780ee3f80e66e9b432a57049597118a66aab8932be88e5628d4c824edbee37c" "sha256:c3191d32a37d7159b2e30830937d2e30268ad6c375a773a8994911a3aba9b93f"}], got [{"f780ee3f80e66e9b432a57049597118a66aab8932be88e5628d4c824edbee37c" "f780ee3f80e66e9b432a57049597118a66aab8932be88e5628d4c824edbee37c" "sha256:b0b802b0dfef29030cea4b538adee4f2e2e363a99b3f00189279d30ae54e2d87"}]
-time="2016-01-25T15:16:38-08:00" level=error msg="migration failed for f131556cc34149aa910afc02cb32c1cf3925fe3c43b3a7c5a77c729e649f1dff, err: invalid parent \"sha256:1a6e288d53333e27af2adbd83b49063b2c248125a9a7b263f1072b7bf04ad277\"" 
-time="2016-01-25T15:16:38-08:00" level=error msg="migration failed for e09404af24a39f325ef93c229fd620cc80ebae959601bca023e44bdf09c7dc75, err: invalid parent \"sha256:1a6e288d53333e27af2adbd83b49063b2c248125a9a7b263f1072b7bf04ad277\"" 
-time="2016-01-25T15:16:38-08:00" level=error msg="migration failed for f131556cc34149aa910afc02cb32c1cf3925fe3c43b3a7c5a77c729e649f1dff, err: invalid parent \"sha256:1a6e288d53333e27af2adbd83b49063b2c248125a9a7b263f1072b7bf04ad277\"" 
---- FAIL: TestMigrateImages (0.02s)
-	migratev1_test.go:182: invalid image mappings: expected map["f131556cc34149aa910afc02cb32c1cf3925fe3c43b3a7c5a77c729e649f1dff":"sha256:ca406eaf9c26898414ff5b7b3a023c33310759d6203be0663dbf1b3a712f432d" "e09404af24a39f325ef93c229fd620cc80ebae959601bca023e44bdf09c7dc75":"sha256:a488bec94bb96b26a968f913d25ef7d8d204d727ca328b52b4b059c7d03260b6"], got map[]
-FAIL
-coverage: 44.0% of statements
-FAIL	github.com/docker/docker/migrate/v1	0.130s
---- FAIL: TestParseHost (0.00s)
-	hosts_test.go:48: Expected for tcp:// [tcp://localhost:2375], got [tcp://127.0.0.1:2375, <nil>]
-FAIL
-coverage: 88.4% of statements
-FAIL	github.com/docker/docker/opts	0.106s
-ok  	github.com/docker/docker/pkg/aaparser	0.056s	coverage: 37.0% of statements
-FAIL	github.com/docker/docker/pkg/archive [build failed]
-time="2016-01-25T15:16:40-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 1s" 
-time="2016-01-25T15:16:41-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 2s" 
-time="2016-01-25T15:16:43-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 4s" 
-time="2016-01-25T15:16:47-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 8s" 
---- FAIL: TestAuthZRequestPluginError (15.01s)
-	authz_test.go:194: Failed to listen listen unix authzplugin.sock: socket: An address incompatible with the requested protocol was used.
-	authz_test.go:42: Failed to authorize request Post http://%2FC:%5CGo%5Csrc%5Cgithub.com%5Cdocker%5Cdocker%5Cpkg%5Cauthorization%2Fauthzplugin.sock/AuthZPlugin.AuthZReq: dial unix /C:\Go\src\github.com\docker\docker\pkg\authorization/authzplugin.sock: socket: An address incompatible with the requested protocol was used.
-time="2016-01-25T15:16:55-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 1s" 
-time="2016-01-25T15:16:56-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 2s" 
-time="2016-01-25T15:16:58-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 4s" 
-time="2016-01-25T15:17:02-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 8s" 
---- FAIL: TestAuthZRequestPlugin (15.00s)
-	authz_test.go:194: Failed to listen listen unix authzplugin.sock: socket: An address incompatible with the requested protocol was used.
-	authz_test.go:74: Failed to authorize request Post http://%2FC:%5CGo%5Csrc%5Cgithub.com%5Cdocker%5Cdocker%5Cpkg%5Cauthorization%2Fauthzplugin.sock/AuthZPlugin.AuthZReq: dial unix /C:\Go\src\github.com\docker\docker\pkg\authorization/authzplugin.sock: socket: An address incompatible with the requested protocol was used.
-time="2016-01-25T15:17:10-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 1s" 
-time="2016-01-25T15:17:11-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 2s" 
-time="2016-01-25T15:17:13-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 4s" 
-time="2016-01-25T15:17:17-08:00" level=warning msg="Unable to connect to plugin: /C:\\Go\\src\\github.com\\docker\\docker\\pkg\\authorization/authzplugin.sock, retrying in 8s" 
---- FAIL: TestAuthZResponsePlugin (15.01s)
-	authz_test.go:194: Failed to listen listen unix authzplugin.sock: socket: An address incompatible with the requested protocol was used.
-	authz_test.go:103: Failed to authorize request Post http://%2FC:%5CGo%5Csrc%5Cgithub.com%5Cdocker%5Cdocker%5Cpkg%5Cauthorization%2Fauthzplugin.sock/AuthZPlugin.AuthZRes: dial unix /C:\Go\src\github.com\docker\docker\pkg\authorization/authzplugin.sock: socket: An address incompatible with the requested protocol was used.
-FAIL
-coverage: 25.5% of statements
-FAIL	github.com/docker/docker/pkg/authorization	45.149s
-ok  	github.com/docker/docker/pkg/broadcaster	0.050s	coverage: 100.0% of statements
---- FAIL: TestChrootTarUntarWithSymlink (0.03s)
-	archive_test.go:171: Unexpected differences after untar: [{\file-1-link C} {\file-3 C} {\file-3-link C} {\file-5-link C} {\file-7-link C} {\file-8 C} {\file-6 C} {\file-9-link C} {\file-1 C} {\file-2 C} {\file-2-link C} {\file-4 C} {\file-4-link C} {\file-5 C} {\file-0 C} {\file-6-link C} {\file-7 C} {\file-9 C} {\file-0-link C} {\file-8-link C}]
---- FAIL: TestChrootCopyWithTar (0.05s)
-	archive_test.go:195: Unexpected differences after untar: [{\file-6 C} {\file-6-link C} {\file-7-link C} {\file-1 C} {\file-1-link C} {\file-4 C} {\file-4-link C} {\file-0 C} {\file-0-link C} {\file-3 C} {\file-3-link C} {\file-5 C} {\file-5-link C} {\file-7 C} {\file-9-link C} {\file-9 C} {\file-2 C} {\file-2-link C} {\file-8 C} {\file-8-link C}]
---- FAIL: TestChrootUntarPath (0.07s)
-	archive_test.go:298: Unexpected differences after untar: [{\file-2 C} {\file-3 C} {\file-4-link C} {\file-6 C} {\file-8-link C} {\file-1-link C} {\file-5 C} {\file-0 C} {\file-2-link C} {\file-5-link C} {\file-6-link C} {\file-7 C} {\file-7-link C} {\file-8 C} {\file-9 C} {\file-1 C} {\file-9-link C} {\file-3-link C} {\file-4 C} {\file-0-link C}]
-FAIL
-coverage: 83.0% of statements
-FAIL	github.com/docker/docker/pkg/chrootarchive	0.511s
-?   	github.com/docker/docker/pkg/devicemapper	[no test files]
-ok  	github.com/docker/docker/pkg/directory	0.112s	coverage: 82.6% of statements
-ok  	github.com/docker/docker/pkg/discovery	0.099s	coverage: 58.3% of statements
-ok  	github.com/docker/docker/pkg/discovery/file	0.126s	coverage: 97.7% of statements
-ok  	github.com/docker/docker/pkg/discovery/kv	0.232s	coverage: 84.1% of statements
-ok  	github.com/docker/docker/pkg/discovery/memory	0.097s	coverage: 78.1% of statements
-ok  	github.com/docker/docker/pkg/discovery/nodes	0.102s	coverage: 93.8% of statements
---- FAIL: TestPollerEvent (0.41s)
-	poller_test.go:75: remove C:\Windows\TEMP\test-poller681447102: The process cannot access the file because it is being used by another process.
-FAIL
-coverage: 62.2% of statements
-FAIL	github.com/docker/docker/pkg/filenotify	0.494s
---- FAIL: TestReadSymlinkedDirectoryExistingDirectory (0.00s)
-	fileutils_test.go:130: failed to create directory: mkdir /tmp/testReadSymlinkToExistingDirectory: The system cannot find the path specified.
-	fileutils_test.go:134: failed to create symlink: symlink \tmp\testReadSymlinkToExistingDirectory /tmp/dirLinkTest: The system cannot find the path specified.
-	fileutils_test.go:139: failed to read symlink to directory: failed to canonicalise path for /tmp/dirLinkTest: GetFileAttributesEx C:\tmp: The system cannot find the file specified.
---- FAIL: TestReadSymlinkedDirectoryToFile (0.00s)
-	fileutils_test.go:174: failed to create file: open /tmp/testReadSymlinkToFile: The system cannot find the path specified.
---- FAIL: TestMatches (0.00s)
-	fileutils_test.go:375: Failed: {**/ file true} - res:false
---- FAIL: TestCleanPatternsFolderSplit (0.00s)
-panic: runtime error: index out of range [recovered]
-	panic: runtime error: index out of range
-
-goroutine 46 [running]:
-testing.tRunner.func1(0xc08209f8c0)
-	C:/Go/src/testing/testing.go:450 +0x178
-github.com/docker/docker/pkg/fileutils.TestCleanPatternsFolderSplit(0xc08209f8c0)
-	C:/Go/src/github.com/docker/docker/pkg/fileutils/fileutils_test.go:433 +0x49b
-testing.tRunner(0xc08209f8c0, 0x6dcd20)
-	C:/Go/src/testing/testing.go:456 +0x9f
-created by testing.RunTests
-	C:/Go/src/testing/testing.go:561 +0x874
-
-goroutine 1 [chan receive]:
-testing.RunTests(0x63a128, 0x6dca80, 0x20, 0x20, 0xc082082700)
-	C:/Go/src/testing/testing.go:562 +0x8b4
-testing.(*M).Run(0xc082035ee8, 0x6df540)
-	C:/Go/src/testing/testing.go:494 +0x77
-main.main()
-	github.com/docker/docker/pkg/fileutils/_test/_testmain.go:164 +0x259
-FAIL	github.com/docker/docker/pkg/fileutils	0.087s
---- FAIL: TestCheckoutGit (0.58s)
-	gitutils_test.go:115: exit status 128
-FAIL
-coverage: 33.3% of statements
-FAIL	github.com/docker/docker/pkg/gitutils	0.644s
---- FAIL: TestChildren (0.05s)
-	graphdb_test.go:141: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestListAllRootChildren (0.04s)
-	graphdb_test.go:182: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestListAllSubChildren (0.10s)
-	graphdb_test.go:201: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestAddSelfAsChild (0.03s)
-	graphdb_test.go:239: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestWalkAll (0.05s)
-	graphdb_test.go:264: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestGetEntityByPath (0.04s)
-	graphdb_test.go:310: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestEnitiesPaths (0.02s)
-	graphdb_test.go:357: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestDeleteEntity (0.04s)
-	graphdb_test.go:410: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestCountRefs (0.06s)
-	graphdb_test.go:459: Expect reference count to be 1
---- FAIL: TestPurgeId (0.04s)
-	graphdb_test.go:476: Expect reference count to be 1, got 6
---- FAIL: TestPurgeIdRefPaths (0.02s)
-	graphdb_test.go:502: Expected 2 reference for webapp, got 6
---- FAIL: TestRename (0.03s)
-	graphdb_test.go:536: Expect reference count to be 1
---- FAIL: TestCreateMultipleNames (0.04s)
-	graphdb_test.go:564: UNIQUE constraint failed: edge.parent_id, edge.name
---- FAIL: TestExistsFalse (0.08s)
-	graphdb_test.go:606: /tesing should not exist
---- FAIL: TestConcurrentWrites (0.03s)
-	graphdb_test.go:651: UNIQUE constraint failed: edge.parent_id, edge.name
-FAIL
-coverage: 47.0% of statements
-FAIL	github.com/docker/docker/pkg/graphdb	2.781s
-ok  	github.com/docker/docker/pkg/homedir	0.102s	coverage: 63.6% of statements
-ok  	github.com/docker/docker/pkg/httputils	10.116s	coverage: 98.4% of statements
-?   	github.com/docker/docker/pkg/idtools	[no test files]
-
-----------------------------------------------------------------------
-FAIL: dockerCmd_utils_test.go:219: DockerCmdSuite.TestDockerCmdInDir
-
-dockerCmd_utils_test.go:261:
-    c.Assert(error.Error(), check.Equals, cmd.expectedError.Error(), check.Commentf("Expected error %q for arguments %v, got %q", cmd.expectedError.Error(), cmd.args, error.Error()))
-... obtained string = "\"dir:C:\\\\Windows\\\\TEMP\\\\test-docker-cmd-in-dir866402899\" failed with errors: exit status 1 : \"Command doesnotexists not found.\""
-... expected string = "\"dir:C:\\Windows\\TEMP\\test-docker-cmd-in-dir866402899\" failed with errors: exit status 1 : \"Command doesnotexists not found.\""
-... Expected error "\"dir:C:\\Windows\\TEMP\\test-docker-cmd-in-dir866402899\" failed with errors: exit status 1 : \"Command doesnotexists not found.\"" for arguments [], got "\"dir:C:\\\\Windows\\\\TEMP\\\\test-docker-cmd-in-dir866402899\" failed with errors: exit status 1 : \"Command doesnotexists not found.\""
-
-
-----------------------------------------------------------------------
-FAIL: dockerCmd_utils_test.go:270: DockerCmdSuite.TestDockerCmdInDirWithTimeout
-
-dockerCmd_utils_test.go:324:
-    c.Assert(error.Error(), check.Equals, cmd.expectedError.Error(), check.Commentf("Expected error %q for arguments %v, got %q", cmd.expectedError.Error(), cmd.args, error.Error()))
-... obtained string = "\"dir:C:\\\\Windows\\\\TEMP\\\\test-docker-cmd-in-dir734614422\" failed with errors: exit status 1 : \"Command doesnotexists not found.\""
-... expected string = "\"dir:C:\\Windows\\TEMP\\test-docker-cmd-in-dir734614422\" failed with errors: exit status 1 : \"Command doesnotexists not found.\""
-... Expected error "\"dir:C:\\Windows\\TEMP\\test-docker-cmd-in-dir734614422\" failed with errors: exit status 1 : \"Command doesnotexists not found.\"" for arguments [], got "\"dir:C:\\\\Windows\\\\TEMP\\\\test-docker-cmd-in-dir734614422\" failed with errors: exit status 1 : \"Command doesnotexists not found.\""
-
-OOPS: 6 passed, 2 FAILED
---- FAIL: Test (0.46s)
---- FAIL: TestIsKilledFalseWithNonKilledProcess (0.02s)
-	utils_test.go:21: Expected the ls command to not be killed, was.
---- FAIL: TestIsKilledTrueWithKilledProcess (0.01s)
-panic: runtime error: invalid memory address or nil pointer dereference [recovered]
-	panic: runtime error: invalid memory address or nil pointer dereference
-[signal 0xc0000005 code=0x1 addr=0x0 pc=0x460e79]
-
-goroutine 70 [running]:
-testing.tRunner.func1(0xc0821ae7e0)
-	C:/Go/src/testing/testing.go:450 +0x178
-os.(*Process).signal(0x0, 0xfd0078, 0xc08200e1d0, 0x0, 0x0)
-	C:/Go/src/os/exec_windows.go:58 +0x289
-os.(*Process).Signal(0x0, 0xfd0078, 0xc08200e1d0, 0x0, 0x0)
-	C:/Go/src/os/doc.go:51 +0x48
-os.(*Process).kill(0x0, 0x0, 0x0)
-	C:/Go/src/os/exec_posix.go:53 +0x4c
-os.(*Process).Kill(0x0, 0x0, 0x0)
-	C:/Go/src/os/doc.go:36 +0x34
-github.com/docker/docker/pkg/integration.TestIsKilledTrueWithKilledProcess(0xc0821ae7e0)
-	C:/Go/src/github.com/docker/docker/pkg/integration/utils_test.go:35 +0xba
-testing.tRunner(0xc0821ae7e0, 0x816308)
-	C:/Go/src/testing/testing.go:456 +0x9f
-created by testing.RunTests
-	C:/Go/src/testing/testing.go:561 +0x874
-
-goroutine 1 [chan receive]:
-testing.RunTests(0x739ea8, 0x8162c0, 0x1d, 0x1d, 0xc082064700)
-	C:/Go/src/testing/testing.go:562 +0x8b4
-testing.(*M).Run(0xc082035ee8, 0x818960)
-	C:/Go/src/testing/testing.go:494 +0x77
-main.main()
-	github.com/docker/docker/pkg/integration/_test/_testmain.go:158 +0x259
-FAIL	github.com/docker/docker/pkg/integration	0.536s
-?   	github.com/docker/docker/pkg/integration/checker	[no test files]
-ok  	github.com/docker/docker/pkg/ioutils	0.680s	coverage: 61.5% of statements
-ok  	github.com/docker/docker/pkg/jsonlog	0.069s	coverage: 87.3% of statements
-ok  	github.com/docker/docker/pkg/jsonmessage	0.050s	coverage: 93.1% of statements
-ok  	github.com/docker/docker/pkg/locker	0.070s	coverage: 88.9% of statements
-ok  	github.com/docker/docker/pkg/longpath	0.035s	coverage: 100.0% of statements
-ok  	github.com/docker/docker/pkg/mflag	0.054s	coverage: 65.1% of statements
-?   	github.com/docker/docker/pkg/mflag/example	[no test files]
---- FAIL: TestMountOptionsParsing (0.00s)
-	mount_test.go:15: Expected size=10 got noatime,ro,size=10k
---- FAIL: TestMounted (0.00s)
-panic: Not implemented [recovered]
-	panic: Not implemented
-
-goroutine 7 [running]:
-testing.tRunner.func1(0xc082074090)
-	C:/Go/src/testing/testing.go:450 +0x178
-github.com/docker/docker/pkg/mount.mount(0xc0820601e0, 0x22, 0xc082060240, 0x22, 0x5a75b0, 0x4, 0x0, 0xc08200e800, 0x7, 0x0, ...)
-	github.com/docker/docker/pkg/mount/_test/_obj_test/mounter_unsupported.go:7 +0x88
-github.com/docker/docker/pkg/mount.ForceMount(0xc0820601e0, 0x22, 0xc082060240, 0x22, 0x5a75b0, 0x4, 0x5a68d8, 0x7, 0x0, 0x0)
-	github.com/docker/docker/pkg/mount/_test/_obj_test/mount.go:60 +0xcc
-github.com/docker/docker/pkg/mount.Mount(0xc0820601e0, 0x22, 0xc082060240, 0x22, 0x5a75b0, 0x4, 0x5a68d8, 0x7, 0x0, 0x0)
-	github.com/docker/docker/pkg/mount/_test/_obj_test/mount.go:50 +0x125
-github.com/docker/docker/pkg/mount.TestMounted(0xc082074090)
-	C:/Go/src/github.com/docker/docker/pkg/mount/mount_test.go:55 +0x807
-testing.tRunner(0xc082074090, 0x67db98)
-	C:/Go/src/testing/testing.go:456 +0x9f
-created by testing.RunTests
-	C:/Go/src/testing/testing.go:561 +0x874
-
-goroutine 1 [chan receive]:
-testing.RunTests(0x5f08d0, 0x67db80, 0x4, 0x4, 0xc08205c200)
-	C:/Go/src/testing/testing.go:562 +0x8b4
-testing.(*M).Run(0xc082035ee8, 0x6801e0)
-	C:/Go/src/testing/testing.go:494 +0x77
-main.main()
-	github.com/docker/docker/pkg/mount/_test/_testmain.go:116 +0x259
-FAIL	github.com/docker/docker/pkg/mount	0.077s
-ok  	github.com/docker/docker/pkg/namesgenerator	0.058s	coverage: 85.7% of statements
-?   	github.com/docker/docker/pkg/namesgenerator/cmd/names-generator	[no test files]
-ok  	github.com/docker/docker/pkg/parsers	0.054s	coverage: 100.0% of statements
-?   	github.com/docker/docker/pkg/parsers/kernel	[no test files]
-?   	github.com/docker/docker/pkg/parsers/operatingsystem	[no test files]
-ok  	github.com/docker/docker/pkg/pidfile	0.062s	coverage: 57.1% of statements
-?   	github.com/docker/docker/pkg/platform	[no test files]
---- FAIL: TestLocalSocket (0.00s)
-	discovery_test.go:44: listen unix C:\Windows\TEMP\docker-test256646459\echo.sock: socket: An address incompatible with the requested protocol was used.
-FAIL
-coverage: 36.0% of statements
-FAIL	github.com/docker/docker/pkg/plugins	1.138s
-ok  	github.com/docker/docker/pkg/plugins/pluginrpc-gen	0.102s	coverage: 50.4% of statements
-?   	github.com/docker/docker/pkg/plugins/pluginrpc-gen/fixtures	[no test files]
-ok  	github.com/docker/docker/pkg/pools	0.146s	coverage: 87.9% of statements
-ok  	github.com/docker/docker/pkg/progress	0.098s	coverage: 79.2% of statements
-?   	github.com/docker/docker/pkg/promise	[no test files]
-ok  	github.com/docker/docker/pkg/proxy	0.051s	coverage: 79.2% of statements
-ok  	github.com/docker/docker/pkg/pubsub	1.102s	coverage: 85.3% of statements
-ok  	github.com/docker/docker/pkg/random	0.041s	coverage: 38.1% of statements
-?   	github.com/docker/docker/pkg/reexec	[no test files]
-ok  	github.com/docker/docker/pkg/registrar	0.057s	coverage: 84.8% of statements
-?   	github.com/docker/docker/pkg/signal	[no test files]
-ok  	github.com/docker/docker/pkg/stdcopy	0.061s	coverage: 100.0% of statements
-ok  	github.com/docker/docker/pkg/streamformatter	0.083s	coverage: 42.2% of statements
-ok  	github.com/docker/docker/pkg/stringid	0.066s	coverage: 80.0% of statements
-ok  	github.com/docker/docker/pkg/stringutils	0.088s	coverage: 100.0% of statements
---- FAIL: TestFollowSymlinkRootScope (0.00s)
-	fs_test.go:297: evalSymlinksInScope: Windows\TEMP\TestFollowSymlinkRootScope372185690 is not in C:\
---- FAIL: TestFollowSymlinkEmpty (0.00s)
-	fs_test.go:307: The filename, directory name, or volume label syntax is incorrect.
-FAIL
-coverage: 35.0% of statements
-FAIL	github.com/docker/docker/pkg/symlink	0.206s
-ok  	github.com/docker/docker/pkg/sysinfo	0.067s	coverage: 71.4% of statements
-ok  	github.com/docker/docker/pkg/system	0.095s	coverage: 9.9% of statements
-ok  	github.com/docker/docker/pkg/tailfile	0.075s	coverage: 61.8% of statements
-ok  	github.com/docker/docker/pkg/tarsum	0.188s	coverage: 90.3% of statements
-ok  	github.com/docker/docker/pkg/term	0.069s	coverage: 9.7% of statements
-ok  	github.com/docker/docker/pkg/term/windows	0.077s	coverage: 0.0% of statements
-?   	github.com/docker/docker/pkg/tlsconfig	[no test files]
-ok  	github.com/docker/docker/pkg/truncindex	0.066s	coverage: 93.5% of statements
-ok  	github.com/docker/docker/pkg/urlutil	0.062s	coverage: 90.0% of statements
-ok  	github.com/docker/docker/pkg/useragent	0.061s	coverage: 88.9% of statements
-ok  	github.com/docker/docker/pkg/version	0.054s	coverage: 71.4% of statements
-ok  	github.com/docker/docker/reference	0.130s	coverage: 91.5% of statements
-ok  	github.com/docker/docker/registry	17.078s	coverage: 51.7% of statements
-ok  	github.com/docker/docker/runconfig	0.123s	coverage: 55.6% of statements
-ok  	github.com/docker/docker/runconfig/opts	0.210s	coverage: 77.4% of statements
-ok  	github.com/docker/docker/utils	0.165s	coverage: 13.1% of statements
-ok  	github.com/docker/docker/volume	0.160s	coverage: 55.8% of statements
-ok  	github.com/docker/docker/volume/drivers	15.255s	coverage: 46.4% of statements
---- FAIL: TestRemove (0.00s)
-	local_test.go:27: Unable to remove a directory of out the Docker root C:\Windows\TEMP\local-volume-test856728243: C:\Windows\Temp\local-volume-test856728243\volumes\testing\_data
-FAIL
-coverage: 60.0% of statements
-FAIL	github.com/docker/docker/volume/local	0.224s
-ok  	github.com/docker/docker/volume/store	15.145s	coverage: 57.3% of statements
-?   	github.com/docker/docker/volume/testutils	[no test files]
-ERROR: Unit tests failed.
-
-
-		-----------------------------------------
-		IGNORING UNIT TEST FAILURES ON WINDOWS.
-		These need fixing. @jhowardmsft Jan 2016.
- 		PRs are welcome :)
-		-----------------------------------------
-
-
-INFO: Running integration tests...
-
-bundles/1.10.0-dev already exists. Removing.
-
----> Making bundle: test-integration-cli (in bundles/1.10.0-dev/test-integration-cli)
----> Making bundle: .integration-daemon-start (in bundles/1.10.0-dev/test-integration-cli)
-INFO: Waiting for daemon to start...
-
----> Making bundle: .integration-daemon-setup (in bundles/1.10.0-dev/test-integration-cli)
----> Making bundle: .detect-daemon-osarch (in bundles/1.10.0-dev/test-integration-cli)
----> Making bundle: .ensure-frozen-images-windows (in bundles/1.10.0-dev/test-integration-cli)
-INFO: Tagged windowsservercore:10.0.10586.0 with latest
-INFO: Building busybox
-Downloading build context from remote url: https://raw.githubusercontent.com/jhowardmsft/busybox/master/Dockerfile    719 B
-Sending build context to Docker daemon  2.56 kB
-Step 1 : FROM windowsservercore
- ---> efc12fd2d2ec
-Step 2 : RUN mkdir C:\busybox
- ---> Running in e799b38647f2
- ---> 27c15092309f
-Removing intermediate container e799b38647f2
-Step 3 : ADD http://frippery.org/files/busybox/busybox.exe /busybox/
-
- ---> 4ebf63ba9cca
-Removing intermediate container b6b05d70c02c
-Step 4 : RUN setx /M PATH "C:\busybox;%PATH%"
- ---> Running in a6429761dbbc
-
-SUCCESS: Specified value was saved.
- ---> 922b52288e25
-Removing intermediate container a6429761dbbc
-Step 5 : RUN powershell busybox.exe --list ^|%{$nul = cmd /c mklink C:\busybox\$_.exe busybox.exe}
- ---> Running in 025ade7da56b
- ---> d0467e5fbdfe
-Removing intermediate container 025ade7da56b
-Step 6 : ENTRYPOINT C:/busybox/busybox.exe
- ---> Running in c478390d9c8f
- ---> 0c3dd7078356
-Removing intermediate container c478390d9c8f
-Successfully built 0c3dd7078356
-+ go test -test.timeout=120m -check.v github.com/docker/docker/integration-cli
-INFO: Testing against a local daemon
-PASS: docker_api_test.go:51: DockerSuite.TestApiClientVersionNewerThanServer	0.002s
-PASS: docker_api_test.go:65: DockerSuite.TestApiClientVersionOldNotSupported	0.001s
-SKIP: docker_api_network_test.go:222: DockerSuite.TestApiCreateDeletePredefinedNetworks (Test requires a Linux daemon)
-PASS: docker_api_create_test.go:11: DockerSuite.TestApiCreateWithNotExistImage	0.002s
-PASS: docker_api_test.go:79: DockerSuite.TestApiDockerApiVersion	0.067s
-PASS: docker_api_test.go:24: DockerSuite.TestApiGetEnabledCors	0.000s
-SKIP: docker_api_images_test.go:74: DockerSuite.TestApiImagesDelete (Test requires a Linux daemon)
-SKIP: docker_api_images_test.go:14: DockerSuite.TestApiImagesFilter (Test requires a Linux daemon)
-SKIP: docker_api_images_test.go:97: DockerSuite.TestApiImagesHistory (Test requires a Linux daemon)
-SKIP: docker_api_images_test.go:51: DockerSuite.TestApiImagesSaveAndLoad (Test requires a Linux daemon)
-PASS: docker_api_images_test.go:119: DockerSuite.TestApiImagesSearchJSONContentType	0.887s
-SKIP: docker_api_network_test.go:122: DockerSuite.TestApiNetworkConnectDisconnect (Test requires a Linux daemon)
-SKIP: docker_api_network_test.go:43: DockerSuite.TestApiNetworkCreateCheckDuplicate (Test requires a Linux daemon)
-SKIP: docker_api_network_test.go:27: DockerSuite.TestApiNetworkCreateDelete (Test requires a Linux daemon)
-SKIP: docker_api_network_test.go:66: DockerSuite.TestApiNetworkFilter (Test requires a Linux daemon)
-SKIP: docker_api_network_test.go:18: DockerSuite.TestApiNetworkGetDefaults (Test requires a Linux daemon)
-SKIP: docker_api_network_test.go:72: DockerSuite.TestApiNetworkInspect (Test requires a Linux daemon)
-SKIP: docker_api_network_test.go:163: DockerSuite.TestApiNetworkIpamMultipleBridgeNetworks (Test requires a Linux daemon)
-PASS: docker_api_test.go:18: DockerSuite.TestApiOptionsRoute	0.003s
-SKIP: docker_api_stats_test.go:224: DockerSuite.TestApiStatsContainerNotFound (Test requires a Linux daemon)
-SKIP: docker_api_stats_test.go:82: DockerSuite.TestApiStatsNetworkStats (Test requires a Linux daemon)
-SKIP: docker_api_stats_test.go:128: DockerSuite.TestApiStatsNetworkStatsVersioning (Test requires a Linux daemon)
-SKIP: docker_api_stats_test.go:21: DockerSuite.TestApiStatsNoStreamGetCpu (Test requires a Linux daemon)
-SKIP: docker_api_stats_test.go:46: DockerSuite.TestApiStatsStoppedContainerInGoroutines (Test requires a Linux daemon)
-PASS: docker_api_test.go:36: DockerSuite.TestApiVersionStatusCode	0.001s
-SKIP: docker_cli_run_test.go:3350: DockerSuite.TestAppArmorDeniesChmodProc (Test requires apparmor is enabled.)
-SKIP: docker_cli_run_test.go:3328: DockerSuite.TestAppArmorDeniesPtrace (Test requires apparmor is enabled.)
-SKIP: docker_cli_run_test.go:3340: DockerSuite.TestAppArmorTraceSelf (Test requires a Linux daemon)
-SKIP: docker_cli_attach_test.go:124: DockerSuite.TestAttachDisconnect (Test requires a Linux daemon)
-SKIP: docker_cli_attach_test.go:18: DockerSuite.TestAttachMultipleAndRestart (Test requires a Linux daemon)
-SKIP: docker_cli_attach_test.go:155: DockerSuite.TestAttachPausedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_attach_test.go:89: DockerSuite.TestAttachTTYWithoutStdin (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1573: DockerSuite.TestBuildAddBadLinks (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1660: DockerSuite.TestBuildAddBadLinksVolume (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4114: DockerSuite.TestBuildAddBrokenTar (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2740: DockerSuite.TestBuildAddCurrentDirWithCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2798: DockerSuite.TestBuildAddCurrentDirWithoutCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1267: DockerSuite.TestBuildAddDirContentToExistingDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1243: DockerSuite.TestBuildAddDirContentToRoot (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1321: DockerSuite.TestBuildAddEtcToRoot (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3158: DockerSuite.TestBuildAddFileNotFound (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:970: DockerSuite.TestBuildAddFileWithWhitespace (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2953: DockerSuite.TestBuildAddLocalAndRemoteFilesWithCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3038: DockerSuite.TestBuildAddLocalAndRemoteFilesWithoutCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2618: DockerSuite.TestBuildAddLocalFileWithCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2678: DockerSuite.TestBuildAddLocalFileWithoutCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:838: DockerSuite.TestBuildAddMultipleFilesToFile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:882: DockerSuite.TestBuildAddMultipleFilesToFileWild (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1042: DockerSuite.TestBuildAddMultipleFilesToFileWithWhitespace (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2649: DockerSuite.TestBuildAddMultipleLocalFileWithCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4166: DockerSuite.TestBuildAddNonTar (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1340: DockerSuite.TestBuildAddPreservesFilesSpecialBits (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2891: DockerSuite.TestBuildAddRemoteFileMTime (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2826: DockerSuite.TestBuildAddRemoteFileWithCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2858: DockerSuite.TestBuildAddRemoteFileWithoutCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4033: DockerSuite.TestBuildAddScript (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:767: DockerSuite.TestBuildAddSingleFileToExistDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1217: DockerSuite.TestBuildAddSingleFileToNonExistingDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:714: DockerSuite.TestBuildAddSingleFileToRoot (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:740: DockerSuite.TestBuildAddSingleFileToWorkdir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4056: DockerSuite.TestBuildAddTar (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4187: DockerSuite.TestBuildAddTarXz (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4242: DockerSuite.TestBuildAddTarXzGz (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3313: DockerSuite.TestBuildAddToSymlinkDest (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1293: DockerSuite.TestBuildAddWholeDirToRoot (Test requires a Linux daemon)
-SKIP: docker_api_build_test.go:181: DockerSuite.TestBuildApiBuildGitWithF (Test requires a Linux daemon)
-SKIP: docker_api_build_test.go:45: DockerSuite.TestBuildApiDockerFileRemote (Test requires a Linux daemon)
-PASS: docker_api_build_test.go:12: DockerSuite.TestBuildApiDockerfilePath	0.005s
-PASS: docker_api_build_test.go:227: DockerSuite.TestBuildApiDockerfileSymlink	0.008s
-SKIP: docker_api_build_test.go:204: DockerSuite.TestBuildApiDoubleDockerfile (Test requires posix utilities or functionality to run.)
-SKIP: docker_api_build_test.go:161: DockerSuite.TestBuildApiLowerDockerfile (Test requires a Linux daemon)
-SKIP: docker_api_build_test.go:71: DockerSuite.TestBuildApiRemoteTarballContext (Test requires a Linux daemon)
-SKIP: docker_api_build_test.go:105: DockerSuite.TestBuildApiRemoteTarballContextWithCustomDockerfile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5716: DockerSuite.TestBuildBadCmdFlag (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5880: DockerSuite.TestBuildBuildTimeArg (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6247: DockerSuite.TestBuildBuildTimeArgBuiltinArg (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5932: DockerSuite.TestBuildBuildTimeArgCacheHit (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5959: DockerSuite.TestBuildBuildTimeArgCacheMissExtraArg (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5991: DockerSuite.TestBuildBuildTimeArgCacheMissSameArgDiffVal (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6272: DockerSuite.TestBuildBuildTimeArgDefaultOverride (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6384: DockerSuite.TestBuildBuildTimeArgDefintionWithNoEnvInjection (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6364: DockerSuite.TestBuildBuildTimeArgEmptyValVariants (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6081: DockerSuite.TestBuildBuildTimeArgExpansion (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6191: DockerSuite.TestBuildBuildTimeArgExpansionOverride (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5906: DockerSuite.TestBuildBuildTimeArgHistory (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6300: DockerSuite.TestBuildBuildTimeArgMultiArgsSameLine (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6023: DockerSuite.TestBuildBuildTimeArgOverrideArgDefinedBeforeEnv (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6052: DockerSuite.TestBuildBuildTimeArgOverrideEnvDefinedBeforeArg (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6338: DockerSuite.TestBuildBuildTimeArgQuotedValVariants (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6317: DockerSuite.TestBuildBuildTimeArgUnconsumedArg (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6221: DockerSuite.TestBuildBuildTimeArgUntrustedDefinedAfterUse (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:596: DockerSuite.TestBuildCacheAdd (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6458: DockerSuite.TestBuildCacheBrokenSymlink (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6582: DockerSuite.TestBuildCacheRootSource (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4988: DockerSuite.TestBuildChownSingleFile (Test requires posix utilities or functionality to run.)
-SKIP: docker_cli_build_test.go:4422: DockerSuite.TestBuildCleanupCmdOnEntrypoint (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4455: DockerSuite.TestBuildClearCmd (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2231: DockerSuite.TestBuildCmd (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4575: DockerSuite.TestBuildCmdJSONNoShDashC (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4518: DockerSuite.TestBuildCmdShDashC (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4538: DockerSuite.TestBuildCmdSpaces (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3836: DockerSuite.TestBuildCommentsShebangs (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2577: DockerSuite.TestBuildConditionalCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5647: DockerSuite.TestBuildContainerWithCgroupParent (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2179: DockerSuite.TestBuildContextCleanup (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2205: DockerSuite.TestBuildContextCleanupFailedBuild (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3015: DockerSuite.TestBuildContextTarGzip (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3019: DockerSuite.TestBuildContextTarNoCompression (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:793: DockerSuite.TestBuildCopyAddMultipleFiles (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2709: DockerSuite.TestBuildCopyDirButNotFile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1491: DockerSuite.TestBuildCopyDirContentToExistDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1467: DockerSuite.TestBuildCopyDirContentToRoot (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1562: DockerSuite.TestBuildCopyDisallowRemote (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1544: DockerSuite.TestBuildCopyEtcToRoot (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1006: DockerSuite.TestBuildCopyFileWithWhitespace (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:926: DockerSuite.TestBuildCopyMultipleFilesToFile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1064: DockerSuite.TestBuildCopyMultipleFilesToFileWithWhitespace (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1416: DockerSuite.TestBuildCopySingleFileToExistDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1442: DockerSuite.TestBuildCopySingleFileToNonExistDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1363: DockerSuite.TestBuildCopySingleFileToRoot (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1389: DockerSuite.TestBuildCopySingleFileToWorkdir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1517: DockerSuite.TestBuildCopyWholeDirToRoot (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1086: DockerSuite.TestBuildCopyWildcard (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1183: DockerSuite.TestBuildCopyWildcardCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1158: DockerSuite.TestBuildCopyWildcardInName (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1137: DockerSuite.TestBuildCopyWildcardNoFind (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5373: DockerSuite.TestBuildDockerfileOutsideContext (Test requires posix utilities or functionality to run.)
-SKIP: docker_cli_build_test.go:3382: DockerSuite.TestBuildDockerignore (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3428: DockerSuite.TestBuildDockerignoreCleanPaths (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3450: DockerSuite.TestBuildDockerignoreExceptions (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3584: DockerSuite.TestBuildDockerignoreTouchDockerfile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3673: DockerSuite.TestBuildDockerignoringBadExclusion (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3503: DockerSuite.TestBuildDockerignoringDockerfile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3563: DockerSuite.TestBuildDockerignoringDockerignore (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3532: DockerSuite.TestBuildDockerignoringRenamedDockerfile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3637: DockerSuite.TestBuildDockerignoringWholeDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3725: DockerSuite.TestBuildDockerignoringWildDirs (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3698: DockerSuite.TestBuildDockerignoringWildTopDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5593: DockerSuite.TestBuildDotDotFile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3820: DockerSuite.TestBuildEOLInLine (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4475: DockerSuite.TestBuildEmptyCmd (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2410: DockerSuite.TestBuildEmptyEntrypoint (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2368: DockerSuite.TestBuildEmptyEntrypointInheritance (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5582: DockerSuite.TestBuildEmptyScratch (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5632: DockerSuite.TestBuildEmptyStringVolume (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:45: DockerSuite.TestBuildEmptyWhitespace (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2432: DockerSuite.TestBuildEntrypoint (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4606: DockerSuite.TestBuildEntrypointInheritance (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4633: DockerSuite.TestBuildEntrypointInheritanceInspect (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3102: DockerSuite.TestBuildEntrypointRunCleanup (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2124: DockerSuite.TestBuildEnv (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:422: DockerSuite.TestBuildEnvEscapes (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:445: DockerSuite.TestBuildEnvOverwrite (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3918: DockerSuite.TestBuildEnvUsage (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3956: DockerSuite.TestBuildEnvUsage2 (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:198: DockerSuite.TestBuildEnvironmentReplacementAddCopy (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:233: DockerSuite.TestBuildEnvironmentReplacementEnv (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:144: DockerSuite.TestBuildEnvironmentReplacementExpose (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:90: DockerSuite.TestBuildEnvironmentReplacementUser (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:114: DockerSuite.TestBuildEnvironmentReplacementVolume (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:181: DockerSuite.TestBuildEnvironmentReplacementWorkdir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4595: DockerSuite.TestBuildErrorInvalidInstruction (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3334: DockerSuite.TestBuildEscapeWhitespace (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4682: DockerSuite.TestBuildExoticShellInterpolation (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2251: DockerSuite.TestBuildExpose (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2271: DockerSuite.TestBuildExposeMorePorts (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2326: DockerSuite.TestBuildExposeOrder (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2348: DockerSuite.TestBuildExposeUpperCaseProto (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3217: DockerSuite.TestBuildFails (Test requires a Linux daemon)
-PASS: docker_cli_build_test.go:3233: DockerSuite.TestBuildFailsDockerfileEmpty	0.055s
-PASS: docker_cli_build_test.go:6609: DockerSuite.TestBuildFailsGitNotCallable	0.093s
-SKIP: docker_cli_build_test.go:6521: DockerSuite.TestBuildFollowSymlinkToDir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6488: DockerSuite.TestBuildFollowSymlinkToFile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3136: DockerSuite.TestBuildForbiddenContextPath (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1839: DockerSuite.TestBuildForceRm (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4302: DockerSuite.TestBuildFromGIT (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4330: DockerSuite.TestBuildFromGITWithContext (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4359: DockerSuite.TestBuildFromGITwithF (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5236: DockerSuite.TestBuildFromMixedcaseDockerfile (Test requires posix utilities or functionality to run.)
-SKIP: docker_cli_build_test.go:5352: DockerSuite.TestBuildFromOfficialNames (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4381: DockerSuite.TestBuildFromRemoteTarball (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5321: DockerSuite.TestBuildFromStdinWithF (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5286: DockerSuite.TestBuildFromURLWithF (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:301: DockerSuite.TestBuildHandleEscapes (Test requires a Linux daemon)
-SKIP: docker_cli_history_test.go:15: DockerSuite.TestBuildHistory (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3177: DockerSuite.TestBuildInheritance (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4507: DockerSuite.TestBuildInvalidTag (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:860: DockerSuite.TestBuildJSONAddMultipleFilesToFile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:904: DockerSuite.TestBuildJSONAddMultipleFilesToFileWild (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:948: DockerSuite.TestBuildJSONCopyMultipleFilesToFile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:27: DockerSuite.TestBuildJSONEmptyRun (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4770: DockerSuite.TestBuildLabels (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4791: DockerSuite.TestBuildLabelsCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:631: DockerSuite.TestBuildLastModified (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3804: DockerSuite.TestBuildLineBreak (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1992: DockerSuite.TestBuildMaintainer (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5540: DockerSuite.TestBuildMissingArgs (Test requires a Linux daemon)
-PASS: docker_cli_build_test.go:6439: DockerSuite.TestBuildMultipleTags	2.566s
-SKIP: docker_cli_build_test.go:3023: DockerSuite.TestBuildNoContext (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5678: DockerSuite.TestBuildNoDupOutput (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6401: DockerSuite.TestBuildNoNamedVolume (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4920: DockerSuite.TestBuildNotVerboseFailure (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4946: DockerSuite.TestBuildNotVerboseFailureRemote (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4840: DockerSuite.TestBuildNotVerboseSuccess (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5841: DockerSuite.TestBuildNullStringInAddCopyVolume (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3245: DockerSuite.TestBuildOnBuild (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:538: DockerSuite.TestBuildOnBuildCmdEntrypointJSON (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:568: DockerSuite.TestBuildOnBuildEntrypointJSON (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3264: DockerSuite.TestBuildOnBuildForbiddenChained (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:515: DockerSuite.TestBuildOnBuildForbiddenChainedInSourceImage (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3280: DockerSuite.TestBuildOnBuildForbiddenFrom (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:492: DockerSuite.TestBuildOnBuildForbiddenFromInSourceImage (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3296: DockerSuite.TestBuildOnBuildForbiddenMaintainer (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:469: DockerSuite.TestBuildOnBuildForbiddenMaintainerInSourceImage (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2454: DockerSuite.TestBuildOnBuildLimitedInheritence (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:389: DockerSuite.TestBuildOnBuildLowercase (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4490: DockerSuite.TestBuildOnBuildOutput (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2146: DockerSuite.TestBuildPATH (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5733: DockerSuite.TestBuildRUNErrMsg (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5610: DockerSuite.TestBuildRUNoneJSON (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2083: DockerSuite.TestBuildRelativeCopy (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2034: DockerSuite.TestBuildRelativeWorkdir (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5131: DockerSuite.TestBuildRenamedDockerfile (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1865: DockerSuite.TestBuildRm (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4668: DockerSuite.TestBuildRunShEntrypoint (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:65: DockerSuite.TestBuildShCmdJSONEntrypoint (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:697: DockerSuite.TestBuildSixtySteps (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5431: DockerSuite.TestBuildSpaces (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5502: DockerSuite.TestBuildSpacesWithQuotes (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5699: DockerSuite.TestBuildStartsFromOne (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4962: DockerSuite.TestBuildStderr (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5864: DockerSuite.TestBuildStopSignal (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6558: DockerSuite.TestBuildSymlinkBasename (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5017: DockerSuite.TestBuildSymlinkBreakout (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:6413: DockerSuite.TestBuildTagEvent (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2012: DockerSuite.TestBuildUser (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3855: DockerSuite.TestBuildUsersAndGroups (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4733: DockerSuite.TestBuildVerboseOut (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:3360: DockerSuite.TestBuildVerifyIntString (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4711: DockerSuite.TestBuildVerifySingleQuoteFails (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5524: DockerSuite.TestBuildVolumeFileExistsinContainer (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5099: DockerSuite.TestBuildVolumesRetainContents (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2523: DockerSuite.TestBuildWithCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1713: DockerSuite.TestBuildWithInaccessibleFilesInContext (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:4751: DockerSuite.TestBuildWithTabs (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5261: DockerSuite.TestBuildWithTwoDockerfiles (Test requires posix utilities or functionality to run.)
-SKIP: docker_cli_build_test.go:3074: DockerSuite.TestBuildWithVolumeOwnership (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:1945: DockerSuite.TestBuildWithVolumes (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2549: DockerSuite.TestBuildWithoutCache (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:2060: DockerSuite.TestBuildWorkdirWithEnvVariables (Test requires a Linux daemon)
-SKIP: docker_cli_build_test.go:5069: DockerSuite.TestBuildXZHost (Test requires a Linux daemon)
-SKIP: docker_cli_proxy_test.go:12: DockerSuite.TestCliProxyDisableProxyUnixSock (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:3921: DockerSuite.TestCmdCannotBeInvoked	3.780s
-SKIP: docker_cli_commit_test.go:10: DockerSuite.TestCommitAfterContainerIsDone (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:110: DockerSuite.TestCommitChange (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:70: DockerSuite.TestCommitHardlink (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:151: DockerSuite.TestCommitMergeConfigRun (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:58: DockerSuite.TestCommitNewFile (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:41: DockerSuite.TestCommitPausedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:90: DockerSuite.TestCommitTTY (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:100: DockerSuite.TestCommitWithHostBindMount (Test requires a Linux daemon)
-SKIP: docker_cli_commit_test.go:25: DockerSuite.TestCommitWithoutPause (Test requires a Linux daemon)
-PASS: docker_cli_config_test.go:64: DockerSuite.TestConfigDir	0.294s
-SKIP: docker_cli_config_test.go:18: DockerSuite.TestConfigHttpHeader (Test requires posix utilities or functionality to run.)
-SKIP: docker_cli_netmode_test.go:52: DockerSuite.TestConflictContainerNetworkAndLinks (Test requires a Linux daemon)
-SKIP: docker_cli_netmode_test.go:62: DockerSuite.TestConflictNetworkModeAndOptions (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:551: DockerSuite.TestContainerApiBadPort (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:491: DockerSuite.TestContainerApiCommit (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:515: DockerSuite.TestContainerApiCommitWithLabelInConfig (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:971: DockerSuite.TestContainerApiCopy (Test requires a Linux daemon)
-PASS: docker_api_containers_test.go:1031: DockerSuite.TestContainerApiCopyContainerNotFound	0.000s
-SKIP: docker_api_containers_test.go:1001: DockerSuite.TestContainerApiCopyResourcePathEmpty (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1016: DockerSuite.TestContainerApiCopyResourcePathNotFound (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:575: DockerSuite.TestContainerApiCreate (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:655: DockerSuite.TestContainerApiCreateBridgeNetworkMode (Test requires a Linux daemon)
-PASS: docker_api_containers_test.go:596: DockerSuite.TestContainerApiCreateEmptyConfig	0.001s
-SKIP: docker_api_containers_test.go:660: DockerSuite.TestContainerApiCreateOtherNetworkModes (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:688: DockerSuite.TestContainerApiCreateWithCpuSharesCpuset (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:631: DockerSuite.TestContainerApiCreateWithDomainName (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:607: DockerSuite.TestContainerApiCreateWithHostName (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1041: DockerSuite.TestContainerApiDelete (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1099: DockerSuite.TestContainerApiDeleteConflict (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1062: DockerSuite.TestContainerApiDeleteForce (Test requires a Linux daemon)
-PASS: docker_api_containers_test.go:1055: DockerSuite.TestContainerApiDeleteNotExist	0.001s
-SKIP: docker_api_containers_test.go:1074: DockerSuite.TestContainerApiDeleteRemoveLinks (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1111: DockerSuite.TestContainerApiDeleteRemoveVolume (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:26: DockerSuite.TestContainerApiGetAll (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:144: DockerSuite.TestContainerApiGetChanges (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:121: DockerSuite.TestContainerApiGetExport (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:51: DockerSuite.TestContainerApiGetJSONNoFieldsOmitted (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:752: DockerSuite.TestContainerApiInvalidPortSyntax (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:878: DockerSuite.TestContainerApiKill (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:440: DockerSuite.TestContainerApiPause (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:776: DockerSuite.TestContainerApiPostCreateNull (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:863: DockerSuite.TestContainerApiRename (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:892: DockerSuite.TestContainerApiRestart (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:903: DockerSuite.TestContainerApiRestartNotimeoutParam (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:916: DockerSuite.TestContainerApiStart (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:195: DockerSuite.TestContainerApiStartDupVolumeBinds (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:169: DockerSuite.TestContainerApiStartVolumeBinds (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:219: DockerSuite.TestContainerApiStartVolumesFrom (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:940: DockerSuite.TestContainerApiStop (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:466: DockerSuite.TestContainerApiTop (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:720: DockerSuite.TestContainerApiVerifyHeader (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:956: DockerSuite.TestContainerApiWait (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2435: DockerSuite.TestContainerNetworkMode (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:89: DockerSuite.TestContainerPsOmitFields (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3768: DockerSuite.TestContainerRestartInMultipleNetworks (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:130: DockerSuite.TestContainerRestartSuccess (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:112: DockerSuite.TestContainerRestartwithGoodContainer (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3800: DockerSuite.TestContainerWithConflictingHostNetworks (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3831: DockerSuite.TestContainerWithConflictingNoneNetwork (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3814: DockerSuite.TestContainerWithConflictingSharedNetwork (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1132: DockerSuite.TestContainersApiChunkedEncoding (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1302: DockerSuite.TestContainersApiCreateNoHostConfig118 (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1346: DockerSuite.TestContainersApiGetContainersJSONEmpty (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3704: DockerSuite.TestContainersInMultipleNetworks (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3696: DockerSuite.TestContainersInUserDefinedNetwork (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3723: DockerSuite.TestContainersNetworkIsolation (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:582: DockerSuite.TestCopyAndRestart (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:603: DockerSuite.TestCopyCreatedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:129: DockerSuite.TestCpAbsolutePath (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:173: DockerSuite.TestCpAbsoluteSymlink (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:209: DockerSuite.TestCpFromCaseA (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:229: DockerSuite.TestCpFromCaseB (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:247: DockerSuite.TestCpFromCaseC (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:272: DockerSuite.TestCpFromCaseD (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:312: DockerSuite.TestCpFromCaseE (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:341: DockerSuite.TestCpFromCaseF (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:364: DockerSuite.TestCpFromCaseG (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:403: DockerSuite.TestCpFromCaseH (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:433: DockerSuite.TestCpFromCaseI (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:457: DockerSuite.TestCpFromCaseJ (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:85: DockerSuite.TestCpFromErrDstNotDir (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:56: DockerSuite.TestCpFromErrDstParentNotExists (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:41: DockerSuite.TestCpFromErrSrcNotDir (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:26: DockerSuite.TestCpFromErrSrcNotExists (Test requires a Linux daemon)
-SKIP: docker_cli_cp_from_container_test.go:114: DockerSuite.TestCpFromSymlinkDestination (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:211: DockerSuite.TestCpFromSymlinkToDirectory (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:37: DockerSuite.TestCpGarbagePath (Test requires a Linux daemon)
-PASS: docker_cli_cp_test.go:28: DockerSuite.TestCpLocalOnly	0.050s
-SKIP: docker_cli_cp_test.go:563: DockerSuite.TestCpNameHasColon (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:80: DockerSuite.TestCpRelativePath (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:408: DockerSuite.TestCpSpecialFiles (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:339: DockerSuite.TestCpSymlinkComponent (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:616: DockerSuite.TestCpSymlinkFromConToHostFollowSymlink (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:229: DockerSuite.TestCpToCaseA (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:251: DockerSuite.TestCpToCaseB (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:273: DockerSuite.TestCpToCaseC (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:300: DockerSuite.TestCpToCaseD (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:346: DockerSuite.TestCpToCaseE (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:382: DockerSuite.TestCpToCaseF (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:405: DockerSuite.TestCpToCaseG (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:451: DockerSuite.TestCpToCaseH (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:488: DockerSuite.TestCpToCaseI (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:512: DockerSuite.TestCpToCaseJ (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:521: DockerSuite.TestCpToDot (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:92: DockerSuite.TestCpToErrDstNotDir (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:63: DockerSuite.TestCpToErrDstParentNotExists (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:555: DockerSuite.TestCpToErrReadOnlyRootfs (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:582: DockerSuite.TestCpToErrReadOnlyVolume (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:43: DockerSuite.TestCpToErrSrcNotDir (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:25: DockerSuite.TestCpToErrSrcNotExists (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:543: DockerSuite.TestCpToStdout (Test requires a Linux daemon)
-SKIP: docker_cli_cp_to_container_test.go:128: DockerSuite.TestCpToSymlinkDestination (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:259: DockerSuite.TestCpToSymlinkToDirectory (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:383: DockerSuite.TestCpUnprivilegedUser (Test requires a Linux daemon)
-SKIP: docker_cli_cp_test.go:452: DockerSuite.TestCpVolumePath (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:22: DockerSuite.TestCreateArgs (Test requires a Linux daemon)
-PASS: docker_cli_create_test.go:247: DockerSuite.TestCreateByImageID	5.148s
-SKIP: docker_cli_create_test.go:143: DockerSuite.TestCreateEchoStdout (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:60: DockerSuite.TestCreateHostConfig (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:212: DockerSuite.TestCreateHostnameWithNumber (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:189: DockerSuite.TestCreateLabelFromImage (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:174: DockerSuite.TestCreateLabels (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:237: DockerSuite.TestCreateModeIpcContainer (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:219: DockerSuite.TestCreateRM (Test requires a Linux daemon)
-PASS: docker_cli_create_test.go:409: DockerSuite.TestCreateStopSignal	0.528s
-SKIP: docker_cli_create_test.go:155: DockerSuite.TestCreateVolumesCreated (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:83: DockerSuite.TestCreateWithPortRange (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:825: DockerSuite.TestCreateWithTooLowMemoryLimit (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:419: DockerSuite.TestCreateWithWorkdir (Test requires a Linux daemon)
-SKIP: docker_cli_create_test.go:113: DockerSuite.TestCreateWithiLargePortRange (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3004: DockerSuite.TestDevicePermissions (Test requires a Linux daemon)
-PASS: docker_cli_diff_test.go:83: DockerSuite.TestDiffEmptyArgClientError	0.049s
-SKIP: docker_cli_diff_test.go:30: DockerSuite.TestDiffEnsureDockerinitFilesAreIgnored (Test requires a Linux daemon)
-SKIP: docker_cli_diff_test.go:50: DockerSuite.TestDiffEnsureOnlyKmsgAndPtmx (Test requires a Linux daemon)
-SKIP: docker_cli_diff_test.go:11: DockerSuite.TestDiffFilenameShownInOutput (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:3945: DockerSuite.TestDockerFails	0.054s
-PASS: docker_api_events_test.go:38: DockerSuite.TestEventsApiBackwardsCompatible	2.877s
-PASS: docker_api_events_test.go:17: DockerSuite.TestEventsApiEmptyOutput	0.001s
-SKIP: docker_cli_events_test.go:438: DockerSuite.TestEventsAttach (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:374: DockerSuite.TestEventsCommit (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:123: DockerSuite.TestEventsContainerEvents (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:144: DockerSuite.TestEventsContainerEventsSinceUnixEpoch (Test requires a Linux daemon)
-PASS: docker_cli_events_test.go:68: DockerSuite.TestEventsContainerFailStartDie	3.703s
-SKIP: docker_cli_events_test.go:389: DockerSuite.TestEventsCopy (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:497: DockerSuite.TestEventsDefaultEmpty (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:334: DockerSuite.TestEventsFilterContainer (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:577: DockerSuite.TestEventsFilterImageInContainerAction (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:301: DockerSuite.TestEventsFilterImageLabels (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:244: DockerSuite.TestEventsFilterImageName (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:274: DockerSuite.TestEventsFilterLabels (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:523: DockerSuite.TestEventsFilterType (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:226: DockerSuite.TestEventsFilters (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:204: DockerSuite.TestEventsImageImport (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:185: DockerSuite.TestEventsImagePull (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:165: DockerSuite.TestEventsImageTag (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:96: DockerSuite.TestEventsLimit (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:470: DockerSuite.TestEventsRename (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:419: DockerSuite.TestEventsResize (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:19: DockerSuite.TestEventsTimestampFormats (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:481: DockerSuite.TestEventsTop (Test requires a Linux daemon)
-SKIP: docker_cli_events_test.go:47: DockerSuite.TestEventsUntag (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:22: DockerSuite.TestExec (Test requires a Linux daemon)
-SKIP: docker_api_exec_test.go:66: DockerSuite.TestExecAPIStart (Test requires a Linux daemon)
-PASS: docker_api_exec_test.go:89: DockerSuite.TestExecAPIStartBackwardsCompatible	2.253s
-PASS: docker_api_exec_test.go:103: DockerSuite.TestExecAPIStartMultipleTimesError	2.641s
-SKIP: docker_cli_exec_test.go:68: DockerSuite.TestExecAfterContainerRestart (Test requires a Linux daemon)
-SKIP: docker_api_exec_test.go:52: DockerSuite.TestExecApiCreateContainerPaused (Test requires a Linux daemon)
-SKIP: docker_api_exec_test.go:18: DockerSuite.TestExecApiCreateNoCmd (Test requires a Linux daemon)
-SKIP: docker_api_exec_test.go:31: DockerSuite.TestExecApiCreateNoValidContentType (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:234: DockerSuite.TestExecCgroup (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:105: DockerSuite.TestExecEnv (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:117: DockerSuite.TestExecExitStatus (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:32: DockerSuite.TestExecInteractive (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:509: DockerSuite.TestExecOnReadonlyContainer (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:197: DockerSuite.TestExecParseError (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:127: DockerSuite.TestExecPausedContainer (Test requires a Linux daemon)
-SKIP: docker_api_exec_resize_test.go:16: DockerSuite.TestExecResizeApiHeightWidthNoInt (Test requires a Linux daemon)
-SKIP: docker_api_exec_resize_test.go:28: DockerSuite.TestExecResizeImmediatelyAfterExecStart (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:517: DockerSuite.TestExecStartFails (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:208: DockerSuite.TestExecStopNotHanging (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:143: DockerSuite.TestExecTTYCloseStdin (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:163: DockerSuite.TestExecTTYWithoutStdin (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:493: DockerSuite.TestExecWithImageUser (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:460: DockerSuite.TestExecWithPrivileged (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:449: DockerSuite.TestExecWithUser (Test requires a Linux daemon)
-SKIP: docker_cli_export_import_test.go:13: DockerSuite.TestExportContainerAndImportImage (Test requires a Linux daemon)
-SKIP: docker_cli_export_import_test.go:31: DockerSuite.TestExportContainerWithOutputAndImportImage (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:250: DockerSuite.TestGetContainerStats (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:365: DockerSuite.TestGetContainerStatsNoStream (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:288: DockerSuite.TestGetContainerStatsRmRunning (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:328: DockerSuite.TestGetContainerStatsStream (Test requires a Linux daemon)
-SKIP: docker_api_attach_test.go:16: DockerSuite.TestGetContainersAttachWebsocket (Test requires a Linux daemon)
-PASS: docker_api_attach_test.go:77: DockerSuite.TestGetContainersWsAttachContainerNotFound	0.002s
-SKIP: docker_api_containers_test.go:400: DockerSuite.TestGetStoppedContainerStats (Test requires a Linux daemon)
-PASS: docker_api_version_test.go:13: DockerSuite.TestGetVersion	0.000s
-SKIP: docker_cli_help_test.go:240: DockerSuite.TestHelpExitCodesHelpOutput (Test requires a Linux daemon)
-SKIP: docker_cli_help_test.go:15: DockerSuite.TestHelpTextVerify (Test requires a Linux daemon)
-SKIP: docker_cli_history_test.go:61: DockerSuite.TestHistoryExistentImage (Test requires a Linux daemon)
-SKIP: docker_cli_history_test.go:91: DockerSuite.TestHistoryHumanOptionFalse (Test requires a Linux daemon)
-SKIP: docker_cli_history_test.go:110: DockerSuite.TestHistoryHumanOptionTrue (Test requires a Linux daemon)
-SKIP: docker_cli_history_test.go:71: DockerSuite.TestHistoryImageWithComment (Test requires a Linux daemon)
-PASS: docker_cli_history_test.go:66: DockerSuite.TestHistoryNonExistentImage	0.049s
-SKIP: docker_cli_images_test.go:163: DockerSuite.TestImagesEnsureDanglingImageOnlyListedOnce (Test requires a Linux daemon)
-SKIP: docker_cli_images_test.go:18: DockerSuite.TestImagesEnsureImageIsListed (Test requires a Linux daemon)
-PASS: docker_cli_images_test.go:45: DockerSuite.TestImagesEnsureImageWithBadTagIsNotListed	0.053s
-SKIP: docker_cli_images_test.go:24: DockerSuite.TestImagesEnsureImageWithTagIsListed (Test requires a Linux daemon)
-SKIP: docker_cli_images_test.go:220: DockerSuite.TestImagesEnsureImagesFromScratchShown (Test requires a Linux daemon)
-SKIP: docker_cli_images_test.go:196: DockerSuite.TestImagesEnsureOnlyHeadsImagesShown (Test requires a Linux daemon)
-PASS: docker_cli_images_test.go:74: DockerSuite.TestImagesErrorWithInvalidFilterNameTest	0.051s
-SKIP: docker_cli_images_test.go:80: DockerSuite.TestImagesFilterLabelMatch (Test requires a Linux daemon)
-PASS: docker_cli_images_test.go:112: DockerSuite.TestImagesFilterLabelWithCommit	11.175s
-PASS: docker_cli_images_test.go:236: DockerSuite.TestImagesFilterNameWithPort	0.209s
-SKIP: docker_cli_images_test.go:124: DockerSuite.TestImagesFilterSpaceTrimCase (Test requires a Linux daemon)
-PASS: docker_cli_images_test.go:249: DockerSuite.TestImagesFormat	0.154s
-SKIP: docker_cli_images_test.go:267: DockerSuite.TestImagesFormatDefaultFormat (Test requires a Linux daemon)
-SKIP: docker_cli_images_test.go:50: DockerSuite.TestImagesOrderedByCreationDate (Test requires a Linux daemon)
-PASS: docker_cli_images_test.go:190: DockerSuite.TestImagesWithIncorrectFilter	0.053s
-SKIP: docker_cli_import_test.go:33: DockerSuite.TestImportBadURL (Test requires a Linux daemon)
-SKIP: docker_cli_import_test.go:15: DockerSuite.TestImportDisplay (Test requires a Linux daemon)
-SKIP: docker_cli_import_test.go:40: DockerSuite.TestImportFile (Test requires a Linux daemon)
-PASS: docker_cli_import_test.go:94: DockerSuite.TestImportFileNonExistentFile	0.049s
-SKIP: docker_cli_import_test.go:62: DockerSuite.TestImportFileWithMessage (Test requires a Linux daemon)
-PASS: docker_api_info_test.go:10: DockerSuite.TestInfoApi	0.004s
-SKIP: docker_cli_info_test.go:84: DockerSuite.TestInfoDiscoveryAdvertiseInterfaceName (Test requires a Linux daemon)
-SKIP: docker_cli_info_test.go:49: DockerSuite.TestInfoDiscoveryBackend (Test requires a Linux daemon)
-SKIP: docker_cli_info_test.go:67: DockerSuite.TestInfoDiscoveryInvalidAdvertise (Test requires a Linux daemon)
-SKIP: docker_cli_info_test.go:120: DockerSuite.TestInfoDisplaysPausedContainers (Test requires a Linux daemon)
-SKIP: docker_cli_info_test.go:109: DockerSuite.TestInfoDisplaysRunningContainers (Test requires a Linux daemon)
-SKIP: docker_cli_info_test.go:135: DockerSuite.TestInfoDisplaysStoppedContainers (Test requires a Linux daemon)
-PASS: docker_cli_info_test.go:14: DockerSuite.TestInfoEnsureSucceeds	0.054s
-SKIP: docker_api_inspect_test.go:137: DockerSuite.TestInspectApiBridgeNetworkSettings120 (Test requires a Linux daemon)
-SKIP: docker_api_inspect_test.go:153: DockerSuite.TestInspectApiBridgeNetworkSettings121 (Test requires a Linux daemon)
-SKIP: docker_api_inspect_test.go:15: DockerSuite.TestInspectApiContainerResponse (Test requires a Linux daemon)
-PASS: docker_api_inspect_test.go:71: DockerSuite.TestInspectApiContainerVolumeDriver	2.786s
-SKIP: docker_api_inspect_test.go:49: DockerSuite.TestInspectApiContainerVolumeDriverLegacy (Test requires a Linux daemon)
-SKIP: docker_api_inspect_test.go:114: DockerSuite.TestInspectApiEmptyFieldsInConfigPre121 (Test requires a Linux daemon)
-PASS: docker_api_inspect_test.go:95: DockerSuite.TestInspectApiImageResponse	0.061s
-SKIP: docker_cli_inspect_test.go:234: DockerSuite.TestInspectBindMountPoint (Test requires a Linux daemon)
-PASS: docker_cli_inspect_test.go:357: DockerSuite.TestInspectByPrefix	0.151s
-SKIP: docker_cli_inspect_test.go:154: DockerSuite.TestInspectContainerFilterInt (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:202: DockerSuite.TestInspectContainerGraphDriver (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:406: DockerSuite.TestInspectContainerNetworkCustom (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:392: DockerSuite.TestInspectContainerNetworkDefault (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:47: DockerSuite.TestInspectDefault (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:286: DockerSuite.TestInspectExecID (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:382: DockerSuite.TestInspectHistory (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:23: DockerSuite.TestInspectImage (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:137: DockerSuite.TestInspectImageFilterInt (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:177: DockerSuite.TestInspectImageGraphDriver (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:38: DockerSuite.TestInspectInt64 (Test requires a Linux daemon)
-PASS: docker_cli_inspect_test.go:349: DockerSuite.TestInspectJSONFields	2.604s
-SKIP: docker_cli_inspect_test.go:285: DockerSuite.TestInspectLogConfigNoType (Test requires a Linux daemon)
-PASS: docker_cli_inspect_test.go:300: DockerSuite.TestInspectNoSizeFlagContainer	2.600s
-PASS: docker_cli_inspect_test.go:312: DockerSuite.TestInspectSizeFlagContainer	2.632s
-PASS: docker_cli_inspect_test.go:323: DockerSuite.TestInspectSizeFlagImage	2.812s
-SKIP: docker_cli_inspect_test.go:60: DockerSuite.TestInspectStatus (Test requires a Linux daemon)
-PASS: docker_cli_inspect_test.go:371: DockerSuite.TestInspectStopWhenNotFound	5.420s
-PASS: docker_cli_inspect_test.go:335: DockerSuite.TestInspectTempateError	2.730s
-SKIP: docker_cli_inspect_test.go:259: DockerSuite.TestInspectTimesAsRFC3339Nano (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:87: DockerSuite.TestInspectTypeFlagContainer (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:112: DockerSuite.TestInspectTypeFlagWithImage (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:124: DockerSuite.TestInspectTypeFlagWithInvalidValue (Test requires a Linux daemon)
-SKIP: docker_cli_inspect_test.go:99: DockerSuite.TestInspectTypeFlagWithNoContainer (Test requires a Linux daemon)
-SKIP: docker_cli_kill_test.go:12: DockerSuite.TestKillContainer (Test requires a Linux daemon)
-SKIP: docker_cli_kill_test.go:36: DockerSuite.TestKillDifferentUserContainer (Test requires a Linux daemon)
-SKIP: docker_cli_kill_test.go:89: DockerSuite.TestKillStoppedContainerAPIPre120 (Test requires a Linux daemon)
-SKIP: docker_cli_kill_test.go:63: DockerSuite.TestKillWithInvalidSignal (Test requires a Linux daemon)
-SKIP: docker_cli_kill_test.go:50: DockerSuite.TestKillWithSignal (Test requires a Linux daemon)
-SKIP: docker_cli_kill_test.go:25: DockerSuite.TestKillofStoppedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:181: DockerSuite.TestLinkShortDefinition (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:172: DockerSuite.TestLinksEnvs (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:209: DockerSuite.TestLinksEtcHostsRegularFile (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:111: DockerSuite.TestLinksHostsFilesInject (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:63: DockerSuite.TestLinksInspectLinksStarted (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:83: DockerSuite.TestLinksInspectLinksStopped (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:22: DockerSuite.TestLinksInvalidContainerTarget (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:216: DockerSuite.TestLinksMultipleWithSameName (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:198: DockerSuite.TestLinksNetworkHostContainer (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:103: DockerSuite.TestLinksNotStartedParentNotFail (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:32: DockerSuite.TestLinksPingLinkedContainers (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:50: DockerSuite.TestLinksPingLinkedContainersAfterRename (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:349: DockerSuite.TestLinksPingLinkedContainersOnRename (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:13: DockerSuite.TestLinksPingUnlinkedContainers (Test requires a Linux daemon)
-SKIP: docker_cli_links_test.go:132: DockerSuite.TestLinksUpdateOnRestart (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:299: DockerSuite.TestLoadZeroSizeLayer (Test requires a Linux daemon)
-PASS: docker_cli_login_test.go:11: DockerSuite.TestLoginWithoutTTY	0.058s
-PASS: docker_api_logs_test.go:87: DockerSuite.TestLogsAPIContainerNotFound	0.000s
-SKIP: docker_api_logs_test.go:71: DockerSuite.TestLogsApiFollowEmptyOutput (Test requires a Linux daemon)
-SKIP: docker_api_logs_test.go:55: DockerSuite.TestLogsApiNoStdoutNorStderr (Test requires a Linux daemon)
-SKIP: docker_api_logs_test.go:15: DockerSuite.TestLogsApiWithStdout (Test requires a Linux daemon)
-PASS: docker_cli_logs_test.go:349: DockerSuite.TestLogsCLIContainerNotFound	0.051s
-SKIP: docker_cli_logs_test.go:33: DockerSuite.TestLogsContainerBiggerThanPage (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:47: DockerSuite.TestLogsContainerMuchBiggerThanPage (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:19: DockerSuite.TestLogsContainerSmallerThanPage (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:307: DockerSuite.TestLogsFollowGoroutinesNoOutput (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:255: DockerSuite.TestLogsFollowGoroutinesWithStdout (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:223: DockerSuite.TestLogsFollowSlowStdoutConsumer (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:145: DockerSuite.TestLogsFollowStopped (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:86: DockerSuite.TestLogsSeparateStderr (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:169: DockerSuite.TestLogsSince (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:205: DockerSuite.TestLogsSinceFutureFollow (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:103: DockerSuite.TestLogsStderrInStdout (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:118: DockerSuite.TestLogsTail (Test requires a Linux daemon)
-SKIP: docker_cli_logs_test.go:60: DockerSuite.TestLogsTimestamps (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2946: DockerSuite.TestMountIntoProc (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2955: DockerSuite.TestMountIntoSys (Test requires a Linux daemon)
-SKIP: docker_cli_netmode_test.go:24: DockerSuite.TestNetHostname (Test requires a Linux daemon)
-SKIP: docker_cli_nat_test.go:68: DockerSuite.TestNetworkLocalhostTCPNat (Test requires a Linux daemon)
-SKIP: docker_cli_nat_test.go:85: DockerSuite.TestNetworkLoopbackNat (Test requires a Linux daemon)
-SKIP: docker_cli_nat_test.go:52: DockerSuite.TestNetworkNat (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3750: DockerSuite.TestNetworkRmWithActiveContainers (Test requires a Linux daemon)
-SKIP: docker_cli_pause_test.go:11: DockerSuite.TestPause (Test requires a Linux daemon)
-PASS: docker_cli_pause_test.go:62: DockerSuite.TestPauseFailsOnWindows	2.601s
-SKIP: docker_cli_pause_test.go:33: DockerSuite.TestPauseMultipleContainers (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2718: DockerSuite.TestPermissionsPtsReadonlyRootfs (Test requires a Linux daemon)
-SKIP: docker_cli_port_test.go:275: DockerSuite.TestPortExposeHostBinding (Test requires a Linux daemon)
-SKIP: docker_cli_port_test.go:253: DockerSuite.TestPortHostBinding (Test requires a Linux daemon)
-SKIP: docker_cli_port_test.go:14: DockerSuite.TestPortList (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:421: DockerSuite.TestPostContainerBindNormalVolume (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1167: DockerSuite.TestPostContainerStop (Test requires a Linux daemon)
-SKIP: docker_api_attach_test.go:85: DockerSuite.TestPostContainersAttach (Test requires a Linux daemon)
-PASS: docker_api_attach_test.go:69: DockerSuite.TestPostContainersAttachContainerNotFound	0.001s
-SKIP: docker_api_containers_test.go:1504: DockerSuite.TestPostContainersCreateMemorySwappinessHostConfigOmitted (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1411: DockerSuite.TestPostContainersCreateShmSizeHostConfigOmitted (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1398: DockerSuite.TestPostContainersCreateShmSizeNegative (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1442: DockerSuite.TestPostContainersCreateShmSizeOmitted (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1528: DockerSuite.TestPostContainersCreateWithOomScoreAdjInvalidRange (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1473: DockerSuite.TestPostContainersCreateWithShmSize (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1229: DockerSuite.TestPostContainersCreateWithStringOrSliceCapAddDrop (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1206: DockerSuite.TestPostContainersCreateWithStringOrSliceCmd (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1182: DockerSuite.TestPostContainersCreateWithStringOrSliceEntrypoint (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1355: DockerSuite.TestPostContainersCreateWithWrongCpusetValues (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1267: DockerSuite.TestPostContainersStartWithLinksInHostConfig (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1284: DockerSuite.TestPostContainersStartWithLinksInHostConfigIdLinked (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1251: DockerSuite.TestPostContainersStartWithoutLinksInHostConfig (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:568: DockerSuite.TestPsDefaultFormatAndQuiet (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:556: DockerSuite.TestPsFormatHeaders (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:528: DockerSuite.TestPsFormatMultiNames (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:478: DockerSuite.TestPsGroupPortRange (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:588: DockerSuite.TestPsImageIDAfterUpdate (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:460: DockerSuite.TestPsLinkedWithNoTrunc (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:19: DockerSuite.TestPsListContainersBase (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:248: DockerSuite.TestPsListContainersFilterAncestorImage (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:497: DockerSuite.TestPsListContainersFilterCreated (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:381: DockerSuite.TestPsListContainersFilterExited (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:208: DockerSuite.TestPsListContainersFilterID (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:344: DockerSuite.TestPsListContainersFilterLabel (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:224: DockerSuite.TestPsListContainersFilterName (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:170: DockerSuite.TestPsListContainersFilterStatus (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:129: DockerSuite.TestPsListContainersSize (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:642: DockerSuite.TestPsNotShowPortsOfStoppedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:419: DockerSuite.TestPsRightTagName (Test requires a Linux daemon)
-SKIP: docker_cli_ps_test.go:489: DockerSuite.TestPsWithSize (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3312: DockerSuite.TestPtraceContainerProcsFromHost (Test requires a Linux daemon)
-PASS: docker_cli_push_test.go:37: DockerSuite.TestPushUnprefixedRepo	0.852s
-SKIP: docker_api_containers_test.go:1315: DockerSuite.TestPutContainerArchiveErrSymlinkInVolumeToReadOnlyRootfs (Test requires a Linux daemon)
-SKIP: docker_cli_rename_test.go:62: DockerSuite.TestRenameCheckNames (Test requires a Linux daemon)
-SKIP: docker_cli_rename_test.go:78: DockerSuite.TestRenameInvalidName (Test requires a Linux daemon)
-SKIP: docker_cli_rename_test.go:28: DockerSuite.TestRenameRunningContainer (Test requires a Linux daemon)
-SKIP: docker_cli_rename_test.go:41: DockerSuite.TestRenameRunningContainerAndReuse (Test requires a Linux daemon)
-SKIP: docker_cli_rename_test.go:11: DockerSuite.TestRenameStoppedContainer (Test requires a Linux daemon)
-SKIP: docker_api_resize_test.go:22: DockerSuite.TestResizeApiHeightWidthNoInt (Test requires a Linux daemon)
-SKIP: docker_api_resize_test.go:11: DockerSuite.TestResizeApiResponse (Test requires a Linux daemon)
-SKIP: docker_api_resize_test.go:33: DockerSuite.TestResizeApiResponseWhenContainerNotStarted (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:83: DockerSuite.TestRestartPolicyAlways (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:73: DockerSuite.TestRestartPolicyNO (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:99: DockerSuite.TestRestartPolicyOnFailure (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:29: DockerSuite.TestRestartRunningContainer (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:13: DockerSuite.TestRestartStoppedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:50: DockerSuite.TestRestartWithVolumes (Test requires a Linux daemon)
-SKIP: docker_cli_rm_test.go:46: DockerSuite.TestRmContainerOrphaning (Test requires a Linux daemon)
-SKIP: docker_cli_rm_test.go:11: DockerSuite.TestRmContainerWithRemovedVolume (Test requires a Linux daemon)
-SKIP: docker_cli_rm_test.go:23: DockerSuite.TestRmContainerWithVolume (Test requires a Linux daemon)
-SKIP: docker_cli_rm_test.go:38: DockerSuite.TestRmForceRemoveRunningContainer (Test requires a Linux daemon)
-PASS: docker_cli_rm_test.go:73: DockerSuite.TestRmInvalidContainer	0.050s
-SKIP: docker_cli_rm_test.go:30: DockerSuite.TestRmRunningContainer (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:222: DockerSuite.TestRmiBlank (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:342: DockerSuite.TestRmiByIDHardConflict (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:240: DockerSuite.TestRmiContainerImageNotFound (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:166: DockerSuite.TestRmiForceWithExistingContainers (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:197: DockerSuite.TestRmiForceWithMultipleRepositories (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:137: DockerSuite.TestRmiImageIDForceWithRunningContainersAndMultipleTags (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:102: DockerSuite.TestRmiImgIDForce (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:64: DockerSuite.TestRmiImgIDMultipleTag (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:314: DockerSuite.TestRmiParentImageFail (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:35: DockerSuite.TestRmiTag (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:153: DockerSuite.TestRmiTagWithExistingContainers (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:267: DockerSuite.TestRmiUntagHistoryLayer (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:13: DockerSuite.TestRmiWithContainerFails (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:182: DockerSuite.TestRmiWithMultipleRepositories (Test requires a Linux daemon)
-SKIP: docker_cli_rmi_test.go:326: DockerSuite.TestRmiWithParentInUse (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3509: DockerSuite.TestRunAbsoluteInvalidCgroupParent (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1541: DockerSuite.TestRunAddHost (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1103: DockerSuite.TestRunAddingOptionalDevices (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1121: DockerSuite.TestRunAddingOptionalDevicesInvalidMode (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1112: DockerSuite.TestRunAddingOptionalDevicesNoSrc (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2062: DockerSuite.TestRunAllocatePortInReservedRange (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:1162: DockerSuite.TestRunAllowBindMountingRoot	4.141s
-SKIP: docker_cli_run_test.go:2284: DockerSuite.TestRunAllowPortRangeThroughExpose (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2647: DockerSuite.TestRunAllowPortRangeThroughPublish (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:494: DockerSuite.TestRunApplyVolumesFromBeforeVolumes	7.122s
-PASS: docker_cli_run_test.go:1553: DockerSuite.TestRunAttachStdErrOnlyTTYMode	3.437s
-PASS: docker_cli_run_test.go:1569: DockerSuite.TestRunAttachStdOutAndErrTTYMode	3.408s
-PASS: docker_cli_run_test.go:1561: DockerSuite.TestRunAttachStdOutOnlyTTYMode	3.457s
-PASS: docker_cli_run_test.go:1578: DockerSuite.TestRunAttachWithDetach	0.051s
-PASS: docker_cli_run_test.go:1878: DockerSuite.TestRunBindMounts	3.943s
-SKIP: docker_cli_run_test.go:984: DockerSuite.TestRunCapAddALLCanDownInterface (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:994: DockerSuite.TestRunCapAddALLDropNetAdminCanDownInterface (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3017: DockerSuite.TestRunCapAddCHOWN (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:974: DockerSuite.TestRunCapAddCanDownInterface (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:965: DockerSuite.TestRunCapAddInvalid (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3363: DockerSuite.TestRunCapAddSYSTIME (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:955: DockerSuite.TestRunCapDropALLAddMknodCanMknod (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:943: DockerSuite.TestRunCapDropALLCannotMknod (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:917: DockerSuite.TestRunCapDropCannotMknod (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:930: DockerSuite.TestRunCapDropCannotMknodLowerCase (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:908: DockerSuite.TestRunCapDropInvalid (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:1958: DockerSuite.TestRunCidFileCheckIDLength	2.649s
-PASS: docker_cli_run_test.go:1930: DockerSuite.TestRunCidFileCleanupIfEmpty	0.051s
-PASS: docker_cli_run_test.go:1674: DockerSuite.TestRunCleanupCmdOnEntrypoint	8.460s
-SKIP: docker_cli_run_test.go:3572: DockerSuite.TestRunContainerNetModeWithDnsMacHosts (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3596: DockerSuite.TestRunContainerNetModeWithExposePort (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:853: DockerSuite.TestRunContainerNetwork	3.910s
-SKIP: docker_cli_run_test.go:3563: DockerSuite.TestRunContainerNetworkModeToSelf (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3547: DockerSuite.TestRunContainerWithCgroupMountRO (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3410: DockerSuite.TestRunContainerWithCgroupParent (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3440: DockerSuite.TestRunContainerWithCgroupParentAbsPath (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2758: DockerSuite.TestRunContainerWithReadonlyEtcHostsAndLinkedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2709: DockerSuite.TestRunContainerWithReadonlyRootfs (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2782: DockerSuite.TestRunContainerWithReadonlyRootfsWithAddHostFlag (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2771: DockerSuite.TestRunContainerWithReadonlyRootfsWithDnsFlag (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:2826: DockerSuite.TestRunContainerWithRmFlagCannotStartContainer	3.322s
-PASS: docker_cli_run_test.go:2809: DockerSuite.TestRunContainerWithRmFlagExitCodeNotEqualToZero	3.471s
-PASS: docker_cli_run_test.go:2705: DockerSuite.TestRunContainerWithWritableRootfs	3.566s
-SKIP: docker_cli_run_test.go:1654: DockerSuite.TestRunCopyVolumeContent (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1631: DockerSuite.TestRunCopyVolumeUidGid (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3371: DockerSuite.TestRunCreateContainerFailedCleanUp (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:533: DockerSuite.TestRunCreateVolume	3.548s
-SKIP: docker_cli_run_test.go:2160: DockerSuite.TestRunCreateVolumeEtc (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:543: DockerSuite.TestRunCreateVolumeWithSymlink (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:349: DockerSuite.TestRunCreateVolumesInSymlinkDir	23.715s
-SKIP: docker_cli_run_test.go:2021: DockerSuite.TestRunDeallocatePortOnMissingIptablesRule (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:111: DockerSuite.TestRunDetachedContainerIDPrinting	4.240s
-SKIP: docker_cli_run_test.go:1072: DockerSuite.TestRunDeviceNumbers (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:1171: DockerSuite.TestRunDisallowBindMountingRootToRoot	0.058s
-SKIP: docker_cli_run_test.go:1185: DockerSuite.TestRunDnsDefaultOptions (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1219: DockerSuite.TestRunDnsOptions (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1253: DockerSuite.TestRunDnsOptionsBasedOnHostResolvConf (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1243: DockerSuite.TestRunDnsRepeatOptions (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:39: DockerSuite.TestRunEchoNamedContainer	3.495s
-PASS: docker_cli_run_test.go:31: DockerSuite.TestRunEchoStdout	3.817s
-PASS: docker_cli_run_test.go:1860: DockerSuite.TestRunEntrypoint	3.879s
-SKIP: docker_cli_run_test.go:744: DockerSuite.TestRunEnvironment (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:783: DockerSuite.TestRunEnvironmentErase (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:818: DockerSuite.TestRunEnvironmentOverride (Test requires a Linux daemon)
-SKIP: docker_cli_exec_test.go:364: DockerSuite.TestRunExecDir (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:614: DockerSuite.TestRunExitCode	3.562s
-PASS: docker_cli_run_test.go:76: DockerSuite.TestRunExitCodeOne	4.474s
-PASS: docker_cli_run_test.go:71: DockerSuite.TestRunExitCodeZero	3.931s
-PASS: docker_cli_run_test.go:1713: DockerSuite.TestRunExitOnStdinClose	3.468s
-PASS: docker_cli_run_test.go:2309: DockerSuite.TestRunExposePort	0.048s
-SKIP: docker_cli_run_test.go:879: DockerSuite.TestRunFullHostnameSet (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1006: DockerSuite.TestRunGroupAdd (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3966: DockerSuite.TestRunInitLayerPathOwnership (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1998: DockerSuite.TestRunInspectMacAddress (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3470: DockerSuite.TestRunInvalidCgroupParent (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:3954: DockerSuite.TestRunInvalidReference	0.050s
-SKIP: docker_cli_run_test.go:48: DockerSuite.TestRunLeakyFileDescriptors (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3617: DockerSuite.TestRunLinkToContainerNetMode (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:187: DockerSuite.TestRunLinksContainerWithContainerId (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:171: DockerSuite.TestRunLinksContainerWithContainerName (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:60: DockerSuite.TestRunLookupGoogleDns	4.587s
-SKIP: docker_cli_run_test.go:3627: DockerSuite.TestRunLoopbackOnlyExistsWhenNetworkingDisabled (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:3653: DockerSuite.TestRunLoopbackWhenNetworkDisabled	3.911s
-SKIP: docker_cli_run_test.go:1130: DockerSuite.TestRunModeHostname (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2364: DockerSuite.TestRunModeIpcContainer (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2396: DockerSuite.TestRunModeIpcContainerNotExists (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2405: DockerSuite.TestRunModeIpcContainerNotRunning (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2342: DockerSuite.TestRunModeIpcHost (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3661: DockerSuite.TestRunModeNetContainerHostname (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2457: DockerSuite.TestRunModePidHost (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2479: DockerSuite.TestRunModeUTSHost (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2083: DockerSuite.TestRunMountOrdering (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2418: DockerSuite.TestRunMountShmMqueueFromHost (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:503: DockerSuite.TestRunMultipleVolumesFrom	11.119s
-SKIP: docker_cli_exec_test.go:411: DockerSuite.TestRunMutableNetworkFiles (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3382: DockerSuite.TestRunNamedVolume (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:4126: DockerSuite.TestRunNamedVolumeCopyImageData (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:4113: DockerSuite.TestRunNamedVolumesMountedAsShared (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2629: DockerSuite.TestRunNetContainerWhichHost (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2598: DockerSuite.TestRunNetHost (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:862: DockerSuite.TestRunNetHostNotAllowedWithLinks (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2620: DockerSuite.TestRunNetHostTwiceSameName (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3086: DockerSuite.TestRunNetworkFilesBindMount (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3105: DockerSuite.TestRunNetworkFilesBindMountRO (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3122: DockerSuite.TestRunNetworkFilesBindMountROFilesystem (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3674: DockerSuite.TestRunNetworkNotInitializedNoneMode (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:463: DockerSuite.TestRunNoDupVolumes	0.462s
-PASS: docker_cli_run_test.go:2205: DockerSuite.TestRunNoOutputFromPullInStdout	1.531s
-PASS: docker_cli_run_test.go:3897: DockerSuite.TestRunNonExecutableCmd	3.588s
-PASS: docker_cli_run_test.go:3908: DockerSuite.TestRunNonExistingCmd	4.514s
-PASS: docker_cli_run_test.go:3936: DockerSuite.TestRunNonExistingImage	1.237s
-PASS: docker_cli_run_test.go:2580: DockerSuite.TestRunNonLocalMacAddress	4.148s
-SKIP: docker_cli_run_test.go:1336: DockerSuite.TestRunNonRootUserResolvName (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2843: DockerSuite.TestRunPidHostWithChildIsKillable (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2519: DockerSuite.TestRunPortFromDockerRangeInUse (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2043: DockerSuite.TestRunPortInUse (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:888: DockerSuite.TestRunPrivilegedCanMknod (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1017: DockerSuite.TestRunPrivilegedCanMount (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1056: DockerSuite.TestRunProcNotWritableInNonPrivilegedContainers (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1064: DockerSuite.TestRunProcWritableInPrivilegedContainers (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2992: DockerSuite.TestRunPublishPort (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2923: DockerSuite.TestRunReadFilteredProc (Test requires apparmor is enabled.)
-SKIP: docker_cli_run_test.go:2902: DockerSuite.TestRunReadProcLatency (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2887: DockerSuite.TestRunReadProcTimer (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1361: DockerSuite.TestRunResolvconfUpdate (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:2680: DockerSuite.TestRunRestartMaxRetries	13.024s
-SKIP: docker_cli_run_test.go:2131: DockerSuite.TestRunReuseBindVolumeThatIsSymlink (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:1151: DockerSuite.TestRunRootWorkdir	4.066s
-PASS: docker_cli_run_test.go:2671: DockerSuite.TestRunSetDefaultRestartPolicy	4.150s
-PASS: docker_cli_run_test.go:1982: DockerSuite.TestRunSetMacAddress	5.581s
-SKIP: docker_cli_run_test.go:2259: DockerSuite.TestRunSlowStdoutConsumer (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1588: DockerSuite.TestRunState (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:3854: DockerSuite.TestRunStdinBlockedAfterContainerExit	4.483s
-SKIP: docker_cli_run_test.go:87: DockerSuite.TestRunStdinPipe (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1040: DockerSuite.TestRunSysNotWritableInNonPrivilegedContainers (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1048: DockerSuite.TestRunSysWritableInPrivilegedContainers (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:2501: DockerSuite.TestRunTLSverify	0.222s
-PASS: docker_cli_run_test.go:2551: DockerSuite.TestRunTTYWithPipe	0.062s
-SKIP: docker_cli_run_test.go:1088: DockerSuite.TestRunThatCharacterDevicesActLikeCharacterDevices (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:710: DockerSuite.TestRunTwoConcurrentContainers (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:2317: DockerSuite.TestRunUnknownCommand	4.751s
-SKIP: docker_cli_run_test.go:898: DockerSuite.TestRunUnprivilegedCanMknod (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1027: DockerSuite.TestRunUnprivilegedCannotMount (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1097: DockerSuite.TestRunUnprivilegedWithChroot (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2962: DockerSuite.TestRunUnshareProc (Test requires apparmor is enabled.)
-SKIP: docker_cli_run_test.go:651: DockerSuite.TestRunUserByID (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:661: DockerSuite.TestRunUserByIDBig (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:674: DockerSuite.TestRunUserByIDNegative (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:687: DockerSuite.TestRunUserByIDZero (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:641: DockerSuite.TestRunUserByName (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:630: DockerSuite.TestRunUserDefaults	5.717s
-SKIP: docker_cli_run_test.go:700: DockerSuite.TestRunUserNotFound (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:514: DockerSuite.TestRunVerifyContainerID	3.507s
-PASS: docker_cli_run_test.go:2218: DockerSuite.TestRunVolumesCleanPaths	7.807s
-PASS: docker_cli_run_test.go:419: DockerSuite.TestRunVolumesFromInReadWriteMode	14.346s
-SKIP: docker_cli_run_test.go:395: DockerSuite.TestRunVolumesFromInReadonlyModeFails (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:2793: DockerSuite.TestRunVolumesFromRestartAfterRemoved	13.240s
-PASS: docker_cli_run_test.go:579: DockerSuite.TestRunVolumesFromSymlinkPath	42.169s
-SKIP: docker_cli_run_test.go:386: DockerSuite.TestRunVolumesMountedAsReadonly (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:4016: DockerSuite.TestRunVolumesMountedAsShared (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:4054: DockerSuite.TestRunVolumesMountedAsSlave (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1845: DockerSuite.TestRunWithBadDevice (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:309: DockerSuite.TestRunWithDaemonFlags	4.707s
-PASS: docker_cli_run_test.go:2013: DockerSuite.TestRunWithInvalidMacAddress	0.063s
-SKIP: docker_cli_run_test.go:3988: DockerSuite.TestRunWithOomScoreAdj (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3999: DockerSuite.TestRunWithOomScoreAdjInvalidRange (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2866: DockerSuite.TestRunWithTooSmallMemoryLimit (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3399: DockerSuite.TestRunWithUlimits (Test requires a Linux daemon)
-PASS: docker_cli_run_test.go:319: DockerSuite.TestRunWithVolumesFromExited	9.580s
-PASS: docker_cli_run_test.go:152: DockerSuite.TestRunWithoutNetworking	4.223s
-PASS: docker_cli_run_test.go:1699: DockerSuite.TestRunWorkdirExistsAndIsFile	5.029s
-SKIP: docker_cli_run_test.go:126: DockerSuite.TestRunWorkingDirectory (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3059: DockerSuite.TestRunWriteFilteredProc (Test requires apparmor is enabled.)
-SKIP: docker_cli_run_test.go:1814: DockerSuite.TestRunWriteHostnameFileAndNotCommit (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1772: DockerSuite.TestRunWriteHostsFileAndNotCommit (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:1830: DockerSuite.TestRunWriteResolvFileAndNotCommit (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2878: DockerSuite.TestRunWriteToProcAsound (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3874: DockerSuite.TestRunWrongCpusetCpusFlagValue (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3885: DockerSuite.TestRunWrongCpusetMemsFlagValue (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:149: DockerSuite.TestSaveAndLoadRepoFlags (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:91: DockerSuite.TestSaveCheckTimes (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:240: DockerSuite.TestSaveDirectoryPermissions (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:110: DockerSuite.TestSaveImageId (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:170: DockerSuite.TestSaveMultipleNames (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:188: DockerSuite.TestSaveRepoWithMultipleImages (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:76: DockerSuite.TestSaveSingleTag (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:22: DockerSuite.TestSaveXzAndLoadRepoStdout (Test requires a Linux daemon)
-SKIP: docker_cli_save_load_test.go:49: DockerSuite.TestSaveXzGzAndLoadRepoStdout (Test requires a Linux daemon)
-PASS: docker_cli_search_test.go:28: DockerSuite.TestSearchCmdOptions	3.001s
-SKIP: docker_cli_search_test.go:11: DockerSuite.TestSearchOnCentralRegistry (Test requires a Linux daemon)
-SKIP: docker_cli_search_test.go:51: DockerSuite.TestSearchOnCentralRegistryWithDash (Test requires a Linux daemon)
-PASS: docker_cli_search_test.go:18: DockerSuite.TestSearchStarsOptionWithWrongParameter	0.129s
-SKIP: docker_cli_start_test.go:42: DockerSuite.TestStartAttachCorrectExitCode (Test requires a Linux daemon)
-SKIP: docker_cli_start_test.go:151: DockerSuite.TestStartAttachMultipleContainers (Test requires a Linux daemon)
-SKIP: docker_cli_start_test.go:13: DockerSuite.TestStartAttachReturnsOnError (Test requires a Linux daemon)
-SKIP: docker_cli_start_test.go:58: DockerSuite.TestStartAttachSilent (Test requires a Linux daemon)
-SKIP: docker_cli_start_test.go:113: DockerSuite.TestStartMultipleContainers (Test requires a Linux daemon)
-SKIP: docker_cli_start_test.go:98: DockerSuite.TestStartPausedContainer (Test requires a Linux daemon)
-SKIP: docker_cli_start_test.go:71: DockerSuite.TestStartRecordError (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:1381: DockerSuite.TestStartWithNilDNS (Test requires a Linux daemon)
-SKIP: docker_api_containers_test.go:844: DockerSuite.TestStartWithTooLowMemoryLimit (Test requires a Linux daemon)
-SKIP: docker_cli_stats_test.go:94: DockerSuite.TestStatsAllNewContainersAdded (Test requires a Linux daemon)
-SKIP: docker_cli_stats_test.go:77: DockerSuite.TestStatsAllNoStream (Test requires a Linux daemon)
-SKIP: docker_cli_stats_test.go:54: DockerSuite.TestStatsAllRunningNoStream (Test requires a Linux daemon)
-SKIP: docker_cli_stats_test.go:42: DockerSuite.TestStatsContainerNotFound (Test requires a Linux daemon)
-SKIP: docker_cli_stats_test.go:14: DockerSuite.TestStatsNoStream (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:83: DockerSuite.TestTagExistedNameWithForce (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:73: DockerSuite.TestTagExistedNameWithoutForce (Test requires a Linux daemon)
-PASS: docker_cli_tag_test.go:42: DockerSuite.TestTagInvalidPrefixedRepo	0.787s
-SKIP: docker_cli_tag_test.go:173: DockerSuite.TestTagInvalidRepoName (Test requires a Linux daemon)
-PASS: docker_cli_tag_test.go:32: DockerSuite.TestTagInvalidUnprefixedRepo	0.520s
-SKIP: docker_cli_tag_test.go:155: DockerSuite.TestTagMatchesDigest (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:117: DockerSuite.TestTagOfficialNames (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:187: DockerSuite.TestTagTruncationAmbiguity (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:24: DockerSuite.TestTagUnprefixedRepoByID (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:14: DockerSuite.TestTagUnprefixedRepoByName (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:54: DockerSuite.TestTagValidPrefixedRepo (Test requires a Linux daemon)
-SKIP: docker_cli_tag_test.go:93: DockerSuite.TestTagWithPrefixHyphen (Test requires a Linux daemon)
-SKIP: docker_cli_top_test.go:10: DockerSuite.TestTopMultipleArgs (Test requires a Linux daemon)
-SKIP: docker_cli_top_test.go:19: DockerSuite.TestTopNonPrivileged (Test requires a Linux daemon)
-SKIP: docker_cli_top_test.go:32: DockerSuite.TestTopPrivileged (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:3687: DockerSuite.TestTwoContainersInNetHost (Test requires a Linux daemon)
-SKIP: docker_cli_port_test.go:180: DockerSuite.TestUnpublishedPortsInPsOutput (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:277: DockerSuite.TestUserDefinedNetworkAlias (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:203: DockerSuite.TestUserDefinedNetworkLinks (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:239: DockerSuite.TestUserDefinedNetworkLinksWithRestart (Test requires a Linux daemon)
-SKIP: docker_cli_restart_test.go:157: DockerSuite.TestUserDefinedNetworkWithRestartPolicy (Test requires a Linux daemon)
-PASS: docker_cli_version_test.go:11: DockerSuite.TestVersionEnsureSucceeds	0.067s
-SKIP: docker_cli_version_test.go:36: DockerSuite.TestVersionPlatform_l (Test requires a Linux daemon)
-PASS: docker_cli_version_test.go:30: DockerSuite.TestVersionPlatform_w	0.088s
-PASS: docker_cli_volume_test.go:11: DockerSuite.TestVolumeCliCreate	15.257s
-PASS: docker_cli_volume_test.go:22: DockerSuite.TestVolumeCliCreateOptionConflict	0.259s
-PASS: docker_cli_volume_test.go:33: DockerSuite.TestVolumeCliInspect	0.307s
-PASS: docker_cli_volume_test.go:50: DockerSuite.TestVolumeCliInspectMulti	0.265s
-PASS: docker_cli_volume_test.go:206: DockerSuite.TestVolumeCliInspectTmplError	0.126s
-PASS: docker_cli_volume_test.go:66: DockerSuite.TestVolumeCliLs	4.166s
-PASS: docker_cli_volume_test.go:134: DockerSuite.TestVolumeCliLsErrorWithInvalidFilterName	0.052s
-PASS: docker_cli_volume_test.go:86: DockerSuite.TestVolumeCliLsFilterDangling	5.035s
-PASS: docker_cli_volume_test.go:140: DockerSuite.TestVolumeCliLsWithIncorrectFilterValue	0.055s
-PASS: docker_cli_volume_test.go:188: DockerSuite.TestVolumeCliNoArgs	0.153s
-PASS: docker_cli_volume_test.go:146: DockerSuite.TestVolumeCliRm	14.015s
-PASS: docker_cli_run_test.go:3028: DockerSuite.TestVolumeFromMixedRWOptions	9.135s
-PASS: docker_api_volumes_test.go:30: DockerSuite.TestVolumesApiCreate	0.001s
-PASS: docker_api_volumes_test.go:72: DockerSuite.TestVolumesApiInspect	0.003s
-PASS: docker_api_volumes_test.go:13: DockerSuite.TestVolumesApiList	2.757s
-PASS: docker_api_volumes_test.go:45: DockerSuite.TestVolumesApiRemove	3.713s
-SKIP: docker_cli_run_test.go:443: DockerSuite.TestVolumesFromGetsProperMode (Test requires a Linux daemon)
-SKIP: docker_cli_run_test.go:2181: DockerSuite.TestVolumesNoCopyData (Test requires a Linux daemon)
-SKIP: docker_cli_wait_test.go:67: DockerSuite.TestWaitBlockedExitRandom (Test requires a Linux daemon)
-SKIP: docker_cli_wait_test.go:27: DockerSuite.TestWaitBlockedExitZero (Test requires a Linux daemon)
-PASS: docker_cli_wait_test.go:55: DockerSuite.TestWaitNonBlockedExitRandom	3.647s
-PASS: docker_cli_wait_test.go:14: DockerSuite.TestWaitNonBlockedExitZero	3.859s
-SKIP: docker_cli_by_digest_test.go:185: DockerRegistrySuite.TestBuildByDigest
-SKIP: docker_cli_pull_local_test.go:198: DockerRegistrySuite.TestConcurrentPullMultipleTags
-SKIP: docker_cli_by_digest_test.go:128: DockerRegistrySuite.TestCreateByDigest
-SKIP: docker_cli_push_test.go:151: DockerRegistrySuite.TestCrossRepositoryLayerPush
-SKIP: docker_cli_by_digest_test.go:383: DockerRegistrySuite.TestDeleteImageByIDOnlyPulledByDigest
-SKIP: docker_cli_by_digest_test.go:398: DockerRegistrySuite.TestDeleteImageWithDigestAndTag
-SKIP: docker_cli_events_test.go:505: DockerRegistrySuite.TestEventsImageFilterPush
-SKIP: docker_cli_by_digest_test.go:328: DockerRegistrySuite.TestInspectImageWithDigests
-SKIP: docker_cli_by_digest_test.go:247: DockerRegistrySuite.TestListImagesWithDigests
-SKIP: docker_cli_by_digest_test.go:234: DockerRegistrySuite.TestListImagesWithoutDigests
-SKIP: docker_cli_by_digest_test.go:347: DockerRegistrySuite.TestPsListContainersFilterAncestorImageByDigest
-SKIP: docker_cli_by_digest_test.go:103: DockerRegistrySuite.TestPullByDigest
-SKIP: docker_cli_by_digest_test.go:120: DockerRegistrySuite.TestPullByDigestNoFallback
-SKIP: docker_cli_by_digest_test.go:77: DockerRegistrySuite.TestPullByTagDisplaysDigest
-SKIP: docker_cli_by_digest_test.go:512: DockerRegistrySuite.TestPullFailsWithAlteredLayer
-SKIP: docker_cli_by_digest_test.go:430: DockerRegistrySuite.TestPullFailsWithAlteredManifest
-SKIP: docker_cli_pull_local_test.go:274: DockerRegistrySuite.TestPullIDStability
-SKIP: docker_cli_pull_local_test.go:53: DockerRegistrySuite.TestPullImageWithAliases
-SKIP: docker_cli_pull_local_test.go:282: DockerRegistrySuite.TestPullManifestList
-SKIP: docker_cli_push_test.go:68: DockerRegistrySuite.TestPushBadTag
-SKIP: docker_cli_push_test.go:28: DockerRegistrySuite.TestPushBusyboxImage
-SKIP: docker_cli_push_test.go:143: DockerRegistrySuite.TestPushEmptyLayer
-SKIP: docker_cli_push_test.go:113: DockerRegistrySuite.TestPushMultipleTags
-SKIP: docker_cli_push_test.go:51: DockerRegistrySuite.TestPushUntagged
-SKIP: docker_cli_by_digest_test.go:161: DockerRegistrySuite.TestRemoveImageByDigest
-SKIP: docker_cli_by_digest_test.go:142: DockerRegistrySuite.TestRunByDigest
-SKIP: docker_cli_by_digest_test.go:213: DockerRegistrySuite.TestTagByDigest
-SKIP: docker_cli_v2_only_test.go:71: DockerRegistrySuite.TestV1
-SKIP: docker_cli_v2_only_test.go:38: DockerRegistrySuite.TestV2Only
-SKIP: docker_cli_pull_local_test.go:202: DockerSchema1RegistrySuite.TestConcurrentPullMultipleTags
-SKIP: docker_cli_push_test.go:185: DockerSchema1RegistrySuite.TestCrossRepositoryLayerPushNotSupported
-SKIP: docker_cli_by_digest_test.go:107: DockerSchema1RegistrySuite.TestPullByDigest
-SKIP: docker_cli_by_digest_test.go:124: DockerSchema1RegistrySuite.TestPullByDigestNoFallback
-SKIP: docker_cli_by_digest_test.go:81: DockerSchema1RegistrySuite.TestPullByTagDisplaysDigest
-SKIP: docker_cli_by_digest_test.go:555: DockerSchema1RegistrySuite.TestPullFailsWithAlteredLayer
-SKIP: docker_cli_by_digest_test.go:470: DockerSchema1RegistrySuite.TestPullFailsWithAlteredManifest
-SKIP: docker_cli_pull_local_test.go:278: DockerSchema1RegistrySuite.TestPullIDStability
-SKIP: docker_cli_pull_local_test.go:57: DockerSchema1RegistrySuite.TestPullImageWithAliases
-SKIP: docker_cli_push_test.go:72: DockerSchema1RegistrySuite.TestPushBadTag
-SKIP: docker_cli_push_test.go:32: DockerSchema1RegistrySuite.TestPushBusyboxImage
-SKIP: docker_cli_push_test.go:147: DockerSchema1RegistrySuite.TestPushEmptyLayer
-SKIP: docker_cli_push_test.go:117: DockerSchema1RegistrySuite.TestPushMultipleTags
-SKIP: docker_cli_push_test.go:55: DockerSchema1RegistrySuite.TestPushUntagged
-SKIP: docker_cli_proxy_test.go:26: DockerDaemonSuite.TestCliProxyProxyTCPSock
-SKIP: docker_cli_exec_test.go:81: DockerDaemonSuite.TestExecAfterDaemonRestart
-SKIP: docker_cli_build_test.go:5803: DockerTrustSuite.TestBuildContextDirIsSymlink
-SKIP: docker_cli_create_test.go:332: DockerTrustSuite.TestCreateWhenCertExpired
-SKIP: docker_cli_pull_trusted_test.go:65: DockerTrustSuite.TestPullWhenCertExpired
-SKIP: docker_cli_run_test.go:3201: DockerTrustSuite.TestRunWhenCertExpired
-SKIP: docker_cli_build_test.go:5751: DockerTrustSuite.TestTrustedBuild
-SKIP: docker_cli_build_test.go:5782: DockerTrustSuite.TestTrustedBuildUntrustedTag
-SKIP: docker_cli_create_test.go:282: DockerTrustSuite.TestTrustedCreate
-SKIP: docker_cli_create_test.go:359: DockerTrustSuite.TestTrustedCreateFromBadTrustServer
-SKIP: docker_cli_create_test.go:319: DockerTrustSuite.TestTrustedIsolatedCreate
-SKIP: docker_cli_pull_trusted_test.go:35: DockerTrustSuite.TestTrustedIsolatedPull
-SKIP: docker_cli_pull_trusted_test.go:177: DockerTrustSuite.TestTrustedOfflinePull
-SKIP: docker_cli_pull_trusted_test.go:14: DockerTrustSuite.TestTrustedPull
-SKIP: docker_cli_pull_trusted_test.go:205: DockerTrustSuite.TestTrustedPullDelete
-SKIP: docker_cli_pull_trusted_test.go:93: DockerTrustSuite.TestTrustedPullFromBadTrustServer
-SKIP: docker_cli_pull_trusted_test.go:147: DockerTrustSuite.TestTrustedPullWithExpiredSnapshot
-SKIP: docker_cli_push_test.go:218: DockerTrustSuite.TestTrustedPush
-SKIP: docker_cli_push_test.go:258: DockerTrustSuite.TestTrustedPushWithDeprecatedEnvPasswords
-SKIP: docker_cli_push_test.go:237: DockerTrustSuite.TestTrustedPushWithEnvPasswords
-SKIP: docker_cli_push_test.go:314: DockerTrustSuite.TestTrustedPushWithExistingSignedTag
-SKIP: docker_cli_push_test.go:294: DockerTrustSuite.TestTrustedPushWithExistingTag
-SKIP: docker_cli_push_test.go:386: DockerTrustSuite.TestTrustedPushWithExpiredSnapshot
-SKIP: docker_cli_push_test.go:412: DockerTrustSuite.TestTrustedPushWithExpiredTimestamp
-SKIP: docker_cli_push_test.go:270: DockerTrustSuite.TestTrustedPushWithFailingServer
-SKIP: docker_cli_push_test.go:366: DockerTrustSuite.TestTrustedPushWithIncorrectDeprecatedPassphraseForNonRoot
-SKIP: docker_cli_push_test.go:344: DockerTrustSuite.TestTrustedPushWithIncorrectPassphraseForNonRoot
-SKIP: docker_cli_push_test.go:438: DockerTrustSuite.TestTrustedPushWithReleasesDelegation
-SKIP: docker_cli_push_test.go:282: DockerTrustSuite.TestTrustedPushWithoutServerAndUntrusted
-SKIP: docker_cli_run_test.go:3147: DockerTrustSuite.TestTrustedRun
-SKIP: docker_cli_run_test.go:3239: DockerTrustSuite.TestTrustedRunFromBadTrustServer
-SKIP: docker_cli_create_test.go:303: DockerTrustSuite.TestUntrustedCreate
-SKIP: docker_cli_pull_trusted_test.go:49: DockerTrustSuite.TestUntrustedPull
-SKIP: docker_cli_run_test.go:3179: DockerTrustSuite.TestUntrustedRun
-OK: 135 passed, 838 skipped
-PASS
-coverage: 23.6% of statements
-ok  	github.com/docker/docker/integration-cli	651.275s
----> Making bundle: .integration-daemon-stop (in bundles/1.10.0-dev/test-integration-cli)
-INFO: Not stopping daemon on Windows CI
-
-INFO: Removing containers and images from daemon under test...
-INFO: Removing 1 images
-Untagged: busybox:latest
-Deleted: sha256:0c3dd7078356e028c10cfa2fd8243c9d761b236a07c8b16e21c39969dd070290
-Deleted: sha256:9dce63495e22bb50397c90a8af184afeb1423e4a0c98c962cff199c4c7379cbd
-Deleted: sha256:d0467e5fbdfe0dff6282a9e4ddfdef9a50800e715456910d3220d3086943ec13
-Deleted: sha256:dbf8c7a8caef02c922e32124fc81fc973ea47a67f72135370a8b239cca6ccfc5
-Deleted: sha256:922b52288e25c70fa24c4df474c975ff62307468b477dc67f0d8b854bfc12918
-Deleted: sha256:4b63a5e3d0c0bac4845e5945336cf1017f3a8d723af09ca2c0375987f4ad9764
-Deleted: sha256:4ebf63ba9cca199b4ef722875739c5dffd3889b4b7e67d6d5d1b540b7bd297d8
-Deleted: sha256:c815b43e0d1ae65c6df04142c78ff09ea16f31bee9f6890aec9156de073e797f
-Deleted: sha256:27c15092309f02b900ec72ce8814830e5594942f4dd6df2f887a597d8afa1f24
-Deleted: sha256:1c91c18aed6b9c2dc127fa1fb269309d89c6cc99060891c88d8e043122e4e34d
-INFO: Stopping daemon under test
-SUCCESS: The process with PID 4148 (child process of PID 5168) has been terminated.
-INFO: Completed successfully at Mon Jan 25 15:29:52 PST 2016.
-INFO: Tidying up at end of run
-INFO: Cleaning /c/CI/CI-9600991
-INFO: Nuking /c/CI/CI-9600991
-WARN: Failed to completely clean /c/CI/CI-9600991
-INFO: End of cleanup
-INFO: Ended at Mon Jan 25 15:29:55 PST 2016 (15m 58s)
