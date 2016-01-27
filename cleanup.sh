@@ -178,5 +178,6 @@ nuke_everything()
 	export LOCALAPPDATA=$OLDLOCALAPPDATA	
 }
 
+export ver=$(reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion" | grep BuildLabEx | awk '{print $3}')
 ! nuke_everything
 true
