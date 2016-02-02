@@ -101,7 +101,7 @@ nuke_everything()
 					echo "INFO: Starting daemon to cleanup..."
 					mkdir $TEMP/daemon >& /dev/null
 					set +x
-					$TEMP/binary/docker-$CLEANCOMMIT daemon -D \
+					$TEMP/binary/docker-$CLEANCOMMIT daemon \
 						-H=tcp://127.0.0.1:2357 \
 						--exec-root=$TEMP/daemon/execroot \
 						--graph=$TEMP/daemon/graph \
