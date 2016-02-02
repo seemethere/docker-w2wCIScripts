@@ -4,6 +4,7 @@
 set +e  # Keep going on errors
 set +x 
 
+# This function is copied from the cleanup script
 nuke_everything()
 {
 	export DOCKER_HOST="tcp://127.0.0.1:2375"
@@ -23,7 +24,7 @@ nuke_everything()
 	# TODO Remove this reliability hack after TP4 is no longer supported
 	! imageCount=$(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | wc -l)
 	if [ $imageCount -gt 0 ]; then
-		if [ "${ver%%[^0-9]*}" -lt "11100" ]; then
+		if [ "${ver%%[^0-9]*}" -lt "14000" ]; then
 			# TP4 reliability hack  - only clean if we have a docker:latest image. This stops
 			# us clearing the cache if the builder fails due to the known TP4 networking issue
 			# half way through. This way we can continue the next time from where we got to.
@@ -52,15 +53,18 @@ nuke_everything()
 	done
 
 	# Even more paranoid - kill a bunch of stuff that might be locking files
+	! taskkill -F -IM cc1.exe -T 				>& /dev/null
 	! taskkill -F -IM link.exe -T 				>& /dev/null
 	! taskkill -F -IM compile.exe -T 			>& /dev/null
+	! taskkill -F -IM ld.exe -T 				>& /dev/null
 	! taskkill -F -IM go.exe -T 				>& /dev/null
 	! taskkill -F -IM git.exe -T 				>& /dev/null
+	! taskkill -F -IM git-remote-https.exe -T 	>& /dev/null
 	
 	# Note: This one is interesting. Found a case where the workspace could not be deleted
 	# by Jenkins as the bundles directory couldn't be cleaned. Pretty strongly suspect
 	# it is integration-cli-test as the command line run is something like
-	# c:\ci\ci-commit\go-buildID\github.com\docker\docker\integration-cli\_test\integration-cli.test.exe
+	# d:\ci\ci-commit\go-buildID\github.com\docker\docker\integration-cli\_test\integration-cli.test.exe
 	#  -test.coverprofile=C:/gopath/src/github.com/docker/docker/bundles/VERSION/test-integration-cli/coverprofiles/docker-integration-cli -test.timeout=nnn
 	! taskkill -F -IM integration-cli.test.exe -T	>& /dev/null
 
@@ -71,7 +75,7 @@ nuke_everything()
 	processes=$(ps -W | grep CI-$COMMITID | grep .exe | awk '{ print $1 }')  
 	processCount=$(echo $processes | wc -w)
 	if [ $processCount > 0 ]; then
-		echo "INFO: Found $processCount other processes to kill"
+		echo "INFO: Other processes to kill: $processCount"
 		for proc in $processes; do 
 			! taskkill -F -T -PID $proc	>& /dev/null
 			echo $proc
@@ -79,10 +83,10 @@ nuke_everything()
 		sleep 10  # Just to be sure
 	fi
 
-	if [[ -e /c/CI ]]; then
-		for DIR in /c/CI/CI-*; do
+	if [[ -e /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]]; then
+		for DIR in /$TESTRUN_DRIVE/$TESTRUN_SUBDIR/CI-*; do
 			# Ignore the literal case.
-			if [ "$DIR" != "/c/CI/CI-*" ] ; then
+			if [ "$DIR" != "/$TESTRUN_DRIVE/$TESTRUN_SUBDIR/CI-*" ] ; then
 				echo "INFO: Cleaning $DIR"
 				CLEANCOMMIT=${DIR:9:7}
 				local ec=0

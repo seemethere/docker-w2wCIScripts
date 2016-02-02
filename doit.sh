@@ -1,10 +1,42 @@
 # Jenkins CI script for Windows to Windows CI
 # By John Howard (@jhowardmsft) January 2016
 
+# -------------------------------------------------------------------------------------------
+# When executed, we rely on four variables being set in the environment:
+#
+#   SOURCES_DRIVE		is the drive on which the sources being tested are cloned from.
+# 						This should be a straight drive letter, no platform semantics.
+#						For example 'c'
+#
+# 	SOURCES_SUBDIR  	is the top level directory under SOURCES_DRIVE where the
+#						sources are cloned to. There are no platform semantics in this
+#						as it does not include slashes. 
+#						For example 'gopath'
+#
+#						Based on the above examples, it would be expected that Jenkins
+#						would clone the sources being tested to
+#						/SOURCES_DRIVE/SOURCES_SUBDIR/src/github.com/docker/docker, or
+#                   	/c/gopath/src/github.com/docker/docker
+#
+#
+#	TESTRUN_DRIVE		is the drive where we build the binary on and redirect everything
+#						to for the daemon under test. On an Azure D2 type host which has
+#						an SSD temporary storage D: drive, this is ideal for performance.
+#						For example 'd'
+#
+#	TESTRUN_SUBDIR		is the top level directory under TESTRUN_DRIVE where we redirect
+#						everything to for the daemon under test. For example 'CI'.
+#						Hence, the daemon under test is run under
+#						/TESTRUN_DRIVE/TESTRUN_SUBDIR/CI-<CommitID> or
+#						/d/CI/CI-<CommitID>
+#
+# -------------------------------------------------------------------------------------------
+
+
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="26-Jan-2016 09:44 PDT"
+SCRIPT_VER="01-Feb-2016 14:00 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -26,7 +58,7 @@ nuke_everything()
 	# TODO Remove this reliability hack after TP4 is no longer supported
 	! imageCount=$(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | wc -l)
 	if [ $imageCount -gt 0 ]; then
-		if [ "${ver%%[^0-9]*}" -lt "11100" ]; then
+		if [ "${ver%%[^0-9]*}" -lt "14000" ]; then
 			# TP4 reliability hack  - only clean if we have a docker:latest image. This stops
 			# us clearing the cache if the builder fails due to the known TP4 networking issue
 			# half way through. This way we can continue the next time from where we got to.
@@ -55,15 +87,18 @@ nuke_everything()
 	done
 
 	# Even more paranoid - kill a bunch of stuff that might be locking files
+	! taskkill -F -IM cc1.exe -T 				>& /dev/null
 	! taskkill -F -IM link.exe -T 				>& /dev/null
 	! taskkill -F -IM compile.exe -T 			>& /dev/null
+	! taskkill -F -IM ld.exe -T 				>& /dev/null
 	! taskkill -F -IM go.exe -T 				>& /dev/null
 	! taskkill -F -IM git.exe -T 				>& /dev/null
+	! taskkill -F -IM git-remote-https.exe -T 	>& /dev/null
 	
 	# Note: This one is interesting. Found a case where the workspace could not be deleted
 	# by Jenkins as the bundles directory couldn't be cleaned. Pretty strongly suspect
 	# it is integration-cli-test as the command line run is something like
-	# c:\ci\ci-commit\go-buildID\github.com\docker\docker\integration-cli\_test\integration-cli.test.exe
+	# d:\ci\ci-commit\go-buildID\github.com\docker\docker\integration-cli\_test\integration-cli.test.exe
 	#  -test.coverprofile=C:/gopath/src/github.com/docker/docker/bundles/VERSION/test-integration-cli/coverprofiles/docker-integration-cli -test.timeout=nnn
 	! taskkill -F -IM integration-cli.test.exe -T	>& /dev/null
 
@@ -74,7 +109,7 @@ nuke_everything()
 	processes=$(ps -W | grep CI-$COMMITID | grep .exe | awk '{ print $1 }')  
 	processCount=$(echo $processes | wc -w)
 	if [ $processCount > 0 ]; then
-		echo "INFO: Found $processCount other processes to kill"
+		echo "INFO: Other processes to kill: $processCount"
 		for proc in $processes; do 
 			! taskkill -F -T -PID $proc	>& /dev/null
 			echo $proc
@@ -82,10 +117,10 @@ nuke_everything()
 		sleep 10  # Just to be sure
 	fi
 
-	if [[ -e /c/CI ]]; then
-		for DIR in /c/CI/CI-*; do
+	if [[ -e /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]]; then
+		for DIR in /$TESTRUN_DRIVE/$TESTRUN_SUBDIR/CI-*; do
 			# Ignore the literal case.
-			if [ "$DIR" != "/c/CI/CI-*" ] ; then
+			if [ "$DIR" != "/$TESTRUN_DRIVE/$TESTRUN_SUBDIR/CI-*" ] ; then
 				echo "INFO: Cleaning $DIR"
 				CLEANCOMMIT=${DIR:9:7}
 				local ec=0
@@ -181,6 +216,56 @@ nuke_everything()
 	export LOCALAPPDATA=$OLDLOCALAPPDATA	
 }
 
+# Call with validate_driveletter VARIABLENAME VALUE
+validate_driveletter() {
+	ec=0
+	
+	if [ -z "$2" ]; then
+		echo "FAIL: Variable $1 is not set"
+		return 1
+	fi
+	
+	if [ $(expr length $2) -ne 1 ]; then
+		echo "FAIL: Variable $1 should be a single character drive letter"
+		return 1
+	fi
+	
+	if [ ! -d /$2 ]; then
+		echo "FAIL: Variable $1 should be a drive letter that exists (/$2 does not!)"
+		return 1
+	fi
+	return 0
+}
+
+# Call with validate_path DRIVELETTER path value mustexist. DRIVELETTER should be pre-validated
+validate_path() {
+	ec=0
+	
+	if [ -z "$3" ]; then
+		echo "FAIL: Variable $2 is not set"
+		return 1
+	fi
+	
+	if [[ $3 == *"/"* ]]; then
+		echo "FAIL: Variable $2 ($3) contains a '/' character. It should not!"
+		return 1
+	fi
+
+	if [[ $3 == *"\\"* ]]; then
+		echo "FAIL: Variable $2 ($3) contains a '\\' character. It should not!"
+		return 1
+	fi
+
+	if [ -n "$4" ]; then #must exist
+		if [ ! -d /$1/$3 ]; then
+			echo "FAIL: /$1/$3 is not a directory. Check value of $2 ($3)"
+			return 1
+		fi
+	fi
+	
+	return 0
+}
+
 ec=0											# Exit code
 daemonStarted=0									# 1 when started
 inRepo=0										# 1 if we are in a docker repo
@@ -251,7 +336,7 @@ if [ $ec -eq 0 ]; then
 	if [ $latestCount -ne 1 ]; then
 		docker tag windowsservercore:$build windowsservercore:latest
 		ec=$?
-		if [ ec -eq 0 ]; then
+		if [ $ec -eq 0 ]; then
 			echo "INFO: Tagged windowsservercore:$build with latest"
 		else
 			echo "ERROR: Failed to tag windowsservercore:$build as latest"
@@ -259,53 +344,71 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Make sure TESTROOT is set
+# Make sure each of the variables are set
 if [ $ec -eq 0 ]; then
-	if [ -z $TESTROOT ]; then
-		echo "ERROR: TESTROOT environment variable is not set!"
-		echo "       This should be the root of the workspace,"
-		echo "       for example /c/gopath"
-		echo 
-		echo "       Under TESTROOT is where the repo would be cloned."
-		echo "       eg /c/gopath/src/github.com/docker/docker"
-		echo 
-		ec=1
-	else
-		echo "INFO: Root for testing is $TESTROOT"
-	
-		# Set the WORKSPACE
-		export WORKSPACE=$TESTROOT/src/github.com/docker/docker
-		echo "INFO: Workspace for sources is $WORKSPACE"
+	validate_driveletter "SOURCES_DRIVE" $SOURCES_DRIVE
+	ec=$?
+fi
 
-		# Set the GOPATH to the root and the vendor directory
-		export GOPATH=$TESTROOT/src/github.com/docker/docker/vendor:$TESTROOT
-		echo "INFO: GOPATH set to $GOPATH"
+if [ $ec -eq 0 ]; then
+	validate_driveletter "TESTRUN_DRIVE" $TESTRUN_DRIVE
+	ec=$?
+fi
+
+if [ $ec -eq 0 ]; then
+	validate_path $SOURCES_DRIVE "SOURCES_SUBDIR" $SOURCES_SUBDIR "ItMustExist"
+	ec=$?
+fi
+
+if [ $ec -eq 0 ]; then
+	validate_path $TESTRUN_DRIVE "TESTRUN_SUBDIR" $TESTRUN_SUBDIR  # Doesn't have to exist
+	ec=$?
+fi
+
+# Create the /$TESTRUN_DRIVE/$TESTRUN_SUBDIR if it does not already exist
+if [ $ec -eq 0 ]; then
+	if [ ! -d /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]; then
+		mkdir -p /$TESTRUN_DRIVE/$TESTRUN_SUBDIR
+		ec=$?
+		if [ 0 -ne $ec ]; then
+			echo
+			echo "----------------------------------"
+			echo "ERROR: Failed to create /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"
+			echo "----------------------------------"
+			echo
+		else
+			echo "INFO: Created /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"
+		fi
 	fi
 fi
 
-# Testing my stupidity by making sure TESTROOT is in linux semantics.
-if [[ "$TESTROOT" == *\\* ]] || [[ "$TESTROOT" == *:* ]]; then
-	echo "ERROR: TESTROOT looks to be set to a Windows path as it contains \ or :"
-	echo "       It should be the root of the workspace using Linux sematics."
-	echo "       eg /c/gopath. Current value is $TESTROOT"
-	echo
-	ec=1
+if [ $ec -eq 0 ]; then
+	echo "INFO: Configured sources under /$SOURCES_DRIVE/$SOURCES_SUBDIR/..."
+	echo "INFO: Configured test run under /$TESTRUN_DRIVE/$TESTRUN_SUBDIR/..."
 fi
 
-# Check WORKSPACE is a valid directory
+# Set the GOPATH to the root and the vendor directory
+if [ $ec -eq 0 ]; then
+	export GOPATH=/$SOURCES_DRIVE/$SOURCES_SUBDIR/src/github.com/docker/docker/vendor:/$SOURCES_DRIVE/$SOURCES_SUBDIR
+	echo "INFO: GOPATH set to $GOPATH"
+fi
+
+# Check the intended source location is a directory
 if [ $ec -eq 0 ]; then 
-	if [ ! -d $WORKSPACE ]; then
-		echo "ERROR: $WORKSPACE is not a directory!"
+	if [ ! -d /$SOURCES_DRIVE/$SOURCES_SUBDIR/src/github.com/docker/docker ]; then
+		echo "ERROR: /$SOURCES_DRIVE/$SOURCES_SUBDIR/src/github.com/docker/docker is not a directory!"
 		ec=1
 	fi
 fi
 
-# Make sure we start in the workspace
+# Make sure we start at the root of the sources
 if [ $ec -eq 0 ]; then
-	cd $WORKSPACE
+	cd /$SOURCES_DRIVE/$SOURCES_SUBDIR/src/github.com/docker/docker >& /dev/null
 	ec=$?
 	if [ 0 -ne $ec ]; then
-		echo "ERROR: Failed to change directory to $WORKSPACE"
+		echo "ERROR: Failed to change directory to /$SOURCES_DRIVE/$SOURCES_SUBDIR/src/github.com/docker/docker"
+	else	
+		echo "INFO: Running in $(pwd)"
 	fi
 fi
 
@@ -340,7 +443,7 @@ if [ $ec -eq 0 ]; then
 		ec=1
 	else
 		inRepo=1
-		echo INFO: Repository was found
+		echo "INFO: Repository was found"
 	fi
 fi
 
@@ -354,17 +457,17 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Nuke everything and go back to our workspace after
+# Nuke everything and go back to our sources after
 if [ $ec -eq 0 ]; then
 	! nuke_everything
-	cd $WORKSPACE
+	cd /$SOURCES_DRIVE/$SOURCES_SUBDIR/src/github.com/docker/docker
 fi
 
 # Redirect to a temporary location. 
 if [ $ec -eq 0 ]; then
 	deleteAtEnd=1
-	export TEMP=/c/CI/CI-$COMMITHASH
-	export TEMPWIN=c:\\CI\\CI-$COMMITHASH
+	export TEMP=/$TESTRUN_DRIVE/$TESTRUN_SUBDIR/CI-$COMMITHASH
+	export TEMPWIN=$TESTRUN_DRIVE:\\$TESTRUN_SUBDIR\\CI-$COMMITHASH
 	export TMP=$TMP
 	rmdir $TEMP >& /dev/null # Just in case it exists already
 	/usr/bin/mkdir -p $TEMP  # Make sure Linux mkdir for -p
@@ -430,13 +533,35 @@ if [ $ec -eq 0 ]; then
 	echo
 fi
 
+# TODO This is a TP4 reliability hack to loop around
 # Build the image
 if [ $ec -eq 0 ]; then
 	echo "INFO: Building the image from Dockerfile.windows..."
-	set -x
-	docker build -t docker -f Dockerfile.windows .
-	ec=$?
-	set +x
+	
+	tries=10
+	while true; do
+
+		(( tries-- ))
+		if [ $tries -le 0 ]; then
+			ec=1
+			echo "ERROR: Failed after multiple attempts!"
+			break 
+		fi
+
+		set -x
+		docker build -t docker -f Dockerfile.windows .
+		lastec=$?
+		set +x
+		
+		if [ $lastec -eq 0 ]; then
+			ec=0
+			break
+		fi
+		
+		echo "INFO: TP4 hack - retrying the build step (`expr $tries - 1` more attempts(s))..."
+	done
+
+
 	if [ 0 -ne $ec ]; then
 		echo
 		echo "----------------------------"
@@ -444,6 +569,7 @@ if [ $ec -eq 0 ]; then
 		echo "----------------------------"
 		echo		
 	fi
+		
 fi
 
 # Build the binary in a container
@@ -471,7 +597,7 @@ fi
 # Copy the built docker.exe to docker-$COMMITHASH.exe so that easily spotted in task manager,
 # and make sure the built binaries are first on our path
 if [ $ec -eq 0 ]; then
-	echo "INFO: Linking the built binary to $TEMP/docker-$COMMITHASH..."
+	echo "INFO: Linking the built binary to $TEMP/docker-$COMMITHASH.exe..."
 	ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
 	ec=$?
 	if [ 0 -ne $ec ]; then
@@ -716,10 +842,10 @@ else
 fi
 overallrun_ec=$ec
 
-# Nuke everything again, making sure we're point to the installed docker, not the one under test.
+# Nuke everything again
 echo "INFO: Tidying up at end of run"
 ! nuke_everything
-! cd $WORKSPACE
+! cd /$SOURCES_DRIVE/$SOURCES_SUBDIR/
 
 duration=$SECONDS
 echo "INFO: Ended at `date` ($(($duration / 60))m $(($duration % 60))s)"
