@@ -538,7 +538,7 @@ fi
 if [ $ec -eq 0 ]; then
 	echo "INFO: Building the image from Dockerfile.windows..."
 	
-	tries=10
+	tries=30
 	while true; do
 
 		(( tries-- ))
