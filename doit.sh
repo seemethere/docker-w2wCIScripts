@@ -259,17 +259,7 @@ fi
 # Create the /$TESTRUN_DRIVE/$TESTRUN_SUBDIR if it does not already exist
 if [ $ec -eq 0 ]; then
 	if [ ! -d /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]; then
-		mkdir -p /$TESTRUN_DRIVE/$TESTRUN_SUBDIR
-		ec=$?
-		if [ 0 -ne $ec ]; then
-			echo
-			echo "----------------------------------"
-			echo "ERROR: Failed to create /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"
-			echo "----------------------------------"
-			echo
-		else
-			echo "INFO: Created /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"
-		fi
+		! mkdir -p /$TESTRUN_DRIVE/$TESTRUN_SUBDIR
 	fi
 fi
 
@@ -361,12 +351,12 @@ if [ $ec -eq 0 ]; then
 	export TEMPWIN=$TESTRUN_DRIVE:\\$TESTRUN_SUBDIR\\CI-$COMMITHASH
 	export TMP=$TMP
 	rmdir $TEMP >& /dev/null # Just in case it exists already
-	/usr/bin/mkdir -p $TEMP  # Make sure Linux mkdir for -p
-	/usr/bin/mkdir $TEMP/userprofile >& /dev/null
+	! /usr/bin/mkdir -p $TEMP  # Make sure Linux mkdir for -p
+	! /usr/bin/mkdir $TEMP/userprofile >& /dev/null
 	export USERPROFILE=$TEMP/userprofile
-	/usr/bin/mkdir $TEMP/localappdata >& /dev/null
+	! /usr/bin/mkdir $TEMP/localappdata >& /dev/null
 	export LOCALAPPDATA=$TEMP/localappdata
-	/usr/bin/mkdir -p $TEMP/binary
+	! /usr/bin/mkdir -p $TEMP/binary
 	echo INFO: Location for testing is $TEMP
 fi 
 
@@ -501,9 +491,9 @@ fi
 # killing the control daemon
 if [ $ec -eq 0 ]; then
 	echo "INFO: Starting a daemon under test..."
-    mkdir $TEMP/daemon >& /dev/null
-	mkdir $TEMP/daemon/execroot >& /dev/null
-	mkdir $TEMP/daemon/graph >& /dev/null
+    ! mkdir $TEMP/daemon >& /dev/null
+	! mkdir $TEMP/daemon/execroot >& /dev/null
+	! mkdir $TEMP/daemon/graph >& /dev/null
     $TEMP/binary/docker-$COMMITHASH daemon \
 		-H=tcp://127.0.0.1:2357 \
 		--exec-root=$TEMP/daemon/execroot \
