@@ -4,11 +4,11 @@
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
 #
-#   SOURCES_DRIVE		is the drive on which the sources being tested are cloned from.
+#	SOURCES_DRIVE		is the drive on which the sources being tested are cloned from.
 # 						This should be a straight drive letter, no platform semantics.
 #						For example 'c'
 #
-# 	SOURCES_SUBDIR  	is the top level directory under SOURCES_DRIVE where the
+#	SOURCES_SUBDIR  	is the top level directory under SOURCES_DRIVE where the
 #						sources are cloned to. There are no platform semantics in this
 #						as it does not include slashes. 
 #						For example 'gopath'
@@ -16,7 +16,7 @@
 #						Based on the above examples, it would be expected that Jenkins
 #						would clone the sources being tested to
 #						/SOURCES_DRIVE/SOURCES_SUBDIR/src/github.com/docker/docker, or
-#                   	/c/gopath/src/github.com/docker/docker
+#						/c/gopath/src/github.com/docker/docker
 #
 #
 #	TESTRUN_DRIVE		is the drive where we build the binary on and redirect everything
@@ -155,7 +155,6 @@ validate_path() {
 ec=0											# Exit code
 daemonStarted=0									# 1 when started
 inRepo=0										# 1 if we are in a docker repo
-deleteAtEnd=0           						# 1 if we need to nuke the redirected $TEMP at the end
 SECONDS=0
 
 echo INFO: Started at `date`. 
@@ -346,7 +345,6 @@ fi
 
 # Redirect to a temporary location. 
 if [ $ec -eq 0 ]; then
-	deleteAtEnd=1
 	export TEMP=/$TESTRUN_DRIVE/$TESTRUN_SUBDIR/CI-$COMMITHASH
 	export TEMPWIN=$TESTRUN_DRIVE:\\$TESTRUN_SUBDIR\\CI-$COMMITHASH
 	export TMP=$TMP
@@ -421,7 +419,6 @@ if [ $ec -eq 0 ]; then
 	
 	tries=30
 	while true; do
-
 		(( tries-- ))
 		if [ $tries -le 0 ]; then
 			ec=1
@@ -494,7 +491,7 @@ if [ $ec -eq 0 ]; then
     ! mkdir $TEMP/daemon >& /dev/null
 	! mkdir $TEMP/daemon/execroot >& /dev/null
 	! mkdir $TEMP/daemon/graph >& /dev/null
-    $TEMP/binary/docker-$COMMITHASH daemon \
+	$TEMP/binary/docker-$COMMITHASH daemon \
 		-H=tcp://127.0.0.1:2357 \
 		--exec-root=$TEMP/daemon/execroot \
 		--graph=$TEMP/daemon/graph \
@@ -648,7 +645,7 @@ if [ $ec -eq 0 ]; then
 	unset DOCKER_TEST_HOST
 
 	if [ 0 -ne $ec ]; then
-		export DUMPDAEMONLOG=1
+		#export DUMPDAEMONLOG=1  This is too verbose unfortunately :(
 		echo
 		echo "-------------------------------"
 		echo "ERROR: Integration tests failed"
@@ -666,25 +663,6 @@ if [ $daemonStarted -eq 1 ]; then
 	fi
 fi
 
-# Delete any containers and their volumes, plus any images if the daemon was started,
-# before killing the daemon under test itself
-#if [ $daemonStarted -eq 1 ]; then
-#	echo "INFO: Removing containers and images from daemon under test..."
-
-#	! containerCount=$($TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 ps -aq | wc -l)
-#	if [ $containerCount -gt 0 ]; then
-#		echo "INFO: Removing $containerCount containers"
-#		! $TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 rm -vf $($TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 ps -aq)
-#		sleep 10 
-#	fi
-	
-#	! imageCount=$($TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | wc -l)
-#	if [ $imageCount -gt 0 ]; then
-#		echo "INFO: Removing $imageCount images"
-#		! $TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 rmi -f $(! $TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | awk '{ print $3 }' )
-#		sleep 10
-#	fi
-
 # Stop the daemon under test
 if [ $daemonStarted -eq 1 ]; then
 	PID=$(< $TEMP/daemon/docker.pid)
@@ -695,20 +673,14 @@ if [ $daemonStarted -eq 1 ]; then
 	fi
 fi
 
-## Remove everything. This avoid cleanup having to restart the daemon.
-#if [ $deleteAtEnd -eq 1 ]; then
-#	rm -rf $TEMP >& /dev/null
-#	rm -rfd $TEMP >& /dev/null
-#fi
-
 # Warning about Go Version
 if [ -n "$warnGoVersionAtEnd" ]; then
 	echo
 	echo "---------------------------------------------------------------------------"
 	echo "WARN: CI should be using go version $GOVER_DOCKERFILE, but it is using ${GOVER_INSTALLED:2}"
 	echo 
-	echo "       This CI server needs updating. Please ping #docker-dev or"
-	echo "       #docker-maintainers."
+	echo "		This CI server needs updating. Please ping #docker-dev or"
+	echo "		#docker-maintainers."
 	echo "---------------------------------------------------------------------------"
 	echo
 fi
