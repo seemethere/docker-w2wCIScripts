@@ -36,7 +36,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="04-Feb-2016 10:00 PDT"
+SCRIPT_VER="17-Feb-2016 10:12 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -93,6 +93,9 @@ nuke_everything()
 	! taskkill -F -IM git-remote-https.exe -T 		>& /dev/null
 	! taskkill -F -IM integration-cli.test.exe -T	>& /dev/null
 
+	# Detach any VHDs
+	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'gwmi msvm_mountedstorageimage -namespace root/virtualization/v2 -ErrorAction SilentlyContinue | foreach-object {$_.DetachVirtualHardDisk() }'
+	
 	# Use our really dangerous utility to force zap
 	if [[ -e /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]]; then
 		echo "INFO: Nuking /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"

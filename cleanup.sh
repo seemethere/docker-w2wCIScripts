@@ -58,6 +58,9 @@ nuke_everything()
 	! taskkill -F -IM git-remote-https.exe -T 		>& /dev/null
 	! taskkill -F -IM integration-cli.test.exe -T	>& /dev/null
 
+	# Detach any VHDs
+	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'gwmi msvm_mountedstorageimage -namespace root/virtualization/v2 -ErrorAction SilentlyContinue | foreach-object {$_.DetachVirtualHardDisk() }'
+	
 	# Use our really dangerous utility to force zap
 	if [[ -e /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]]; then
 		echo "INFO: Nuking /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"
