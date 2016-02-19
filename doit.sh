@@ -528,7 +528,9 @@ if [ 0 -eq $ec ]; then
 			echo "-----------------------------------------------------------------------------"
 			echo "ERROR: Failed to get OK response from the daemon under test at 127.0.0.1:2357"
 			echo "-----------------------------------------------------------------------------"
-			echo 
+			echo "The daemon log will be dumped a little lower down this output."
+			echo
+			export DUMPDAEMONLOG=1
 			ec=1
 		fi
 						
@@ -553,7 +555,9 @@ if [ $ec -eq 0 ]; then
 		echo "-----------------------------------------------------------"
 		echo "ERROR: The daemon under test does not appear to be running."
 		echo "-----------------------------------------------------------"
+		echo "The daemon log will be dumped a little lower down this output."
 		echo
+		export DUMPDAEMONLOG=1
 	fi
 	echo
 fi
@@ -569,7 +573,9 @@ if [ $ec -eq 0 ]; then
 		echo "-----------------------------------------------------------"
 		echo "ERROR: The daemon under test does not appear to be running."
 		echo "-----------------------------------------------------------"
+		echo "The daemon log will be dumped a little lower down this output."
 		echo
+		export DUMPDAEMONLOG=1
 	fi
 	echo
 fi
