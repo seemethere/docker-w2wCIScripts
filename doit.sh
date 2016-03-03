@@ -36,7 +36,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="17-Feb-2016 10:12 PDT"
+SCRIPT_VER="03-Mar-2016 15:18 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -490,12 +490,12 @@ fi
 # Important - we launch the -$COMMITHASH version so that we can kill it without
 # killing the control daemon
 if [ $ec -eq 0 ]; then
-	echo "INFO: Starting a daemon under test..."
+	echo "INFO: Starting a daemon under test at -H=npipe:////./pipe/$COMMITHASH..."
     ! mkdir $TEMP/daemon >& /dev/null
 	! mkdir $TEMP/daemon/execroot >& /dev/null
 	! mkdir $TEMP/daemon/graph >& /dev/null
 	$TEMP/binary/docker-$COMMITHASH daemon \
-		-H=tcp://127.0.0.1:2357 \
+		-H=npipe:////./pipe/$COMMITHASH \
 		--exec-root=$TEMP/daemon/execroot \
 		--graph=$TEMP/daemon/graph \
 		--pidfile=$TEMP/daemon/docker.pid \
@@ -509,35 +509,32 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Verify we can get the daemon under test to respond to _ping
+# Verify we can get the daemon under test to respond 
 if [ 0 -eq $ec ]; then
 	# Give it time to start
 	tries=20
-	echo "INFO: Waiting for daemon under test to reply to ping..."
+	echo "INFO: Waiting for daemon under test to reply come up..."
 	while [ "$ec" -eq 0 ]; do
-		reply=""
-		reply=$(curl -m 10 -s http://127.0.0.1:2357/_ping)
-		if [ "$reply" == "OK" ]; then				
+		$TEMP/binary/docker-$COMMITHASH -H=npipe:////./pipe/$COMMITHASH version >& /dev/null
+		if [ 0 -eq $? ]; then
 			break
-		fi 
+		fi
 						
 		(( tries-- ))
 		if [ $tries -le 0 ]; then
 			printf "\n"
 			echo
-			echo "-----------------------------------------------------------------------------"
-			echo "ERROR: Failed to get OK response from the daemon under test at 127.0.0.1:2357"
-			echo "-----------------------------------------------------------------------------"
+			echo "----------------------------------------------------------"
+			echo "ERROR: Failed to get a response from the daemon under test"
+			echo "----------------------------------------------------------"
 			echo "The daemon log will be dumped a little lower down this output."
 			echo
 			export DUMPDAEMONLOG=1
 			ec=1
 		fi
-						
-		if [ 0 -eq $ec ]; then
-			printf "."
-			sleep 1
-		fi
+
+		printf "."
+		sleep 1
 	done
 	if [ 0 -eq $ec ]; then
 		echo "INFO: Daemon under test started and replied!"
@@ -548,7 +545,7 @@ fi
 if [ $ec -eq 0 ]; then
 	echo INFO: Docker version of the daemon under test
 	echo
-	$TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 version
+	$TEMP/binary/docker-$COMMITHASH -H=npipe:////./pipe/$COMMITHASH version
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo
@@ -566,7 +563,7 @@ fi
 if [ $ec -eq 0 ]; then
 	echo INFO: Docker info of the daemon under test
 	echo
-	$TEMP/binary/docker-$COMMITHASH -H=tcp://127.0.0.1:2357 info
+	$TEMP/binary/docker-$COMMITHASH -H=npipe:////./pipe/$COMMITHASH info
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo
@@ -642,8 +639,8 @@ if [ $ec -eq 0 ]; then
 
 	export ORIGPATH=$PATH # Save our path before we update anything
 	export PATH=$TEMP/binary:$PATH # Make sure it's first on our path
-	export DOCKER_HOST=tcp://127.0.0.1:2357
-	export DOCKER_TEST_HOST=tcp://127.0.0.1:2357 # Forces .integration-deaemon-start down Windows path
+	export DOCKER_HOST=npipe:////./pipe/$COMMITHASH 
+	export DOCKER_TEST_HOST=npipe:////./pipe/$COMMITHASH # Forces .integration-deaemon-start down Windows path
 	set -x
 	hack/make.sh test-integration-cli
 	ec=$?
