@@ -36,7 +36,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="11-Mar-2016 11:59 PDT"
+SCRIPT_VER="14-Mar-2016 19:08 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -77,6 +77,13 @@ nuke_everything()
 		echo "INFO: Killing daemon with PID $PID"
 		taskkill -f -t -pid $PID
 	done
+    # Split binary mode. Remove above block when split binary in master
+	for PID in $(tasklist | grep dockerd- | awk {'print $2'})
+	do
+		echo "INFO: Killing daemon with PID $PID"
+		taskkill -f -t -pid $PID
+	done
+
 
 	# Even more paranoid - kill a bunch of stuff that might be locking files
 	# Note: Last one is interesting. Found a case where the workspace could not be deleted
@@ -295,22 +302,37 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Verify we can get the local daemon to respond to _ping
+
+# Provide the docker version for debugging purposes.
 if [ $ec -eq 0 ]; then
-	echo "INFO: Seeing if the control daemon is up and responding..."
-	reply=`curl -m 10 -s http://127.0.0.1:2375/_ping`
-	if [ "$reply" != "OK" ]; then
-		ec=1
+	echo INFO: Docker version of control daemon
+	echo
+	docker version
+	ec=$?
+	if [ 0 -ne $ec ]; then
+		echo "ERROR: The control daemon does not appear to be running."
 		echo
 		echo "---------------------------------------------------------------------------"
-		echo "ERROR: Failed to get OK response from the control daemon at 127.0.0.1:2375. It may be down."
-		echo "       Try re-running this CI job, or ask on #docker-dev or #docker-maintainers"
-		echo "       to see if the the daemon is running. Also check the nssm configuration."
+		echo " Failed to get a response from the control daemon. It may be down."
+		echo " Try re-running this CI job, or ask on #docker-dev or #docker-maintainers"
+		echo " to see if the the daemon is running. Also check the nssm configuration."
+        echo " DOCKER_HOST is set to $DOCKER_HOST."
 		echo "---------------------------------------------------------------------------"
 		echo
-	else
-		echo "INFO: The control daemon replied to a ping. Good!"
-	fi 
+	fi
+	echo
+fi
+
+# Same as above, but docker info
+if [ $ec -eq 0 ]; then
+	echo INFO: Docker info of control daemon
+	echo
+	docker info
+	ec=$?
+	if [ 0 -ne $ec ]; then
+		echo "ERROR: The control daemon does not appear to be running."
+    fi
+	echo
 fi
 
 # Make sure we are in repo
@@ -391,30 +413,6 @@ fi
 
 # TODO RSRC integrity check...
 
-# Provide the docker version for debugging purposes.
-if [ $ec -eq 0 ]; then
-	echo INFO: Docker version of control daemon
-	echo
-	docker version
-	ec=$?
-	if [ 0 -ne $ec ]; then
-		echo "ERROR: The control daemon does not appear to be running."
-	fi
-	echo
-fi
-
-# Same as above, but docker info
-if [ $ec -eq 0 ]; then
-	echo INFO: Docker info of control daemon
-	echo
-	docker info
-	ec=$?
-	if [ 0 -ne $ec ]; then
-		echo "ERROR: The control daemon does not appear to be running."
-	fi
-	echo
-fi
-
 # TODO This is a TP4 reliability hack to loop around
 # Build the image
 if [ $ec -eq 0 ]; then
@@ -486,20 +484,32 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
+
+# Work out the the -H parameter for the daemon under test (DASHH_DUT)
+if [ -z "$DOCKER_HOST" ]; then
+    DASHH_DUT="npipe:////./pipe/$COMMITHASH"
+elif [[ $DOCKER_HOST == npipe* ]]; then
+    DASHH_DUT="npipe:////./pipe/$COMMITHASH"
+else
+    # No, this is not a type. If TCP, the control daemon is at 2375. The DUT is 2357.
+    DASHH_DUT="tcp://127.0.0.1:2357"
+fi
+
+
 # Start the daemon under test, ensuring everything is redirected to folders under $TEMP.
 # Important - we launch the -$COMMITHASH version so that we can kill it without
 # killing the control daemon
 if [ $ec -eq 0 ]; then
-	echo "INFO: Starting a daemon under test at -H=npipe:////./pipe/$COMMITHASH..."
+	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
 	! mkdir $TEMP/daemon/execroot >& /dev/null
 	! mkdir $TEMP/daemon/graph >& /dev/null
 	$TEMP/binary/docker-$COMMITHASH daemon \
-		-H=npipe:////./pipe/$COMMITHASH \
+		-H=$DASHH_DUT \
 		--exec-root=$TEMP/daemon/execroot \
 		--graph=$TEMP/daemon/graph \
-		--pidfile=$TEMP/daemon/docker.pid \
-		&> $TEMP/daemon/daemon.log &
+		--pidfile=$TEMP/docker.pid \
+		&> $TEMP/daemon.log &
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
@@ -515,7 +525,7 @@ if [ 0 -eq $ec ]; then
 	tries=20
 	echo "INFO: Waiting for daemon under test to reply come up..."
 	while [ "$ec" -eq 0 ]; do
-		$TEMP/binary/docker-$COMMITHASH -H=npipe:////./pipe/$COMMITHASH version >& /dev/null
+		$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT version >& /dev/null
 		if [ 0 -eq $? ]; then
 			break
 		fi
@@ -545,7 +555,7 @@ fi
 if [ $ec -eq 0 ]; then
 	echo INFO: Docker version of the daemon under test
 	echo
-	$TEMP/binary/docker-$COMMITHASH -H=npipe:////./pipe/$COMMITHASH version
+	$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT version
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo
@@ -563,7 +573,7 @@ fi
 if [ $ec -eq 0 ]; then
 	echo INFO: Docker info of the daemon under test
 	echo
-	$TEMP/binary/docker-$COMMITHASH -H=npipe:////./pipe/$COMMITHASH info
+	$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT info
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo
@@ -639,16 +649,17 @@ if [ $ec -eq 0 ]; then
 
 	export ORIGPATH=$PATH # Save our path before we update anything
 	export PATH=$TEMP/binary:$PATH # Make sure it's first on our path
-	export DOCKER_HOST=npipe:////./pipe/$COMMITHASH 
-	export DOCKER_TEST_HOST=npipe:////./pipe/$COMMITHASH # Forces .integration-deaemon-start down Windows path
-	export TIMEOUT=180m
+    export ORIG_DOCKER_HOST=$DOCKER_HOST
+	export DOCKER_HOST=$DASHH_DUT 
+	export DOCKER_TEST_HOST=$DASHH_DUT # Forces .integration-deaemon-start down Windows path
+	export TIMEOUT=240m
 	set -x
 	hack/make.sh test-integration-cli
 	ec=$?
 	set +x
 	# revert back
 	export PATH=$ORIGPATH
-	export DOCKER_HOST=tcp://127.0.0.1:2375
+	export DOCKER_HOST=$ORIG_DOCKER_HOST
 	unset DOCKER_TEST_HOST
 
 	if [ 0 -ne $ec ]; then
@@ -665,14 +676,14 @@ fi
 if [ $daemonStarted -eq 1 ]; then
 	if [ -n "$DUMPDAEMONLOG" ]; then
 		echo ----------- DAEMON LOG ------------
-		cat $TEMP/daemon/daemon.log
+		cat $TEMP/daemon.log
 		echo --------- END DAEMON LOG ----------
 	fi
 fi
 
 # Stop the daemon under test
 if [ $daemonStarted -eq 1 ]; then
-	PID=$(< $TEMP/daemon/docker.pid)
+	PID=$(< $TEMP/docker.pid)
 	if [ ! -z $PID ]; then
 		echo "INFO: Stopping daemon under test"
 		! taskkill -f -t -pid $PID 
