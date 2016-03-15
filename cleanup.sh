@@ -42,6 +42,13 @@ nuke_everything()
 		echo "INFO: Killing daemon with PID $PID"
 		taskkill -f -t -pid $PID
 	done
+    # Split binary mode. Remove above block when split binary in master
+	for PID in $(tasklist | grep dockerd- | awk {'print $2'})
+	do
+		echo "INFO: Killing daemon with PID $PID"
+		taskkill -f -t -pid $PID
+	done
+
 
 	# Even more paranoid - kill a bunch of stuff that might be locking files
 	# Note: Last one is interesting. Found a case where the workspace could not be deleted
