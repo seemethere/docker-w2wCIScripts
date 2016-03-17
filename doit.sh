@@ -515,8 +515,7 @@ if [ $ec -eq 0 ]; then
     ! mkdir $TEMP/daemon >& /dev/null
 	! mkdir $TEMP/daemon/execroot >& /dev/null
 	! mkdir $TEMP/daemon/graph >& /dev/null
-	$TEMP/binary/docker-$COMMITHASH daemon \
-		$DUT_DEBUG_FLAG \
+	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG \
 		-H=$DASHH_DUT \
 		--exec-root=$TEMP/daemon/execroot \
 		--graph=$TEMP/daemon/graph \
