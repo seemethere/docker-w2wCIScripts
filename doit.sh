@@ -30,13 +30,16 @@
 #						/TESTRUN_DRIVE/TESTRUN_SUBDIR/CI-<CommitID> or
 #						/d/CI/CI-<CommitID>
 #
+# In addition, the following variables are optional
+#
+#	DOCKER_DUT_DEBUG	if defined starts the daemon under test in debug mode.
 # -------------------------------------------------------------------------------------------
 
 
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="14-Mar-2016 19:08 PDT"
+SCRIPT_VER="16-Mar-2016 18:30 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -495,6 +498,14 @@ else
     DASHH_DUT="tcp://127.0.0.1:2357"
 fi
 
+# Are we starting the daemon under test in debug mode?
+if [ $ec -eq 0 ]; then
+	DUT_DEBUG_FLAG = ""
+	if [ -z "$DOCKER_DUT_DEBUG" ]; then
+		echo "INFO: Running the daemon under test in debug mode"
+		DUT_DEBUG_FLAG = " -D "
+	fi  
+fi
 
 # Start the daemon under test, ensuring everything is redirected to folders under $TEMP.
 # Important - we launch the -$COMMITHASH version so that we can kill it without
@@ -505,6 +516,7 @@ if [ $ec -eq 0 ]; then
 	! mkdir $TEMP/daemon/execroot >& /dev/null
 	! mkdir $TEMP/daemon/graph >& /dev/null
 	$TEMP/binary/docker-$COMMITHASH daemon \
+		$DUT_DEBUG_FLAG \
 		-H=$DASHH_DUT \
 		--exec-root=$TEMP/daemon/execroot \
 		--graph=$TEMP/daemon/graph \
