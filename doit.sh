@@ -500,11 +500,11 @@ fi
 
 # Are we starting the daemon under test in debug mode?
 if [ $ec -eq 0 ]; then
-	DUT_DEBUG_FLAG = ""
-	if [ -z "$DOCKER_DUT_DEBUG" ]; then
+	DUT_DEBUG_FLAG=""
+	if [ ! -z "$DOCKER_DUT_DEBUG" ]; then
 		echo "INFO: Running the daemon under test in debug mode"
-		DUT_DEBUG_FLAG = " -D "
-	fi  
+		DUT_DEBUG_FLAG=" -D "
+	fi
 fi
 
 # Start the daemon under test, ensuring everything is redirected to folders under $TEMP.
