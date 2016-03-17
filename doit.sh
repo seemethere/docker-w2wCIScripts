@@ -30,16 +30,22 @@
 #						/TESTRUN_DRIVE/TESTRUN_SUBDIR/CI-<CommitID> or
 #						/d/CI/CI-<CommitID>
 #
-# In addition, the following variables are optional
+# In addition, the following variables can control the run configuration:
 #
-#	DOCKER_DUT_DEBUG	if defined starts the daemon under test in debug mode.
+#	DOCKER_DUT_DEBUG		if defined starts the daemon under test in debug mode.
+#
+#	SKIP_VALIDATION_TESTS	if defined skips the validation tests
+#
+#	SKIP_UNIT_TESTS			if defined skips the unit tests
+#
+#	SKIP_INTEGRATION_TESTS	if defined skips the integration tests
 # -------------------------------------------------------------------------------------------
 
 
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="16-Mar-2016 18:30 PDT"
+SCRIPT_VER="17-Mar-2016 09:55 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -593,88 +599,95 @@ if [ $ec -eq 0 ]; then
 	echo
 fi
 
-# Run the validation tests inside a container
+# Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
 if [ $ec -eq 0 ]; then
-	echo "INFO: Running validation tests..."
-	# Note sleep is necessary for Windows networking workaround (see dockerfile.Windows)
-	set -x
-	docker run --rm docker sh -c \
-	'cd /c/go/src/github.com/docker/docker; \
- 	 sleep 5; \
-	 hack/make.sh validate-dco validate-gofmt validate-pkg'
-	ec=$?
-	set +x
-	if [ 0 -ne $ec ]; then
-		echo
-		echo "-------------------------"
-		echo "ERROR: Validation failed."
-		echo "-------------------------"
-		echo
+	if [ -z "$SKIP_VALIDATION_TESTS" ]; then
+		echo "INFO: Running validation tests..."
+		# Note sleep is necessary for Windows networking workaround (see dockerfile.Windows)
+		set -x
+		docker run --rm docker sh -c \
+		'cd /c/go/src/github.com/docker/docker; \
+		sleep 5; \
+		hack/make.sh validate-dco validate-gofmt validate-pkg'
+		ec=$?
+		set +x
+		if [ 0 -ne $ec ]; then
+			echo
+			echo "-------------------------"
+			echo "ERROR: Validation failed."
+			echo "-------------------------"
+			echo
+		fi
 	fi
 fi
 
-# Run the unit tests inside a container
+# Run the unit tests inside a container unless SKIP_UNIT_TESTS is defined
 if [ $ec -eq 0 ]; then
-	echo "INFO: Running unit tests..."
-	set -x
-	docker run --rm docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit'
-	ec=$?
-	set +x
-	if [ 0 -ne $ec ]; then
-		echo "ERROR: Unit tests failed."
-		echo
-		echo
-		echo "		-----------------------------------------"
-		echo "		IGNORING UNIT TEST FAILURES ON WINDOWS."
-		echo "		These need fixing. @jhowardmsft Jan 2016."
-		echo " 		PRs are welcome :)"
-		echo "		-----------------------------------------"
-		echo
-		echo
-		ec=0
+	if [ -z "$SKIP_UNIT_TESTS" ]; then
+		echo "INFO: Running unit tests..."
+		set -x
+		docker run --rm docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit'
+		ec=$?
+		set +x
+		if [ 0 -ne $ec ]; then
+			echo "ERROR: Unit tests failed."
+			echo
+			echo
+			echo "		-----------------------------------------"
+			echo "		IGNORING UNIT TEST FAILURES ON WINDOWS."
+			echo "		These need fixing. @jhowardmsft Jan 2016."
+			echo " 		PRs are welcome :)"
+			echo "		-----------------------------------------"
+			echo
+			echo
+			ec=0
+		fi
 	fi
 fi
 
-# Run the integration tests (these are run on the host, not in a container)
+# Run the integration tests (these are run on the host, not in a container),
+# unless SKIP_INTEGRATION_TESTS is defined
 if [ $ec -eq 0 ]; then
+	if [ -z "$SKIP_INTEGRATION_TESTS" ]; then
 	echo "INFO: Running integration tests..."
 
-	#	## For in a container. Not sure if this will work with NAT ##
-	#   ## Keep this block of code safe for when I get back to     ##
-	#   ## looking at it again.                                    ##
-	#	set -x 
-	#	docker run --rm -v "$TEMPWIN\binary:c:\target" \
-	#	docker sh -c 'export DOCKER_HOST=tcp://someip:2357; \
-	#	export DOCKER_TEST_HOST=tcp://someip:2357; \
-	#	export PATH=/c/target:$PATH; \
-	#	cd /c/go/src/github.com/docker/docker; \
-	#	hack/make.sh test-integration-cli'
-	#	ec=$?
-	#	set +x
+		#	## For in a container. Not sure if this will work with NAT ##
+		#   ## Keep this block of code safe for when I get back to     ##
+		#   ## looking at it again.                                    ##
+		#	set -x 
+		#	docker run --rm -v "$TEMPWIN\binary:c:\target" \
+		#	docker sh -c 'export DOCKER_HOST=tcp://someip:2357; \
+		#	export DOCKER_TEST_HOST=tcp://someip:2357; \
+		#	export PATH=/c/target:$PATH; \
+		#	cd /c/go/src/github.com/docker/docker; \
+		#	hack/make.sh test-integration-cli'
+		#	ec=$?
+		#	set +x
 
 
-	export ORIGPATH=$PATH # Save our path before we update anything
-	export PATH=$TEMP/binary:$PATH # Make sure it's first on our path
-    export ORIG_DOCKER_HOST=$DOCKER_HOST
-	export DOCKER_HOST=$DASHH_DUT 
-	export DOCKER_TEST_HOST=$DASHH_DUT # Forces .integration-deaemon-start down Windows path
-	export TIMEOUT=240m
-	set -x
-	hack/make.sh test-integration-cli
-	ec=$?
-	set +x
-	# revert back
-	export PATH=$ORIGPATH
-	export DOCKER_HOST=$ORIG_DOCKER_HOST
-	unset DOCKER_TEST_HOST
+		export ORIGPATH=$PATH # Save our path before we update anything
+		export PATH=$TEMP/binary:$PATH # Make sure it's first on our path
+		export ORIG_DOCKER_HOST=$DOCKER_HOST
+		export DOCKER_HOST=$DASHH_DUT 
+		export DOCKER_TEST_HOST=$DASHH_DUT # Forces .integration-deaemon-start down Windows path
+		export TIMEOUT=240m
+		set -x
+		hack/make.sh test-integration-cli
+		ec=$?
+		set +x
+		# revert back
+		export PATH=$ORIGPATH
+		export DOCKER_HOST=$ORIG_DOCKER_HOST
+		unset DOCKER_TEST_HOST
 
-	if [ 0 -ne $ec ]; then
-		#export DUMPDAEMONLOG=1  This is too verbose unfortunately :(
-		echo
-		echo "-------------------------------"
-		echo "ERROR: Integration tests failed"
-		echo "-------------------------------"
-		echo
+		if [ 0 -ne $ec ]; then
+			#export DUMPDAEMONLOG=1  This is too verbose unfortunately :(
+			echo
+			echo "-------------------------------"
+			echo "ERROR: Integration tests failed"
+			echo "-------------------------------"
+			echo
+		fi
 	fi
 fi
 
