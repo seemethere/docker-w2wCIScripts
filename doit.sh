@@ -503,7 +503,7 @@ if [ $ec -eq 0 ]; then
 	DUT_DEBUG_FLAG=""
 	if [ ! -z "$DOCKER_DUT_DEBUG" ]; then
 		echo "INFO: Running the daemon under test in debug mode"
-		DUT_DEBUG_FLAG=" -D "
+		DUT_DEBUG_FLAG="-D"
 	fi
 fi
 
@@ -514,13 +514,8 @@ if [ $ec -eq 0 ]; then
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
 	! mkdir $TEMP/daemon/execroot >& /dev/null
-	! mkdir $TEMP/daemon/graph >& /dev/null
-	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG \
-		-H=$DASHH_DUT \
-		--exec-root=$TEMP/daemon/execroot \
-		--graph=$TEMP/daemon/graph \
-		--pidfile=$TEMP/docker.pid \
-		&> $TEMP/daemon.log &
+	echo $TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --exec-root=$TEMP/daemon/execroot --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid 
+	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --exec-root=$TEMP/daemon/execroot --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
