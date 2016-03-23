@@ -112,6 +112,9 @@ nuke_everything()
 	# Detach any VHDs
 	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'gwmi msvm_mountedstorageimage -namespace root/virtualization/v2 -ErrorAction SilentlyContinue | foreach-object {$_.DetachVirtualHardDisk() }'
 	
+	# Stop any compute processes
+	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'Get-ComputeProcess | Stop-ComputeProcess -Force'
+	
 	# Use our really dangerous utility to force zap
 	if [[ -e /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]]; then
 		echo "INFO: Nuking /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"
