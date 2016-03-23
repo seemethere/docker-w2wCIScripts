@@ -4,6 +4,7 @@
 set +e  # Keep going on errors
 set +x 
 
+# This function is copied from the cleanup script
 nuke_everything()
 {
 	! containerCount=$(docker ps -aq | wc -l)
@@ -67,6 +68,9 @@ nuke_everything()
 
 	# Detach any VHDs
 	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'gwmi msvm_mountedstorageimage -namespace root/virtualization/v2 -ErrorAction SilentlyContinue | foreach-object {$_.DetachVirtualHardDisk() }'
+	
+	# Stop any compute processes
+	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'Get-ComputeProcess | Stop-ComputeProcess -Force'
 	
 	# Use our really dangerous utility to force zap
 	if [[ -e /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]]; then
