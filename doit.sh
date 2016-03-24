@@ -45,7 +45,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="17-Mar-2016 09:55 PDT"
+SCRIPT_VER="24-Mar-2016 12:02 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -522,9 +522,8 @@ fi
 if [ $ec -eq 0 ]; then
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
-	! mkdir $TEMP/daemon/execroot >& /dev/null
-	echo $TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --exec-root=$TEMP/daemon/execroot --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid 
-	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --exec-root=$TEMP/daemon/execroot --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
+	echo $TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid 
+	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
