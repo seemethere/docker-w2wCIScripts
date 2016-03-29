@@ -133,8 +133,8 @@ go get -u github.com/golang/lint/golint
 Write-Host "INFO: Building RSRC..."
 Start-Process -wait git -ArgumentList "clone https://github.com/akavel/rsrc.git $env:SystemDrive\go\src\github.com\akavel\rsrc"
 cd $env:SystemDrive\go\src\github.com\akavel\rsrc
-git checkout -q $RSRC_COMMIT
-go install -v
+Start-Process -wait git -ArgumentList "checkout -q $RSRC_COMMIT"
+Start-Process -wait go -ArgumentList "install -v"
 
 
 # Download docker.
