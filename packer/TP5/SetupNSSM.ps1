@@ -9,7 +9,7 @@ $ErrorActionPreference="stop"
 
 
 # Create directory for storing the nssm configuration
-mkdir $env:ProgramData\docker -ErrorAction SilentlyContinue
+mkdir $env:ProgramData\docker -ErrorAction SilentlyContinue | Out-Null
 
 
 # Install NSSM by extracting archive and placing in system32
@@ -25,7 +25,7 @@ Copy-Item $env:Temp\nssm-2.24\win64\nssm.exe $env:SystemRoot\System32
 
 # Configure the docker NSSM service
 Write-Host "INFO: Configuring NSSM..."
-mkdir $env:Programdata\docker -erroraction SilentlyContinue
+mkdir $env:Programdata\docker -erroraction SilentlyContinue | Out-Null
 Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:Programdata\docker\nssmdocker.cmd < nul"
 Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
 Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"

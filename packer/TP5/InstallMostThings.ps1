@@ -70,7 +70,7 @@ $RSRC_COMMIT=$line.Substring($index+1)
 Write-Host "INFO: Need RSRC at $RSRC_COMMIT"
 
 # Create directory for our local run scripts
-mkdir $env:SystemDrive\scripts -ErrorAction SilentlyContinue
+mkdir $env:SystemDrive\scripts -ErrorAction SilentlyContinue | Out-Null
 
 
 # Downloads scripts for performing local runs.
@@ -119,7 +119,7 @@ Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
 
 # Perform an initial clone so that we can do a local verification outside of jenkins through c:\scripts\doit.sh
 Write-Host "INFO: Cloning docker sources..."
-git clone https://github.com/docker/docker $env:SystemDrive\gopath\src\github.com\docker\docker | out-null
+git clone https://github.com/docker/docker $env:SystemDrive\gopath\src\github.com\docker\docker 2>&1 | out-null # Can't have stderr output for packer
 
 
 # Install utilities for zapping CI, signalling the daemon and for linting changes. These go to c:\gopath\bin
@@ -131,7 +131,7 @@ go get -u github.com/golang/lint/golint
 
 # Build RSRC for embedding resources in the binary (manifest and icon)
 Write-Host "INFO: Building RSRC..."
-git clone https://github.com/akavel/rsrc.git $env:SystemDrive\go\src\github.com\akavel\rsrc
+git clone https://github.com/akavel/rsrc.git $env:SystemDrive\go\src\github.com\akavel\rsrc 2>&1 | out-null # Can't have stderr output for packer
 cd $env:SystemDrive\go\src\github.com\akavel\rsrc
 git checkout -q $RSRC_COMMIT
 go install -v
@@ -205,7 +205,7 @@ copy sqlite3.dll $env:SystemRoot\system32
 
 # Download and install Cygwin for SSH capability
 Write-Host "INFO: Downloading Cygwin..."
-mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue
+mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue | Out-Null
 $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwinsetup.exe")
 Write-Host "INFO: Installing Cygwin..."
 Start-Process $env:SystemDrive\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/" -Wait
