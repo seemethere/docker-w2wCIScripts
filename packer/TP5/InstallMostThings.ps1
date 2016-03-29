@@ -124,9 +124,9 @@ Start-Process -wait git -ArgumentList "clone https://github.com/docker/docker $e
 
 # Install utilities for zapping CI, signalling the daemon and for linting changes. These go to c:\gopath\bin
 Write-Host "INFO: Downloading utilities..."
-go get -u github.com/jhowardmsft/docker-ci-zap
-go get -u github.com/jhowardmsft/docker-signal
-go get -u github.com/golang/lint/golint
+Start-Process -wait go -ArgumentList "get -u github.com/jhowardmsft/docker-ci-zap"
+Start-Process -wait go -ArgumentList "get -u github.com/jhowardmsft/docker-signal"
+Start-Process -wait go -ArgumentList "get -u github.com/golang/lint/golint"
 
 
 # Build RSRC for embedding resources in the binary (manifest and icon)
@@ -199,7 +199,7 @@ Expand-Archive $env:Temp\sqlite.zip $env:SystemDrive\sqlite
 cd $env:SystemDrive\sqlite
 move .\sql*\* .
 Write-Host "INFO: Compiling sqlite3.dll..."
-gcc -shared sqlite3.c -o sqlite3.dll
+Start-Process -wait gcc -ArgumentList "-shared sqlite3.c -o sqlite3.dll"
 copy sqlite3.dll $env:SystemRoot\system32
 
 
