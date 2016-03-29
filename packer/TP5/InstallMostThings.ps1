@@ -16,14 +16,14 @@ $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
 $DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64/docker.exe"
 
 
-Write-Host "INFO: Git:       $GIT_LOCATION"
-Write-Host "INFO: JDK:       $JDK_LOCATION"
-Write-Host "INFO: LiteIDE:   $LITEIDE_LOCATION"
-Write-Host "INFO: Notepad++: $NPP_LOCATION"
-Write-Host "INFO: PuTTY:     $PuTTY_LOCATION"
-Write-Host "INFO: JQ:        $JQ_LOCATION"
-Write-Host "INFO: SQLite:    $SQLITE_LOCATION"
-Write-Host "INFO: Docker:    $DOCKER_LOCATION"
+Write-Host " Git:       $GIT_LOCATION"
+Write-Host " JDK:       $JDK_LOCATION"
+Write-Host " LiteIDE:   $LITEIDE_LOCATION"
+Write-Host " Notepad++: $NPP_LOCATION"
+Write-Host " PuTTY:     $PuTTY_LOCATION"
+Write-Host " JQ:        $JQ_LOCATION"
+Write-Host " SQLite:    $SQLITE_LOCATION"
+Write-Host " Docker:    $DOCKER_LOCATION"
 
 # Stop on error
 $ErrorActionPreference="stop"
@@ -70,7 +70,7 @@ $RSRC_COMMIT=$line.Substring($index+1)
 Write-Host "INFO: Need RSRC at $RSRC_COMMIT"
 
 # Create directory for our local run scripts
-mkdir $env:SystemDrive\scripts -ErrorAction SilentlyContinue | Out-Null
+mkdir $env:SystemDrive\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null
 
 
 # Downloads scripts for performing local runs.
@@ -165,8 +165,8 @@ Expand-Archive $env:Temp\pstools.zip c:\pstools
 
 # Add registry keys for enabling nanoserver
 Write-Host "INFO: Adding nanoserver registry keys..."
-REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipVersionCheck /t REG_DWORD /d 2
-REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipSkuCheck /t REG_DWORD /d 2 
+REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipVersionCheck /t REG_DWORD /d 2 | Out-Null
+REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipSkuCheck /t REG_DWORD /d 2 | Out-Null
 
 
 # Download and install PuTTY
@@ -205,7 +205,7 @@ copy sqlite3.dll $env:SystemRoot\system32
 
 # Download and install Cygwin for SSH capability
 Write-Host "INFO: Downloading Cygwin..."
-mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue | Out-Null
+mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
 $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwinsetup.exe")
 Write-Host "INFO: Installing Cygwin..."
 Start-Process $env:SystemDrive\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/" -Wait
