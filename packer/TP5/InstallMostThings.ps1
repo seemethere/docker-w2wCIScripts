@@ -119,7 +119,7 @@ Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
 
 # Perform an initial clone so that we can do a local verification outside of jenkins through c:\scripts\doit.sh
 Write-Host "INFO: Cloning docker sources..."
-git clone https://github.com/docker/docker $env:SystemDrive\gopath\src\github.com\docker\docker 2>&1 | out-null # Can't have stderr output for packer
+Start-Process -wait git -ArgumentList "clone https://github.com/docker/docker $env:SystemDrive\gopath\src\github.com\docker\docker"
 
 
 # Install utilities for zapping CI, signalling the daemon and for linting changes. These go to c:\gopath\bin
@@ -131,7 +131,7 @@ go get -u github.com/golang/lint/golint
 
 # Build RSRC for embedding resources in the binary (manifest and icon)
 Write-Host "INFO: Building RSRC..."
-git clone https://github.com/akavel/rsrc.git $env:SystemDrive\go\src\github.com\akavel\rsrc 2>&1 | out-null # Can't have stderr output for packer
+Start-Process -wait git -ArgumentList "clone https://github.com/akavel/rsrc.git $env:SystemDrive\go\src\github.com\akavel\rsrc"
 cd $env:SystemDrive\go\src\github.com\akavel\rsrc
 git checkout -q $RSRC_COMMIT
 go install -v
