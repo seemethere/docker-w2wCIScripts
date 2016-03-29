@@ -194,7 +194,7 @@ Start-Process -Wait "$env:Temp\jdkinstaller.exe" -ArgumentList "/s /INSTALLDIRPU
 # Download and compile sqlite3.dll from amalgamation sources in case of a dynamically linked docker binary
 Write-Host "INFO: Downloading SQLite sources..."
 $wc=New-Object net.webclient;$wc.Downloadfile($SQLITE_LOCATION,"$env:Temp\sqlite.zip")
-Write-Host "INFO: Extracting SQLite sourceds..."
+Write-Host "INFO: Extracting SQLite sources..."
 Expand-Archive $env:Temp\sqlite.zip $env:SystemDrive\sqlite
 cd $env:SystemDrive\sqlite
 move .\sql*\* .
