@@ -13,5 +13,5 @@ $env:Tmp=$env:Temp
 [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "User")
 
 # Create the TEMP directory 
-mkdir $env:Temp -erroraction SilentlyContinue | Out-Null
+mkdir $env:Temp -erroraction SilentlyContinue 2>&1 | Out-Null
 Write-Host "INFO: ConfigureTempToD.ps1 completed"

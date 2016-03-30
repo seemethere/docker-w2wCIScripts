@@ -27,9 +27,9 @@
 	 	 	"inline": [
 				"Write-Host INFO: Packer script provisioner starting...",
 				"Write-Host INFO: Creating packer directory...",
-				"mkdir c:\\packer | Out-Null",
+				"mkdir c:\\packer -ErrorAction SilentlyContinue 2>&1 | Out-Null",
 				"Write-Host INFO: Creating scripts directory...",
-				"mkdir c:\\scripts | Out-Null",
+				"mkdir c:\\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null",
 				"Write-Host INFO: Storing password temporarily...",
 				"$pwd = '{{user `password`}}'; $pwd | Out-File c:\\scripts\\SSHpassword.txt",
 				"Write-Host INFO: Downloading ConfigureCIEnvironment.ps1...",
