@@ -30,6 +30,8 @@
 				"mkdir c:\\packer | Out-Null",
 				"Write-Host INFO: Creating scripts directory...",
 				"mkdir c:\\scripts | Out-Null",
+				"Write-Host INFO: Storing password temporarily...",
+				"$pwd = '{{user `password`}}'; $pwd | Out-File c:\\scripts\\SSHpassword.txt",
 				"Write-Host INFO: Downloading ConfigureCIEnvironment.ps1...",
 				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/ConfigureCIEnvironment.ps1\",\"c://packer//ConfigureCIEnvironment.ps1\")",
 				"Write-Host INFO: Downloading SetupNSSM.ps1...",
@@ -54,13 +56,9 @@
 				"c:\\packer\\InstallMostThings.ps1",
 				"Write-Host INFO: Invoking ConfigureTempToD.ps1...",
 				"c:\\packer\\ConfigureTempToD.ps1",
-				"Write-Host INFO: Storing password temporarily...",
-				"Write-Host DEBUG: {{ user `password`}}",
-				"Write-Host echo on next line"
-				"$pwd = '{{user `password`}}'; $pwd | Out-File c:\\scripts\\SSHpassword.txt",
 				"Write-Host INFO: Invoking ConfigureScheduledTasksAfterSysprep.ps1...",
-				"c:\\scripts\\ConfigureScheduledTasksAfterSysprep.ps1"
-				"Write-Host INFO: Packer provisioner complete",
+				"c:\\scripts\\ConfigureScheduledTasksAfterSysprep.ps1",
+				"Write-Host INFO: Packer provisioner complete"
 			]
 		}
 	]
