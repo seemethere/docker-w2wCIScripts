@@ -208,7 +208,7 @@ Write-Host "INFO: Downloading Cygwin..."
 mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
 $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwinsetup.exe")
 Write-Host "INFO: Installing Cygwin..."
-Start-Process $env:SystemDrive\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/" -Wait
+Start-Process $env:SystemDrive\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null" -Wait
 
 Write-Host "INFO: InstallMostThings.ps1 completed"
 
