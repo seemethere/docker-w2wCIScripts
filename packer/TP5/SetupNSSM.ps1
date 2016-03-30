@@ -1,5 +1,6 @@
 #-----------------------
 # SetupNSSM.ps1
+# Note this runs post-sysprep, so have to delete the scheduled task
 #-----------------------
 
 Write-Host "INFO: Executing SetupNSSM.ps1"
@@ -31,5 +32,11 @@ Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control 
 Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr $env:Programdata\docker\nssmdaemon.log"
 Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout $env:Programdata\docker\nssmdaemon.log"
 Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
+
+echo "SetupNSSM.ps1 ran" > $env:SystemDrive\scripts\SetupNSSM.txt
+
+# Delete the scheduled task
+$ConfirmPreference=='none'
+Get-ScheduledTask 'SetupNSSM' | Unregister-ScheduledTask
 
 Write-Host "INFO: SetupNSSM.ps1 completed"
