@@ -5,11 +5,11 @@ Packer bits for building Windows images (@jhowardmsft)
 
 To use: 
 
-- Need publish settings in ~/.azure/engine-team@docker.com.publishsettings
+- Need publish settings in $env:HOME\.azure\engine-team@docker.com.publishsettings
   Get-AzurePublishSettingsFile and save to above location.
 
 - Download Windows 64-bit packer from https://www.packer.io/downloads.html
-  (This was tested using version 0.10.0). Extract to e:\packer
+  (This was verified using version 0.10.0). Extract to e:\packer
   
 - Copy the two files at the top to the directory (or have e:\packer in path)
 
@@ -36,14 +36,20 @@ To use:
 - Run packer.ps1
 
 - Keep the name of the image handy as you'll need that to create a new VM from that image.
-  eg at time of writing: TBC 
-  
+  eg at time of writing: 
+  - imageLabel:    'jenkins-tp5_30036.04.309304.300.23.2341'
+  - imageName:     'jenkins-tp5_30036.04.309304.300.23.2341_2016-03-30_09-58'
+  - mediaLocation: 'https://tp5.blob.core.windows.net/images/jenkins-tp5_30036.04.30
+
+- IMPORTANT: The BringNodeOnline/TakeNodeOffline scripts rely on the Jenkins nodes being
+             called azure-windows-tp5-n, and the computer names themselves being named
+             jenkins-tp5-n. 
 
 TP5 workarounds
  
  In base VHD: 
  - BringNodeOnline.ps1 and TakeNodeOffline.ps1 added to c:\scripts.
-   These are NOT in github due to containing API key.
+   These are NOT in github due to containing API key. Can be found on \\redmond\osg\....team\jhoward\docker\ci\TP5
  - Scheduled task at system startup to run BringNodeOnline.ps1
   
  In packer.json and some .ps1 scripts:
