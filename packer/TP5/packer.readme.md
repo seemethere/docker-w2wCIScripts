@@ -1,7 +1,7 @@
 Packer bits for building Windows images (@jhowardmsft)
 
-- azuretp5.json - The packer script itself
-- buildtp5.ps1 - Powershell wrapper for running the image build.
+- packer.json - The packer configuration file
+- packer.ps1  - Powershell wrapper for running the image build.
 
 To use: 
 
@@ -11,14 +11,14 @@ To use:
 - Download Windows 64-bit packer from https://www.packer.io/downloads.html
   (This was tested using version 0.10.0). Extract to e:\packer
   
-- Copy the two files at the top to the directory.
+- Copy the two files at the top to the directory (or have e:\packer in path)
 
 - Download Packer-Azure from https://github.com/Azure/packer-azure and
   extract to the same directory. Direct link https://github.com/Azure/packer-azure/releases
 
 - Make sure your azure credentials are set.   (Add-AzureAccount for engine-team@docker.com)
 
-- Check azuretp5.json is pointing to the correct image you have prepared. At the
+- Check packer.json is pointing to the correct image you have prepared. At the
   time of writing, there is a "tp5" storage container on the engine account on Azure.
   It contains a sysprepped VHD of TP5 with:
   
@@ -33,7 +33,7 @@ To use:
   
 - Make sure $env:password is set to the jenkins account password you want
 
-- Run buildtp5.ps1
+- Run packer.ps1
 
 - Keep the name of the image handy as you'll need that to create a new VM from that image.
   eg at time of writing: TBC 
@@ -46,7 +46,7 @@ TP5 workarounds
    These are NOT in github due to containing API key.
  - Scheduled task at system startup to run BringNodeOnline.ps1
   
- In azuretp5.json and other scripts
+ In packer.json and some .ps1 scripts:
  - Kill-LongRunningDocker.ps1 scheduled task at startup. This should
    not be necessary with the final TP5 ZDP.
  
