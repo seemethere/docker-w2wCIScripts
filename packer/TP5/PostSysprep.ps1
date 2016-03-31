@@ -26,7 +26,7 @@ echo "PostSysprep.ps1 configuring cygwin..." > $env:SystemDrive\packer\postSyspr
 c:\cygwin\bin\bash -c 'export PATH=/usr/sbin:/usr/bin:$PATH;\
 mkdir -p ~/.ssh;\
 pass=$(< /cygdrive/c/packer/SSHpassword.txt);\
-if [ -z $pass]; then export pass="---ChAnGeMeJeNkInScIsErVeR---";fi;\
+if [ -z $pass ]; then exit 1;fi;\
 /usr/bin/ssh-host-config -y -w $pass -c \"binmode ntsec\";\
 echo \"PasswordAuthentication no\" >> /etc/sshd_config;\
 chmod 700 ~/.ssh;\
