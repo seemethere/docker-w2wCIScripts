@@ -19,17 +19,16 @@ try {
     echo "PostSysprep.ps1 installing cygwin..." >> $env:SystemDrive\packer\postSysprep.txt
     Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
     
-    
     # Open the firewall
     echo "PostSysprep.ps1 opening firewall..." >> $env:SystemDrive\packer\postSysprep.txt
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
     
-    
     # Configure cygwin
     echo "PostSysprep.ps1 configuring cygwin..." >> $env:SystemDrive\packer\postSysprep.txt
-    #c:\cygwin\bin\bash /cygdrive/c/packer/ConfigureSSH.sh
-	
-    
+    Start-Process -wait taskkill -ArgumentList "/F /IM sshd" -ErrorAction SilentlyContinue
+    Start-Process -wait -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/postSysprep.txt 2>&1"
+
+   
     #--------------------------------------------------------------------------------------------
     
     # Activate the VM
