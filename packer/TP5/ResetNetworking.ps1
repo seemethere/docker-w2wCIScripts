@@ -11,7 +11,7 @@ netsh int ipv4 reset
 # Needs a reboot - taken care of in RebootOnce.ps1
 
 # Delete the scheduled task
-$ConfirmPreference=='none'
+$ConfirmPreference='none'
 Get-ScheduledTask 'ResetNetworking' | Unregister-ScheduledTask
 
 echo "ResetNetworking.ps1 ran" > $env:SystemDrive\packer\ResetNetworking.txt

@@ -15,3 +15,9 @@ $env:Tmp=$env:Temp
 # Create the TEMP directory 
 mkdir $env:Temp -erroraction SilentlyContinue 2>&1 | Out-Null
 Write-Host "INFO: ConfigureTempToD.ps1 completed"
+
+echo "ConfigureTempToD.ps1 ran" > $env:SystemDrive\packer\ConfigureTempToD.txt
+
+# Delete the scheduled task
+$ConfirmPreference='none'
+Get-ScheduledTask 'ConfigureTempToD' | Unregister-ScheduledTask

@@ -15,6 +15,6 @@ mkdir $env:Temp -erroraction SilentlyContinue 2>&1 | Out-Null
 Write-Host "INFO: UserTempToD.ps1 completed"
 
 # Delete the scheduled task
-$ConfirmPreference=='none'
+$ConfirmPreference='none'
 Get-ScheduledTask 'UserTempToD' | Unregister-ScheduledTask
 

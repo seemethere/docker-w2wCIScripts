@@ -33,10 +33,10 @@ Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr $env:Programdata\
 Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout $env:Programdata\docker\nssmdaemon.log"
 Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
 
-echo "SetupNSSM.ps1 ran" > $env:SystemDrive\scripts\SetupNSSM.txt
+echo "SetupNSSM.ps1 ran" > $env:SystemDrive\packer\SetupNSSM.txt
 
 # Delete the scheduled task
-$ConfirmPreference=='none'
+$ConfirmPreference='none'
 Get-ScheduledTask 'SetupNSSM' | Unregister-ScheduledTask
 
 Write-Host "INFO: SetupNSSM.ps1 completed"

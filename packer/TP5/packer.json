@@ -2,7 +2,7 @@
 	"variables": {
 	 	"image_name_prefix": "jenkins-tp5",
 	 	"username": "jenkins",
-		"password": "{{env `password:`}}",
+		"password": "{{env `password`}}",
 	 	"sn": "Microsoft Azure Sponsorship",
 	 	"ps": "{{ env `HOME` }}/.azure/engine-team@docker.com.publishsettings",
 	 	"sa": "tp5"
@@ -58,8 +58,8 @@
 				"c:\\packer\\ConfigureCIEnvironment.ps1",
 				"Write-Host INFO: Invoking InstallMostThings.ps1...",
 				"c:\\packer\\InstallMostThings.ps1",
-				"Write-Host INFO: Invoking ConfigureTempToD.ps1...",
-				"c:\\packer\\ConfigureTempToD.ps1",
+				"#Write-Host INFO: Invoking ConfigureTempToD.ps1...",
+				"#c:\\packer\\ConfigureTempToD.ps1",
 				"Write-Host INFO: Invoking ConfigureScheduledTasksAfterSysprep.ps1...",
 				"c:\\packer\\ConfigureScheduledTasksAfterSysprep.ps1",
 				"Write-Host INFO: Packer provisioner complete"

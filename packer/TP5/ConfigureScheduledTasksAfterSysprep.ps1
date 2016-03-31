@@ -24,9 +24,9 @@ $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command 
 $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
 Register-ScheduledTask -TaskName "ResetNetworking" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
 
-$action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\UserTempToD.ps1"
+$action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\ConfigureTempToD.ps1"
 $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
-Register-ScheduledTask -TaskName "UserTempToD" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
+Register-ScheduledTask -TaskName "ConfigureTempToD" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
 
 $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\RebootOnce.ps1"
 $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00

@@ -8,5 +8,5 @@ cscript $env:SystemDrive\windows\system32\slmgr.vbs /ipk 6XBNX-4JQGW-QX6QG-74P76
 cscript $env:SystemDrive\windows\system32\slmgr.vbs /ato
 
 # Delete the scheduled task
-$ConfirmPreference=='none'
+$ConfirmPreference='none'
 Get-ScheduledTask 'ActivateVM' | Unregister-ScheduledTask

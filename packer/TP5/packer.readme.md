@@ -37,9 +37,9 @@ To use:
 
 - Keep the name of the image handy as you'll need that to create a new VM from that image.
   eg at time of writing: 
-  - imageLabel:    'jenkins-tp5_30036.04.309304.300.23.2341'
-  - imageName:     'jenkins-tp5_30036.04.309304.300.23.2341_2016-03-30_09-58'
-  - mediaLocation: 'jenkins-tp5_30036.04.30-30_14-14-os-2016-03-30-6B13AF42.vhd'
+  - imageLabel: 'jenkins-tp5_30036.10.3093010.300.10.1087'
+  - imageName: 'jenkins-tp5_30036.10.3093010.300.10.1087_2016-03-30_15-12'
+  - mediaLocation: 'https://tp5.blob.core.windows.net/images/jenkins-tp5_30036.10.3093010.300.10.1087_2016-03-30_15-12-os-2016-03-30-5F96CB45.vhd'}
 
 - IMPORTANT: The BringNodeOnline/TakeNodeOffline scripts rely on the Jenkins nodes being
              called azure-windows-tp5-n, and the computer names themselves being named
