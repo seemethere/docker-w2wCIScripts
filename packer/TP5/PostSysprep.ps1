@@ -4,6 +4,8 @@
 
 $ErrorActionPreference='Stop'
 
+Write-Host "PostSysprep..."
+
 try {
 
     echo "PostSysprep.ps1 starting" > $env:SystemDrive\packer\postSysprep.txt
@@ -25,7 +27,8 @@ try {
     
     # Configure cygwin
     echo "PostSysprep.ps1 configuring cygwin..." >> $env:SystemDrive\packer\postSysprep.txt
-    c:\cygwin\bin\bash /cygdrive/c/packer/ConfigureSSH.sh
+    #c:\cygwin\bin\bash /cygdrive/c/packer/ConfigureSSH.sh
+	
     
     #--------------------------------------------------------------------------------------------
     

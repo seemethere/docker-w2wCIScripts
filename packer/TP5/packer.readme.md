@@ -31,8 +31,6 @@ To use:
     - v2 in azuretp5v2.vhd represents the version of the VHD. Increment each rebuild.
   - Image created (Add-AzureVMImage -imagename azuretp5v2 -MediaLocation https://tp5.blob.core.windows.net/vhds/azuretp5v2.vhd -OS Windows)
   
-- Make sure $env:password is set to the jenkins account password you want
-
 - Run packer.ps1
 
 - Keep the name of the image handy as you'll need that to create a new VM from that image.

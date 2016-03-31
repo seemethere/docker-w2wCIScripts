@@ -2,7 +2,6 @@
 	"variables": {
 	 	"image_name_prefix": "jenkins-tp5",
 	 	"username": "jenkins",
-		"password": "{{env `password`}}",
 	 	"sn": "Microsoft Azure Sponsorship",
 	 	"ps": "{{ env `HOME` }}/.azure/engine-team@docker.com.publishsettings",
 	 	"sa": "tp5"
@@ -30,8 +29,6 @@
 				"mkdir c:\\packer -ErrorAction SilentlyContinue 2>&1 | Out-Null",
 				"Write-Host INFO: Creating scripts directory...",
 				"mkdir c:\\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null",
-				"Write-Host INFO: Storing password temporarily...",
-				"[System.IO.File]::WriteAllText('c:\\packer\\SSHPassword.txt', '{{user `password`}}', (New-Object System.Text.UTF8Encoding($False)))",
 				"Write-Host INFO: Downloading ConfigureCIEnvironment.ps1...",
 				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/ConfigureCIEnvironment.ps1\",\"c://packer//ConfigureCIEnvironment.ps1\")",
 				"Write-Host INFO: Downloading InstallMostThings.ps1...",
