@@ -18,10 +18,26 @@ $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command 
 $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
 Register-ScheduledTask -TaskName "PostSysprep" -Action $action -Trigger $trigger -User jenkins -Password $pass -RunLevel Highest
 
-# Delete the scheduled task
-echo "ConfigurePostSysprep.ps1 deleting scheduled task.." >> $env:SystemDrive\packer\postSysprep.txt
+# Disable the scheduled task
+echo "ConfigurePostSysprep.ps1 disable scheduled task.." >> $env:SystemDrive\packer\PostSysprep.txt
 $ConfirmPreference='none'
 Get-ScheduledTask 'ConfigurePostSysprep' | Disable-ScheduledTask
-echo "ConfigurePostSysprep.ps1 complete, rebooting..." >> $env:SystemDrive\packer\postSysprep.txt
 
+echo "ConfigurePostSysprep.ps1 sleeping for 3 minutes..." >> $env:SystemDrive\packer\PostSysprep.txt
+sleep 180
+echo "ConfigurePostSysprep.ps1 rebooting..." >> $env:SystemDrive\packer\PostSysprep.txt
+shutdown /t 0 /r /f /c "ConfigurePostSysprep"
+sleep 5
+shutdown /t 0 /r /f /c "ConfigurePostSysprep"
+sleep 5
+shutdown /t 0 /r /f /c "ConfigurePostSysprep"
+sleep 5
+shutdown /t 0 /r /f /c "ConfigurePostSysprep"
+sleep 5
+shutdown /t 0 /r /f /c "ConfigurePostSysprep"
+sleep 5
+shutdown /t 0 /r /f /c "ConfigurePostSysprep"
+sleep 5
+shutdown /t 0 /r /f /c "ConfigurePostSysprep"
+sleep 5
 shutdown /t 0 /r /f /c "ConfigurePostSysprep"

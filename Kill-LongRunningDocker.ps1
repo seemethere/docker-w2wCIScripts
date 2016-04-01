@@ -1,11 +1,12 @@
 # This is a temporary TP5 workaround for CI. 
 $ErrorActionPreference='continue'
-Write-Host "Kill-LongDocker started..."
+
+echo "$(date) Kill-LongRunningDocker.ps1 starting..." >> $env:SystemDrive\scripts\Kill-LongRunningDocker.txt
 while (1) {
 	$p=get-process -name docker -ErrorAction SilentlyContinue
 	if ($p -ne $null) {
 		if ((new-timespan -start $p.StartTime $(get-date)).Minutes -ge 5) {
-			Write-Host "Killing" $p.id "at" $(Get-Date)
+			echo "$(date) Killing $p.id" >> $env:SystemDrive\scripts\Kill-LongRunningDocker.txt
 			Stop-Process $p -force -ErrorAction SilentlyContinue
 		}
 	}
