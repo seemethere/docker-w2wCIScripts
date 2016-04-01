@@ -76,6 +76,18 @@ try {
     [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "Machine")
     [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "User")
     [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "User")
+    mkdir $env:-erroraction silentlycontinue 2>&1 | Out-Null
+    
+	#--------------------------------------------------------------------------------------------
+	
+	# Set TEMP and TMP for the jenkins user account (if we're logged on as system right now - trying to change that)
+	#psexec \\%COMPUTERNAME% -u jenkins -p MyPassword -h -accepteula c:\windows\system32\cmd /s /k setx TEMP $env:Temp
+	#psexec \\%COMPUTERNAME% -u jenkins -p MyPassword -h -accepteula c:\windows\system32\cmd /s /k setx TMP $env:Temp
+	
+    #--------------------------------------------------------------------------------------------
+    
+    # Start the nssm docker service
+    nssm start docker
     
     #--------------------------------------------------------------------------------------------
     
