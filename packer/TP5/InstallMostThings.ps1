@@ -169,7 +169,7 @@ REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipVersio
 REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipSkuCheck /t REG_DWORD /d 2 | Out-Null
 
 # Stop Server Manager from opening at logon
-REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\ServerManager" /v DoNotOpenServerManagerAtLogon /t REG_DWORD /d 1 | Out-Null
+REG ADD "HKLM\SOFTWARE\Microsoft\ServerManager" /v DoNotOpenServerManagerAtLogon /t REG_DWORD /d 1 | Out-Null
 
 
 # Download and install PuTTY
