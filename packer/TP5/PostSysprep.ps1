@@ -91,16 +91,16 @@ try {
     
     #--------------------------------------------------------------------------------------------
     
-    # Delete the scheduled task
+    # Disable the scheduled task
     echo "PostSysprep.ps1 deleting scheduled task.." >> $env:SystemDrive\packer\postSysprep.txt
     $ConfirmPreference='none'
-    Get-ScheduledTask 'PostSysprep' | Unregister-ScheduledTask
+    Get-ScheduledTask 'PostSysprep' | Disable-ScheduledTask
     echo "PostSysprep.ps1 complete" >> $env:SystemDrive\packer\postSysprep.txt
     
     #--------------------------------------------------------------------------------------------
     
     echo "PostSysprep.ps1 rebooting..." >> $env:SystemDrive\packer\postSysprep.txt
-    shutdown /t 0 /r
+    shutdown /t 0 /r /f /c "PostSysprep"
 }
 Catch [Exception] {
     echo "PostSysprep.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\postSysprep.txt

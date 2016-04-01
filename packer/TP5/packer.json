@@ -36,6 +36,8 @@
 				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/InstallMostThings.ps1\",\"c://packer//InstallMostThings.ps1\")",
 				"Write-Host INFO: Downloading authorized_keys...",
 				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/authorized_keys\",\"c://packer//authorized_keys\")",
+				"Write-Host INFO: Downloading ConfigurePostSysprep.ps1...",
+				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/ConfigurePostSysprep.ps1\",\"c://packer//ConfigurePostSysprep.ps1\")",
 				"Write-Host INFO: Downloading PostSysprep.ps1...",
 				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/PostSysprep.ps1\",\"c://packer//PostSysprep.ps1\")",
 				"Write-Host INFO: Downloading ConfigureScheduledTasksAfterSysprep.ps1...",
