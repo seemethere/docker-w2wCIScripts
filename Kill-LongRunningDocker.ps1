@@ -1,4 +1,4 @@
-# This is a temporary TP5 workaround for CI. 
+# This is a temporary TP5 workaround for CI. Runs as a scheduled task
 $ErrorActionPreference='continue'
 
 echo "$(date) Kill-LongRunningDocker.ps1 starting..." >> $env:SystemDrive\scripts\Kill-LongRunningDocker.txt
@@ -10,5 +10,5 @@ while (1) {
 			Stop-Process $p -force -ErrorAction SilentlyContinue
 		}
 	}
-	sleep 5
+	sleep 30
 }
