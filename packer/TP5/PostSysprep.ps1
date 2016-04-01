@@ -23,13 +23,16 @@ try {
     echo "$(date) PostSysprep.ps1 opening firewall..." >> $env:SystemDrive\packer\PostSysprep.log
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
     
-    # Configure cygwin. Run ConfigureSSH.sh twice. No idea why. Lost count of how many attempts to figure this out.
+    # Configure cygwin. Run ConfigureSSH.sh twice. 
+    # HACK:https://social.technet.microsoft.com/Forums/windowsserver/en-US/aede572b-4c1f-4729-bc9d-899fed5fad02/run-powershell-script-as-scheduled-task-that-uses-excel-com-object?forum=winserverpowershell
+    # Otherwise will fail.
+    if (-Not (Test-Path C:\Windows\System32\config\systemprofile\Desktop)) {
+        New-Item C:\Windows\System32\config\systemprofile\Desktop -type Directory
+    }
     echo "$(date) PostSysprep.ps1 configuring cygwin..." >> $env:SystemDrive\packer\PostSysprep.log
     echo "$(whoami /all)" >> $env:SystemDrive\packer\PostSysprep.log
     Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
-    Start-Process -wait -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.log 2>&1"
-    Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
-    Start-Process -wait -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.log 2>&1"
+    Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.log 2>&1"
 
     #--------------------------------------------------------------------------------------------
     

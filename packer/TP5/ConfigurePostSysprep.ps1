@@ -12,8 +12,8 @@ echo "$(date) ConfigurePostSysprep.ps1 starting..." >> $env:SystemDrive\packer\P
 if (-not (Test-Path c:\packer\ConfigurePostSysprep.GoneThroughOneReboot.txt)) {
     echo "$(date) ConfigurePostSysprep.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\PostSysprep.log
     New-Item c:\packer\ConfigurePostSysprep.GoneThroughOneReboot.txt
-    # Force a reboot if we don't get one in the next 10 minutes
-    sleep 300
+    # Force a reboot if we don't get one in the next 3 minutes
+    sleep 180
     shutdown /t 0 /r /f /c "5 minutes in ConfigurePostSysprep"
     exit 0
 }
@@ -33,7 +33,7 @@ echo "$(date) ConfigurePostSysprep.ps1 disable scheduled task.." >> $env:SystemD
 $ConfirmPreference='none'
 Get-ScheduledTask 'ConfigurePostSysprep' | Disable-ScheduledTask
 
-echo "$(date) ConfigurePostSysprep.ps1 sleeping for 3 minutes before reboot..." >> $env:SystemDrive\packer\PostSysprep.log
-sleep 180
+echo "$(date) ConfigurePostSysprep.ps1 sleeping for 2 minutes before reboot..." >> $env:SystemDrive\packer\PostSysprep.log
+sleep 120
 echo "$(date) ConfigurePostSysprep.ps1 rebooting..." >> $env:SystemDrive\packer\PostSysprep.log
 shutdown /t 0 /r /f /c "ConfigurePostSysprep"
