@@ -1,6 +1,7 @@
 #!/bin/bash
-#logfile=/cygdrive/c/packer/ConfigureSSH.log
-#exec > $logfile
+logfile=/cygdrive/c/packer/ConfigureSSH.log
+exec >> $logfile
+echo ConfigureSSH.sh running as `whoami`  # Should NOT be system!
 cygrunsrv --stop sshd > /dev/nul 2>&1
 cygrunsrv --remove sshd > /dev/nul 2>&1
 net user sshd /delete> /dev/nul 2>&1

@@ -23,12 +23,14 @@ try {
     echo "$(date) PostSysprep.ps1 opening firewall..." >> $env:SystemDrive\packer\PostSysprep.txt
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
     
-    # Configure cygwin
+    # Configure cygwin. Run ConfigureSSH.sh twice. No idea why. Lost count of how many attempts to figure this out.
     echo "$(date) PostSysprep.ps1 configuring cygwin..." >> $env:SystemDrive\packer\PostSysprep.txt
-    Start-Process -wait taskkill -ArgumentList "/F /IM sshd" -ErrorAction SilentlyContinue
+    echo "$(whoami /all)" >> $env:SystemDrive\packer\PostSysprep.txt
+    Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
+    Start-Process -wait -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.txt 2>&1"
+    Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
     Start-Process -wait -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.txt 2>&1"
 
-   
     #--------------------------------------------------------------------------------------------
     
     # Activate the VM
