@@ -18,7 +18,7 @@
 	 	 	"os_image_label": "azuretp5v2",
 	 	 	"location": "Central US",
 	 	 	"instance_size": "Standard_D2",
-	 	 	"user_image_label": "{{ user `image_name_prefix` }}_{{ isotime \"2016.03.29_23.20.00.0000\" }}"
+	 	 	"user_image_label": "{{ user `image_name_prefix` }}"
 	 	}
 	],
 	"provisioners": [
