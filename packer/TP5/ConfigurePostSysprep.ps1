@@ -12,6 +12,9 @@ echo "$(date) ConfigurePostSysprep.ps1 starting..." >> $env:SystemDrive\packer\P
 if (-not (Test-Path c:\packer\ConfigurePostSysprep.GoneThroughOneReboot.txt)) {
     echo "$(date) ConfigurePostSysprep.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\PostSysprep.txt
     New-Item c:\packer\ConfigurePostSysprep.GoneThroughOneReboot.txt
+    # Force a reboot if we don't get one in the next 10 minutes
+    sleep 600
+    shutdown /t 0 /r /f /c "10 minutes in ConfigurePostSysprep"
     exit 0
 }
 
