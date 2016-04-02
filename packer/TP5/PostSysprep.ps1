@@ -86,7 +86,7 @@ try {
     
     #--------------------------------------------------------------------------------------------
 
-    # Configure the runone scheduled task to configure SSH. This must be done interactively.
+    # Configure the logon shortcut to configure SSH. This must be done interactively.
     # Otherwise you will see cygwin configuration errors such as the following, and the daemon
     # will be running as system and not work.
     # *** Info: the 'jenkins-tp5-1+cyg_server' account.
@@ -96,6 +96,8 @@ try {
     # *** Warning: Assigning the appropriate privileges to user 'jenkins-tp5-1+cyg_server' failed!
     # *** ERROR: There was a serious problem creating a privileged user.
     # *** Query: Do you want to proceed anyway? (yes/no) yes    
+    # I tried HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce, no joy. And fails
+    # as scheduled task as that isn't interactive.
     echo "$(date) PostSysprep.ps1 configuring runonce for SSH configuration..." >> $env:SystemDrive\packer\PostSysprep.log
     $pass = Get-Content c:\packer\password.txt -raw
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f | Out-Null
@@ -112,7 +114,6 @@ try {
     $WScriptShell = New-Object -ComObject WScript.Shell
     $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
     $Shortcut.Arguments ="-command c:\packer\ConfigureSSH.ps1"
-    $Shortcut.WorkingDirectory ="c:\packer"
     $Shortcut.TargetPath = $TargetFile
     $Shortcut.Save()
 
