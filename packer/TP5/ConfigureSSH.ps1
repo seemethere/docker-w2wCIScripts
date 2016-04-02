@@ -15,6 +15,7 @@ Catch [Exception] {
     exit 1
 }
 Finally {
+    $ErrorActionPreference='SilentlyContinue'
     echo "$(date) ConfigureSSH.ps1 turning off auto admin logon" > $env:SystemDrive\packer\PostSysprep.log
     REG DELETE "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName  /f | Out-Null
@@ -23,5 +24,6 @@ Finally {
     
     # Tidy up
     del c:\packer\password.txt
+    del c:\packer\ConfigureSSH.log
     shutdown /t 0 /r /f /c "ConfigureSSH.ps1"
 } 
