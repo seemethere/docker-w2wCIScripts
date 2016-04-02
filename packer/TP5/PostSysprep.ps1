@@ -25,8 +25,9 @@ try {
     
     echo "$(date) PostSysprep.ps1 configuring cygwin..." >> $env:SystemDrive\packer\PostSysprep.log
     echo "$(whoami /all)" >> $env:SystemDrive\packer\PostSysprep.log
+    #BUGBUG REMOVE THESE WHEN DONE
     #Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
-    Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.log 2>&1"
+    #Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.log 2>&1"
 
     #--------------------------------------------------------------------------------------------
     
@@ -100,8 +101,12 @@ try {
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d jenkins /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d $pass /f | Out-Null
-    #FAIL
+    #FAIL BUGBUG REMOVE THIS WHEN DONE
     #REG ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v ConfigureSSH /t REG_SZ /f /d "powershell -command c:\packer\ConfigureSSH.ps1" | Out-Null
+    
+    #BUGBUG Temporary debugging
+    gci c:\users\jenkins -r | select -exp FullName >> $env:SystemDrive\packer\PostSysprep.log
+    New-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" -Type Directory -ErrorAction SilentlyContinue    
     $TargetFile = "powershell" #-command c:\packer\ConfigureSSH.ps1"
     $ShortcutFile = "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\ConfigureSSH.lnk"
     $WScriptShell = New-Object -ComObject WScript.Shell
