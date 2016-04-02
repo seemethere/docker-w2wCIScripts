@@ -92,8 +92,7 @@ try {
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d jenkins /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d $pass /f | Out-Null
     
-    #BUGBUG Temporary debugging
-    gci c:\users\jenkins -r | select -exp FullName >> $env:SystemDrive\packer\PostSysprep.log
+    # Create the shortcut (and the containing directory as we haven't logged on interactively yet)
     New-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" -Type Directory -ErrorAction SilentlyContinue    
     $TargetFile = "powershell" #-command c:\packer\ConfigureSSH.ps1"
     $ShortcutFile = "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\ConfigureSSH.lnk"

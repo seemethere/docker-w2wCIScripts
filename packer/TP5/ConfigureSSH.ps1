@@ -23,9 +23,8 @@ Finally {
     echo "$(date) ConfigureSSH.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\PostSysprep.log
     
     # Tidy up
-    del "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\ConfigureSSH.lnk"
-	#BUGBUG UNCOMMENT THESE IN FINAL IMAGE
-    #del c:\packer\password.txt
-    #del c:\packer\ConfigureSSH.log
+    Remove-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\ConfigureSSH.lnk" -Force -ErrorAction SilentlyContinue
+    Remove-Item c:\packer\password.txt -Force -ErrorAction SilentlyContinue
+    Remove-Item c:\packer\ConfigureSSH.log -Force -ErrorAction SilentlyContinue
     shutdown /t 0 /r /f /c "ConfigureSSH.ps1"
 } 
