@@ -74,7 +74,6 @@ mkdir $env:SystemDrive\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null
 
 
 # Downloads scripts for performing local runs.
-# BUGBUG - All except Invoke-DockerCI will eventually be in the docker source.
 Write-Host "INFO: Downloading CI scripts for local run into c:\scripts"
 $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/executeCI.sh","$env:SystemDrive\scripts\executeCI.sh")
 $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/cleanupCI.sh","$env:SystemDrive\scripts\cleanupCI.sh")

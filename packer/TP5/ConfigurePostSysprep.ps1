@@ -14,7 +14,7 @@ if (-not (Test-Path c:\packer\ConfigurePostSysprep.GoneThroughOneReboot.txt)) {
     New-Item c:\packer\ConfigurePostSysprep.GoneThroughOneReboot.txt
     # Force a reboot if we don't get one in the next 3 minutes
     sleep 180
-    shutdown /t 0 /r /f /c "5 minutes in ConfigurePostSysprep"
+    shutdown /t 0 /r /f /c "3 minutes in ConfigurePostSysprep"
     exit 0
 }
 

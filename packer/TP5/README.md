@@ -1,9 +1,19 @@
+About:
+
 Packer bits for building Windows images (@jhowardmsft)
+------------------------------------------------------
 
 - packer.json - The packer configuration file
 - packer.ps1  - Powershell wrapper for running the image build.
 
-To use: 
+Usage:
+------
+    - $env:password="The Password You Want"
+    - .\packer.ps1
+
+
+Notes:
+------
 
 - Need publish settings in $env:HOME\.azure\engine-team@docker.com.publishsettings
   Get-AzurePublishSettingsFile and save to above location.
@@ -31,32 +41,33 @@ To use:
     - v2 in azuretp5v2.vhd represents the version of the VHD. Increment each rebuild.
   - Image created (Add-AzureVMImage -imagename azuretp5v2 -MediaLocation https://tp5.blob.core.windows.net/vhds/azuretp5v2.vhd -OS Windows)
   
-- Run packer.ps1
 
-- Keep the name of the image handy as you'll need that to create a new VM from that image.
-  eg at time of writing: 
-  - imageLabel: 'jenkins-tp5_30036.10.3093010.300.10.1087'
-  - imageName: 'jenkins-tp5_30036.10.3093010.300.10.1087_2016-03-30_15-12'
-  - mediaLocation: 'https://tp5.blob.core.windows.net/images/jenkins-tp5_30036.10.3093010.300.10.1087_2016-03-30_15-12-os-2016-03-30-5F96CB45.vhd'}
 
+- Keep the imageName handy as you'll need that to create a new VM from that image.
+  
 - IMPORTANT: The BringNodeOnline/TakeNodeOffline scripts rely on the Jenkins nodes being
              called azure-windows-tp5-n, and the computer names themselves being named
              jenkins-tp5-n. 
 
-TP5 workarounds
+TP5 workarounds:
+----------------
  
  In base VHD: 
  - BringNodeOnline.ps1 and TakeNodeOffline.ps1 added to c:\scripts.
    These are NOT in github due to containing API key. Can be found on \\redmond\osg\....team\jhoward\docker\ci\TP5
  - Scheduled task at system startup to run BringNodeOnline.ps1
   
- In packer.json and some .ps1 scripts:
+ In packer.json, ConfigurePostSyspre.ps1 and InstallMostThings.ps1:
  - Kill-LongRunningDocker.ps1 scheduled task at startup. This should
-   not be necessary with the final TP5 ZDP.
+   not be necessary with the final TP5+ZDP.
+   
+ In PostSysprep.ps, netsh int ipv4 reset. This should not be necessary
+   with the final TP5+ZDP.
  
  In Jenkins
  - At job launch, calls c:\scripts\TakeNodeOffline.ps1
  - At job completion, calls shutdown /t 0 /r
+ - Debatable for reliability if these should remain in....
  
 
 

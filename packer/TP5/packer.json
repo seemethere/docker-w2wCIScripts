@@ -52,8 +52,6 @@
 				"c:\\packer\\ConfigureCIEnvironment.ps1",
 				"Write-Host INFO: Invoking InstallMostThings.ps1...",
 				"c:\\packer\\InstallMostThings.ps1",
-				"#Write-Host INFO: Invoking ConfigureTempToD.ps1...",
-				"#c:\\packer\\ConfigureTempToD.ps1",
 				"Write-Host INFO: Invoking ConfigureScheduledTasksAfterSysprep.ps1...",
 				"c:\\packer\\ConfigureScheduledTasksAfterSysprep.ps1",
 				"Write-Host INFO: Packer provisioner complete"

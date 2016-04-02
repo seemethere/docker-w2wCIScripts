@@ -20,22 +20,9 @@ try {
     Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
     
     # Open the firewall
-    echo "$(date) PostSysprep.ps1 opening firewall..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\PostSysprep.log
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
-    
-    echo "$(date) PostSysprep.ps1 configuring cygwin..." >> $env:SystemDrive\packer\PostSysprep.log
-    echo "$(whoami /all)" >> $env:SystemDrive\packer\PostSysprep.log
-    #BUGBUG REMOVE THESE WHEN DONE
-    #Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
-    #Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.log 2>&1"
 
-    #--------------------------------------------------------------------------------------------
-    
-    # Activate the VM
-    echo "$(date) PostSysprep.ps1 activating..." >> $env:SystemDrive\packer\PostSysprep.log
-    cscript $env:SystemDrive\windows\system32\slmgr.vbs /ipk 6XBNX-4JQGW-QX6QG-74P76-72V67
-    cscript $env:SystemDrive\windows\system32\slmgr.vbs /ato
-    
     #--------------------------------------------------------------------------------------------
     
     # Create directory for storing the nssm configuration
@@ -63,7 +50,7 @@ try {
     
     #--------------------------------------------------------------------------------------------
     
-    # This is a TP5 hack. #6925609. Should not be necessary in TP5 RTM.
+    # BUGBUG This is a TP5 hack. #6925609. Should not be necessary in TP5 + ZDP
     echo "$(date) PostSysprep.ps1 resetting networking (hack)..." >> $env:SystemDrive\packer\PostSysprep.log
     netsh int ipv4 reset
     
@@ -96,15 +83,14 @@ try {
     # *** Warning: Assigning the appropriate privileges to user 'jenkins-tp5-1+cyg_server' failed!
     # *** ERROR: There was a serious problem creating a privileged user.
     # *** Query: Do you want to proceed anyway? (yes/no) yes    
-    # I tried HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce, no joy. And fails
-    # as scheduled task as that isn't interactive.
+    # I tried HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce, no joy. For example
+    #   REG ADD "...\RunOnce" /v ConfigureSSH /t REG_SZ /f /d "powershell -command c:\packer\ConfigureSSH.ps1" | Out-Null
+    # And fails as scheduled task as that isn't interactive.
     echo "$(date) PostSysprep.ps1 configuring runonce for SSH configuration..." >> $env:SystemDrive\packer\PostSysprep.log
     $pass = Get-Content c:\packer\password.txt -raw
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d jenkins /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d $pass /f | Out-Null
-    #FAIL BUGBUG REMOVE THIS WHEN DONE
-    #REG ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v ConfigureSSH /t REG_SZ /f /d "powershell -command c:\packer\ConfigureSSH.ps1" | Out-Null
     
     #BUGBUG Temporary debugging
     gci c:\users\jenkins -r | select -exp FullName >> $env:SystemDrive\packer\PostSysprep.log
