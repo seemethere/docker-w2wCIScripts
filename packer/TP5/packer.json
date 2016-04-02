@@ -44,6 +44,8 @@
 				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/ConfigureScheduledTasksAfterSysprep.ps1\",\"c://packer//ConfigureScheduledTasksAfterSysprep.ps1\")",
 				"Write-Host INFO: Downloading ConfigureSSH.sh...",
 				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/ConfigureSSH.sh\",\"c://packer//ConfigureSSH.sh\")",
+				"Write-Host INFO: Downloading ConfigureSSH.ps1...",
+				"$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/packer/TP5/ConfigureSSH.ps1\",\"c://packer//ConfigureSSH.ps1\")",
 				"Write-Host INFO: Storing password temporarily...",
 				"[System.IO.File]::WriteAllText('c:\\packer\\password.txt', '{{user `password`}}', (New-Object System.Text.UTF8Encoding($False)))",
 				"Write-Host INFO: Invoking ConfigureCIEnvironment.ps1...",

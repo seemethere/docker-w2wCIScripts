@@ -23,23 +23,17 @@ try {
     echo "$(date) PostSysprep.ps1 opening firewall..." >> $env:SystemDrive\packer\PostSysprep.log
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
     
-    # Configure cygwin. Run ConfigureSSH.sh twice. 
-    # HACK:https://social.technet.microsoft.com/Forums/windowsserver/en-US/aede572b-4c1f-4729-bc9d-899fed5fad02/run-powershell-script-as-scheduled-task-that-uses-excel-com-object?forum=winserverpowershell
-    # Otherwise will fail.
-    if (-Not (Test-Path C:\Windows\System32\config\systemprofile\Desktop)) {
-        New-Item C:\Windows\System32\config\systemprofile\Desktop -type Directory
-    }
     echo "$(date) PostSysprep.ps1 configuring cygwin..." >> $env:SystemDrive\packer\PostSysprep.log
     echo "$(whoami /all)" >> $env:SystemDrive\packer\PostSysprep.log
-    Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
+    #Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
     Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/PostSysprep.log 2>&1"
 
     #--------------------------------------------------------------------------------------------
     
     # Activate the VM
-    #echo "$(date) PostSysprep.ps1 activating..." >> $env:SystemDrive\packer\PostSysprep.log
-    #cscript $env:SystemDrive\windows\system32\slmgr.vbs /ipk 6XBNX-4JQGW-QX6QG-74P76-72V67
-    #cscript $env:SystemDrive\windows\system32\slmgr.vbs /ato
+    echo "$(date) PostSysprep.ps1 activating..." >> $env:SystemDrive\packer\PostSysprep.log
+    cscript $env:SystemDrive\windows\system32\slmgr.vbs /ipk 6XBNX-4JQGW-QX6QG-74P76-72V67
+    cscript $env:SystemDrive\windows\system32\slmgr.vbs /ato
     
     #--------------------------------------------------------------------------------------------
     
@@ -88,6 +82,25 @@ try {
     # Start the nssm docker service
     nssm start docker
     
+    
+    #--------------------------------------------------------------------------------------------
+
+    # Configure the runone scheduled task to configure SSH. This must be done interactively.
+    # Otherwise you will see cygwin configuration errors such as the following, and the daemon
+    # will be running as system and not work.
+    # *** Info: the 'jenkins-tp5-1+cyg_server' account.
+    # *** Warning: Setting password expiry for user 'jenkins-tp5-1+cyg_server' failed!
+    # *** Warning: Please check that password never expires or set it to your needs.
+    # No user or group 'jenkins-tp5-1+cyg_server' known.
+    # *** Warning: Assigning the appropriate privileges to user 'jenkins-tp5-1+cyg_server' failed!
+    # *** ERROR: There was a serious problem creating a privileged user.
+    # *** Query: Do you want to proceed anyway? (yes/no) yes    
+    echo "$(date) PostSysprep.ps1 configuring runonce for SSH configuration..." >> $env:SystemDrive\packer\PostSysprep.log
+    $pass = Get-Content c:\packer\password.txt -raw
+    REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f | Out-Null
+    REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d jenkins /f | Out-Null
+    REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d $pass /f | Out-Null
+    REG ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v ConfigureSSH /t REG_SZ /f /d "powershell -command c:\packer\ConfigureSSH.ps1" | Out-Null
 }
 Catch [Exception] {
     echo "$(date) PostSysprep.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\PostSysprep.log
@@ -96,21 +109,13 @@ Catch [Exception] {
 Finally {
 
     # Disable the scheduled task
-    echo "$(date) PostSysprep.ps1 deleting scheduled task.." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 disabling scheduled task.." >> $env:SystemDrive\packer\PostSysprep.log
     $ConfirmPreference='none'
     Get-ScheduledTask 'PostSysprep' | Disable-ScheduledTask
 
     echo "$(date) PostSysprep.ps1 rebooting..." >> $env:SystemDrive\packer\PostSysprep.log
     shutdown /t 0 /r /f /c "PostSysprep"
-    sleep 5
-    shutdown /t 0 /r /f /c "PostSysprep"
-    sleep 5
-    shutdown /t 0 /r /f /c "PostSysprep"
-    sleep 5
-    shutdown /t 0 /r /f /c "PostSysprep"
-    sleep 5
-    shutdown /t 0 /r /f /c "PostSysprep"
-    sleep 5
+
 
     echo "$(date) PostSysprep.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\PostSysprep.log
 }    
