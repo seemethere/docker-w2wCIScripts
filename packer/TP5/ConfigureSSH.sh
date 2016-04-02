@@ -13,4 +13,4 @@ echo "PasswordAuthentication no" >> /etc/sshd_config
 chmod 700 ~/.ssh
 cp /cygdrive/c/packer/authorized_keys ~/.ssh/authorized_keys
 chmod 644 ~/.ssh/authorized_keys
-/usr/bin/cygrunsrv -S sshd
+#/usr/bin/cygrunsrv -S sshd  Start on next reboot

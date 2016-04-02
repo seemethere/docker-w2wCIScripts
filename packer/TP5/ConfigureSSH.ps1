@@ -16,14 +16,15 @@ Catch [Exception] {
 }
 Finally {
     $ErrorActionPreference='SilentlyContinue'
-    echo "$(date) ConfigureSSH.ps1 turning off auto admin logon" > $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) ConfigureSSH.ps1 turning off auto admin logon" >> $env:SystemDrive\packer\PostSysprep.log
     REG DELETE "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName  /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword  /f | Out-Null
     echo "$(date) ConfigureSSH.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\PostSysprep.log
     
     # Tidy up
-    del c:\packer\password.txt
-    del c:\packer\ConfigureSSH.log
+	del "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\ConfigureSSH.lnk"
+    #del c:\packer\password.txt
+    #del c:\packer\ConfigureSSH.log
     shutdown /t 0 /r /f /c "ConfigureSSH.ps1"
 } 

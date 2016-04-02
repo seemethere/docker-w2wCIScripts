@@ -100,7 +100,17 @@ try {
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d jenkins /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d $pass /f | Out-Null
-    REG ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v ConfigureSSH /t REG_SZ /f /d "powershell -command c:\packer\ConfigureSSH.ps1" | Out-Null
+    #FAIL
+    #REG ADD "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v ConfigureSSH /t REG_SZ /f /d "powershell -command c:\packer\ConfigureSSH.ps1" | Out-Null
+    $TargetFile = "powershell" #-command c:\packer\ConfigureSSH.ps1"
+    $ShortcutFile = "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\ConfigureSSH.lnk"
+    $WScriptShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
+    $Shortcut.Arguments ="-command c:\packer\ConfigureSSH.ps1"
+    $Shortcut.WorkingDirectory ="c:\packer"
+    $Shortcut.TargetPath = $TargetFile
+    $Shortcut.Save()
+
 }
 Catch [Exception] {
     echo "$(date) PostSysprep.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\PostSysprep.log
