@@ -15,7 +15,7 @@
 	 	 	"storage_account": "{{user `sa`}}",
 	 	 	"storage_account_container": "images",
 	 	 	"os_type": "Windows",
-	 	 	"os_image_label": "azuretp5v3",
+	 	 	"os_image_label": "azuretp5v4",
 	 	 	"location": "Central US",
 	 	 	"instance_size": "Standard_D2",
 	 	 	"user_image_label": "{{ user `image_name_prefix` }}"
