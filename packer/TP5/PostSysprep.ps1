@@ -44,8 +44,8 @@ try {
     Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:Programdata\docker\nssmdocker.cmd < nul"
     Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
     Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr $env:Programdata\docker\nssmdaemon.log"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout $env:Programdata\docker\nssmdaemon.log"
+    Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\daemon\nssmdaemon.log"
+    Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout d:\daemon\nssmdaemon.log"
     Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
     
     #--------------------------------------------------------------------------------------------
