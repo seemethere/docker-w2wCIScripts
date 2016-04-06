@@ -4,7 +4,6 @@
 set +e  # Keep going on errors
 set +x 
 
-# This function is copied from the cleanup script
 nuke_everything()
 {
 	! containerCount=$(docker ps -aq | wc -l)
@@ -13,27 +12,10 @@ nuke_everything()
 		! docker rm -f $(docker ps -aq)
 	fi
 
-	# TODO Remove this reliability hack after TP4 is no longer supported
 	! imageCount=$(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | wc -l)
 	if [ $imageCount -gt 0 ]; then
-		if [ "${ver%%[^0-9]*}" -lt "14000" ]; then
-			# TP4 reliability hack  - only clean if we have a docker:latest image. This stops
-			# us clearing the cache if the builder fails due to the known TP4 networking issue
-			# half way through. This way we can continue the next time from where we got to.
-			! dockerLatestCount=$(docker images | sed -n '1!p' | grep docker | grep latest | wc -l)
-			if [ "$dockerLatestCount" -gt 0 ]; then
-				cleanUpImages=1
-			else
-				echo "WARN: TP4 reliability hack: Not cleaning $imageCount non-base image(s)"
-			fi
-		else
-			echo "INFO: Non-base image count on control daemon to delete is $imageCount"
-			cleanupImages=1
-		fi
-		
-		if [ -n "$cleanupImages" ]; then
-			! docker rmi -f $(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | awk '{ print $3 }' )
-		fi	
+		echo "INFO: Non-base image count on control daemon to delete is $imageCount"
+		! docker rmi -f $(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | awk '{ print $3 }' )
 	fi
 
 	# Kill any spurious daemons. The '-' in 'docker-' is IMPORTANT otherwise will kill the control daemon!
@@ -43,7 +25,7 @@ nuke_everything()
 		echo "INFO: Killing daemon with PID $PID"
 		taskkill -f -t -pid $PID
 	done
-	# Split binary mode. Remove above block when split binary in master
+    # Split binary mode. Remove above block when split binary in master
 	for PID in $(tasklist | grep dockerd- | awk {'print $2'})
 	do
 		echo "INFO: Killing daemon with PID $PID"
@@ -83,4 +65,11 @@ nuke_everything()
 
 export ver=$(reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion" | grep BuildLabEx | awk '{print $3}')
 ! nuke_everything
+
+#TP5 Workaround
+echo TP5 Workaround - Marking node as temporarilyOffline...
+! powershell -command c:\\scripts\\TakeNodeOffline.ps1
+sleep 10 # Give it time to actually be taken offline
+echo TP5 Workaround - Rebooting node...
+shutdown -t 0 -r
 true

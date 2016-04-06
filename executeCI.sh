@@ -1,6 +1,10 @@
 # Jenkins CI script for Windows to Windows CI
 # By John Howard (@jhowardmsft) January 2016
 
+
+# TP5 Debugging
+#DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
+
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
 #
@@ -45,7 +49,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="24-Mar-2016 12:02 PDT"
+SCRIPT_VER="05-Apr-2016 18:34 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -56,27 +60,10 @@ nuke_everything()
 		! docker rm -f $(docker ps -aq)
 	fi
 
-	# TODO Remove this reliability hack after TP4 is no longer supported
 	! imageCount=$(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | wc -l)
 	if [ $imageCount -gt 0 ]; then
-		if [ "${ver%%[^0-9]*}" -lt "14000" ]; then
-			# TP4 reliability hack  - only clean if we have a docker:latest image. This stops
-			# us clearing the cache if the builder fails due to the known TP4 networking issue
-			# half way through. This way we can continue the next time from where we got to.
-			! dockerLatestCount=$(docker images | sed -n '1!p' | grep docker | grep latest | wc -l)
-			if [ "$dockerLatestCount" -gt 0 ]; then
-				cleanUpImages=1
-			else
-				echo "WARN: TP4 reliability hack: Not cleaning $imageCount non-base image(s)"
-			fi
-		else
-			echo "INFO: Non-base image count on control daemon to delete is $imageCount"
-			cleanupImages=1
-		fi
-		
-		if [ -n "$cleanupImages" ]; then
-			! docker rmi -f $(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | awk '{ print $3 }' )
-		fi	
+		echo "INFO: Non-base image count on control daemon to delete is $imageCount"
+		! docker rmi -f $(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | awk '{ print $3 }' )
 	fi
 
 	# Kill any spurious daemons. The '-' in 'docker-' is IMPORTANT otherwise will kill the control daemon!
@@ -179,8 +166,10 @@ daemonStarted=0									# 1 when started
 inRepo=0										# 1 if we are in a docker repo
 SECONDS=0
 
+
 echo INFO: Started at `date`. 
 echo INFO: Script version $SCRIPT_VER
+export
 
 # Make sure we are on bash 4.x or later
 if [ $ec -eq 0 ]; then
@@ -382,6 +371,7 @@ fi
 
 # Redirect to a temporary location. 
 if [ $ec -eq 0 ]; then
+	export TEMPORIG=$TEMP
 	export TEMP=/$TESTRUN_DRIVE/$TESTRUN_SUBDIR/CI-$COMMITHASH
 	export TEMPWIN=$TESTRUN_DRIVE:\\$TESTRUN_SUBDIR\\CI-$COMMITHASH
 	export TMP=$TMP
@@ -425,33 +415,13 @@ fi
 
 # TODO RSRC integrity check...
 
-# TODO This is a TP4 reliability hack to loop around
 # Build the image
 if [ $ec -eq 0 ]; then
 	echo "INFO: Building the image from Dockerfile.windows..."
-	
-	tries=30
-	while true; do
-		(( tries-- ))
-		if [ $tries -le 0 ]; then
-			ec=1
-			echo "ERROR: Failed after multiple attempts!"
-			break 
-		fi
-
-		set -x
-		docker build -t docker -f Dockerfile.windows .
-		lastec=$?
-		set +x
-		
-		if [ $lastec -eq 0 ]; then
-			ec=0
-			break
-		fi
-		
-		echo "INFO: TP4 hack - retrying the build step (`expr $tries - 1` more attempts(s))..."
-	done
-
+	set -x
+	docker build -t docker -f Dockerfile.windows .
+	ec=$?
+	set +x
 
 	if [ 0 -ne $ec ]; then
 		echo
@@ -711,6 +681,14 @@ if [ $daemonStarted -eq 1 ]; then
 		sleep 10
 	fi
 fi
+
+
+# Save the daemon under test log
+if [ $daemonStarted -eq 1 ]; then
+	echo "INFO: Saving the daemon under test log $TEMP/daemon.log to $TEMPORIG/daemon.$COMMITHASH.log"
+    cp $TEMP/daemon.log $TEMPORIG/daemon.$COMMITHASH.log
+fi
+
 
 # Warning about Go Version
 if [ -n "$warnGoVersionAtEnd" ]; then
