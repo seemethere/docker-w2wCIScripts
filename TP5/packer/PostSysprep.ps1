@@ -30,7 +30,7 @@ try {
     
     # Install NSSM by extracting archive and placing in system32
     echo "$(date) PostSysprep.ps1 downloading NSSM configuration file..." >> $env:SystemDrive\packer\PostSysprep.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/nssmdocker.W2WCIServers.cmd","$env:ProgramData\docker\nssmdocker.cmd")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/nssmdocker.cmd","$env:ProgramData\docker\nssmdocker.cmd")
     echo "$(date) PostSysprep.ps1 downloading NSSM..." >> $env:SystemDrive\packer\PostSysprep.log
     $wc=New-Object net.webclient;$wc.Downloadfile("https://nssm.cc/release/nssm-2.24.zip","$env:Temp\nssm.zip")
     echo "$(date) PostSysprep.ps1 extracting NSSM..." >> $env:SystemDrive\packer\PostSysprep.log
