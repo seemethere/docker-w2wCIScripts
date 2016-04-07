@@ -50,12 +50,6 @@ try {
     
     #--------------------------------------------------------------------------------------------
     
-    # BUGBUG This is a TP5 hack. #6925609. Should not be necessary in TP5 + ZDP
-    echo "$(date) PostSysprep.ps1 resetting networking (hack)..." >> $env:SystemDrive\packer\PostSysprep.log
-    netsh int ipv4 reset
-    
-    #--------------------------------------------------------------------------------------------
-    
     echo "$(date) PostSysprep.ps1 configuring temp to D..." >> $env:SystemDrive\packer\PostSysprep.log
     $env:Temp="d:\temp"
     $env:Tmp=$env:Temp
@@ -69,7 +63,6 @@ try {
 
     # Start the nssm docker service
     nssm start docker
-    
     
     #--------------------------------------------------------------------------------------------
 

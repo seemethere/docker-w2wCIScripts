@@ -57,10 +57,6 @@ TP5 workarounds:
    These are NOT in github due to containing API key. Can be found on \\redmond\osg\....team\jhoward\docker\ci\TP5
  - Scheduled task at system startup to run BringNodeOnline.ps1
   
- In packer.json, ConfigurePostSyspre.ps1 and InstallMostThings.ps1:
- - Kill-LongRunningDocker.ps1 scheduled task at startup. This should
-   not be necessary with the final TP5+ZDP.
-   
  In PostSysprep.ps, netsh int ipv4 reset. This should not be necessary
    with the final TP5+ZDP.
  

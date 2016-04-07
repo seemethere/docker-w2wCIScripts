@@ -78,7 +78,6 @@ Write-Host "INFO: Downloading CI scripts for local run into c:\scripts"
 $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/executeCI.sh","$env:SystemDrive\scripts\executeCI.sh")
 $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/cleanupCI.sh","$env:SystemDrive\scripts\cleanupCI.sh")
 $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/RunOnCIServer.cmd","$env:SystemDrive\scripts\RunOnCIServer.cmd")
-$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Kill-LongRunningDocker.ps1","$env:SystemDrive\scripts\Kill-LongRunningDocker.ps1")
 $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/Invoke-DockerCI/master/Invoke-DockerCI.ps1","$env:SystemDrive\scripts\Invoke-DockerCI.ps1")
 
 
