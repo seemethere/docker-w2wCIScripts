@@ -8,19 +8,19 @@ Write-Host "PostSysprep..."
 
 try {
 
-    echo "$(date) PostSysprep.ps1 starting" > $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log
 
     #--------------------------------------------------------------------------------------------
 
     # Download and install Cygwin for SSH capability
-    echo "$(date) PostSysprep.ps1 downloading cygwin..." > $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 downloading cygwin..." >> $env:SystemDrive\packer\configure.log
     mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
     $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwin\cygwinsetup.exe")
-    echo "$(date) PostSysprep.ps1 installing cygwin..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 installing cygwin..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
     
     # Open the firewall
-    echo "$(date) PostSysprep.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
 
     #--------------------------------------------------------------------------------------------
@@ -29,18 +29,18 @@ try {
     mkdir $env:ProgramData\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
     
     # Install NSSM by extracting archive and placing in system32
-    echo "$(date) PostSysprep.ps1 downloading NSSM configuration file..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 downloading NSSM configuration file..." >> $env:SystemDrive\packer\configure.log
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/nssmdocker.cmd","$env:ProgramData\docker\nssmdocker.cmd")
-    echo "$(date) PostSysprep.ps1 downloading NSSM..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 downloading NSSM..." >> $env:SystemDrive\packer\configure.log
     $wc=New-Object net.webclient;$wc.Downloadfile("https://nssm.cc/release/nssm-2.24.zip","$env:Temp\nssm.zip")
-    echo "$(date) PostSysprep.ps1 extracting NSSM..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 extracting NSSM..." >> $env:SystemDrive\packer\configure.log
     Expand-Archive -Path $env:Temp\nssm.zip -DestinationPath $env:Temp
-    echo "$(date) PostSysprep.ps1 installing NSSM..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 installing NSSM..." >> $env:SystemDrive\packer\configure.log
     Copy-Item $env:Temp\nssm-2.24\win64\nssm.exe $env:SystemRoot\System32
     
     
     # Configure the docker NSSM service
-    echo "$(date) PostSysprep.ps1 configuring NSSM..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 configuring NSSM..." >> $env:SystemDrive\packer\configure.log
     Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:Programdata\docker\nssmdocker.cmd < nul"
     Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
     Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
@@ -50,7 +50,7 @@ try {
     
     #--------------------------------------------------------------------------------------------
     
-    echo "$(date) PostSysprep.ps1 configuring temp to D..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
     $env:Temp="d:\temp"
     $env:Tmp=$env:Temp
     [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "Machine")
@@ -79,7 +79,7 @@ try {
     # I tried HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce, no joy. For example
     #   REG ADD "...\RunOnce" /v ConfigureSSH /t REG_SZ /f /d "powershell -command c:\packer\ConfigureSSH.ps1" | Out-Null
     # And fails as scheduled task as that isn't interactive.
-    echo "$(date) PostSysprep.ps1 configuring runonce for SSH configuration..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 configuring runonce for SSH configuration..." >> $env:SystemDrive\packer\configure.log
     $pass = Get-Content c:\packer\password.txt -raw
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d jenkins /f | Out-Null
@@ -97,19 +97,19 @@ try {
 
 }
 Catch [Exception] {
-    echo "$(date) PostSysprep.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
     exit 1
 }
 Finally {
 
     # Disable the scheduled task
-    echo "$(date) PostSysprep.ps1 disabling scheduled task.." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 disabling scheduled task.." >> $env:SystemDrive\packer\configure.log
     $ConfirmPreference='none'
     Get-ScheduledTask 'PostSysprep' | Disable-ScheduledTask
 
-    echo "$(date) PostSysprep.ps1 rebooting..." >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
     shutdown /t 0 /r /f /c "PostSysprep"
 
 
-    echo "$(date) PostSysprep.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\PostSysprep.log
+    echo "$(date) PostSysprep.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
 }    
