@@ -7,6 +7,12 @@ $ErrorActionPreference='Stop'
 try {
 
     echo "$(date) ConfigureSSH.ps1 starting" >> $env:SystemDrive\packer\configure.log
+
+    # Open the firewall
+    echo "$(date) PostSysprep.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\configure.log
+    Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
+
+    # Configure cygwin ssh daemon
     Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
     Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/configure.log 2>&1"
 }

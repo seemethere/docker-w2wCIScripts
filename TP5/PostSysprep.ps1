@@ -30,10 +30,6 @@ try {
     echo "$(date) PostSysprep.ps1 installing cygwin..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
     
-    # Open the firewall
-    echo "$(date) PostSysprep.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
-
     #--------------------------------------------------------------------------------------------
     
     # Create directory for storing the nssm configuration

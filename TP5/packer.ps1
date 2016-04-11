@@ -19,4 +19,4 @@ if (($env:osimagelabel -eq "") -or ($env:osimagelabel -eq $null)) {
     exit 1
 }
 
-packer.exe build ..\common\packer.json
+packer.exe build .\packer.json
