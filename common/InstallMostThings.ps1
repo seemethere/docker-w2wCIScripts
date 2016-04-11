@@ -138,10 +138,10 @@ try {
 
 
     # Download and install LiteIDE
-    echo "$(date) InstallMostThings.ps1 Downloading LiteIDE..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile($LITEIDE_LOCATION,"$env:Temp\liteide.zip")
-    echo "$(date) InstallMostThings.ps1 Installing LiteIDE..." >> $env:SystemDrive\packer\configure.log
-    Expand-Archive $env:Temp\liteide.zip $env:SystemDrive\
+    #echo "$(date) InstallMostThings.ps1 Downloading LiteIDE..." >> $env:SystemDrive\packer\configure.log
+    #$wc=New-Object net.webclient;$wc.Downloadfile($LITEIDE_LOCATION,"$env:Temp\liteide.zip")
+    #echo "$(date) InstallMostThings.ps1 Installing LiteIDE..." >> $env:SystemDrive\packer\configure.log
+    #Expand-Archive $env:Temp\liteide.zip $env:SystemDrive\
 
 
     # Download and install PSTools

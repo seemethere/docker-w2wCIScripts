@@ -5,7 +5,7 @@
 
 $ErrorActionPreference='Stop'
 
-Write-Host "PostSysprep..."
+echo "$(date) PostSysprep.ps1 started" >> $env:SystemDrive\packer\configure.log
 
 try {
 
@@ -14,12 +14,12 @@ try {
     #--------------------------------------------------------------------------------------------
     # Configure the CI Environment
     echo "$(date) PostSysprep.ps1 Configuring the CI environment..." >> $env:SystemDrive\packer\configure.log    
-    $env:SystemDrive\packer\ConfigureCIEnvironment.ps1
+    powershell -command "$env:SystemDrive\packer\ConfigureCIEnvironment.ps1"
 
     #--------------------------------------------------------------------------------------------
     # Install most things
     echo "$(date) PostSysprep.ps1 Installing most things..." >> $env:SystemDrive\packer\configure.log    
-    $env:SystemDrive\packer\InstallMostThings.ps1
+    powershell -command "$env:SystemDrive\packer\InstallMostThings.ps1"
 
     #--------------------------------------------------------------------------------------------
 
