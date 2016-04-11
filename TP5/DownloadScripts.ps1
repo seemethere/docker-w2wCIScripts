@@ -33,6 +33,7 @@ try {
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureSSH.ps1","c:\packer\ConfigureSSH.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureSSH.sh","c:\packer\ConfigureSSH.sh")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/InstallMostThings.ps1","c:\packer\InstallMostThings.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Kill-LongRunningDocker.ps1","c:\scripts\Kill-LongRunningDocker.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/nssmdocker.cmd","c:\docker\nssmdocker.cmd")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/PostSysprep.ps1","c:\packer\PostSysprep.ps1")
 }
