@@ -12,11 +12,6 @@ try {
     echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log    
     
     #--------------------------------------------------------------------------------------------
-    # Download Scripts
-    echo "$(date) PostSysprep.ps1 Downloading scripts..." >> $env:SystemDrive\packer\configure.log    
-    $env:SystemDrive\packer\DownloadScripts.ps1
-
-    #--------------------------------------------------------------------------------------------
     # Configure the CI Environment
     echo "$(date) PostSysprep.ps1 Configuring the CI environment..." >> $env:SystemDrive\packer\configure.log    
     $env:SystemDrive\packer\ConfigureCIEnvironment.ps1
@@ -44,17 +39,6 @@ try {
     # Create directory for storing the nssm configuration
     mkdir $env:SystemDrive\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
     
-    # Install NSSM by extracting archive and placing in system32
-    echo "$(date) PostSysprep.ps1 downloading NSSM configuration file..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/nssmdocker.cmd","$env:SystemDrive\nssmdocker.cmd")
-    echo "$(date) PostSysprep.ps1 downloading NSSM..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://nssm.cc/release/nssm-2.24.zip","$env:Temp\nssm.zip")
-    echo "$(date) PostSysprep.ps1 extracting NSSM..." >> $env:SystemDrive\packer\configure.log
-    Expand-Archive -Path $env:Temp\nssm.zip -DestinationPath $env:Temp
-    echo "$(date) PostSysprep.ps1 installing NSSM..." >> $env:SystemDrive\packer\configure.log
-    Copy-Item $env:Temp\nssm-2.24\win64\nssm.exe $env:SystemRoot\System32
-    
-    
     # Configure the docker NSSM service
     echo "$(date) PostSysprep.ps1 configuring NSSM..." >> $env:SystemDrive\packer\configure.log
     Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\docker\nssmdocker.cmd < nul"
@@ -67,7 +51,7 @@ try {
     #--------------------------------------------------------------------------------------------
     
     echo "$(date) PostSysprep.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
-    $env:Temp="d:    emp"
+    $env:Temp="d:\temp"
     $env:Tmp=$env:Temp
     [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "Machine")
     [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "Machine")

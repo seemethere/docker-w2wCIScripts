@@ -31,7 +31,7 @@
                 "Write-Host INFO: Storing password temporarily...",
                 "[System.IO.File]::WriteAllText('c:\\packer\\password.txt', '{{user `password`}}', (New-Object System.Text.UTF8Encoding($False)))",
                 "Write-Host INFO: Downloading InitPostSysprep.ps1...",
-                "$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/common/InitPostSysprep.ps1\",\"c://packer//InitPostSysprep.ps1\")",
+                "$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/InitPostSysprep.ps1\",\"c://packer//InitPostSysprep.ps1\")",
                 "$action = New-ScheduledTaskAction -Execute \"powershell.exe\" -Argument \"-command c:\\packer\\InitPostSysprep.ps1\"",
                 "$trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00",
                 "Register-ScheduledTask -TaskName \"InitPostSysprep\" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest",
