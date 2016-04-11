@@ -1,6 +1,6 @@
 $env:imageprefix="jenkins-tp5"
 $env:storageaccount="tp5"
-$env:osimagelabel="azuretp5v11"
+$env:osimagelabel="azuretp5v12"
 
 if (($env:password -eq "") -or ($env:password -eq $null)) {
     Write-Error "Must have environment variable 'password' set matching the Jenkins user account"
