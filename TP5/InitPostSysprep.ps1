@@ -32,7 +32,7 @@ try {
 
     # Invoke the downloads
     echo "$(date) InitPostSysprep.ps1 Invoking DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
-    $env:SystemDrive\packer\DownloadScripts.ps1
+    powershell -command "$env:SystemDrive\packer\DownloadScripts.ps1"
 
     $pass = Get-Content c:\packer\password.txt -raw
 
