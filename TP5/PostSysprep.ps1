@@ -1,5 +1,6 @@
 #-----------------------
 # PostSysprep.ps1
+# This runs as the Jenkins user.
 #-----------------------
 
 $ErrorActionPreference='Stop'
@@ -8,11 +9,26 @@ Write-Host "PostSysprep..."
 
 try {
 
-    echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log
+    echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log    
+    
+    #--------------------------------------------------------------------------------------------
+    # Download Scripts
+    echo "$(date) PostSysprep.ps1 Downloading scripts..." >> $env:SystemDrive\packer\configure.log    
+    $env:SystemDrive\packer\DownloadScripts.ps1
+
+    #--------------------------------------------------------------------------------------------
+    # Configure the CI Environment
+    echo "$(date) PostSysprep.ps1 Configuring the CI environment..." >> $env:SystemDrive\packer\configure.log    
+    $env:SystemDrive\packer\ConfigureCIEnvironment.ps1
+
+    #--------------------------------------------------------------------------------------------
+    # Install most things
+    echo "$(date) PostSysprep.ps1 Installing most things..." >> $env:SystemDrive\packer\configure.log    
+    $env:SystemDrive\packer\InstallMostThings.ps1
 
     #--------------------------------------------------------------------------------------------
 
-    # Download and install Cygwin for SSH capability
+    # Download and install Cygwin for SSH capability  # BUGBUG Hope to get rid of using this....
     echo "$(date) PostSysprep.ps1 downloading cygwin..." >> $env:SystemDrive\packer\configure.log
     mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
     $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwin\cygwinsetup.exe")
@@ -26,11 +42,11 @@ try {
     #--------------------------------------------------------------------------------------------
     
     # Create directory for storing the nssm configuration
-    mkdir $env:ProgramData\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
+    mkdir $env:SystemDrive\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
     
     # Install NSSM by extracting archive and placing in system32
     echo "$(date) PostSysprep.ps1 downloading NSSM configuration file..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/nssmdocker.cmd","$env:ProgramData\docker\nssmdocker.cmd")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/nssmdocker.cmd","$env:SystemDrive\nssmdocker.cmd")
     echo "$(date) PostSysprep.ps1 downloading NSSM..." >> $env:SystemDrive\packer\configure.log
     $wc=New-Object net.webclient;$wc.Downloadfile("https://nssm.cc/release/nssm-2.24.zip","$env:Temp\nssm.zip")
     echo "$(date) PostSysprep.ps1 extracting NSSM..." >> $env:SystemDrive\packer\configure.log
@@ -41,7 +57,7 @@ try {
     
     # Configure the docker NSSM service
     echo "$(date) PostSysprep.ps1 configuring NSSM..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:Programdata\docker\nssmdocker.cmd < nul"
+    Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\docker\nssmdocker.cmd < nul"
     Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
     Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
     Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\daemon\nssmdaemon.log"
@@ -51,7 +67,7 @@ try {
     #--------------------------------------------------------------------------------------------
     
     echo "$(date) PostSysprep.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
-    $env:Temp="d:\temp"
+    $env:Temp="d:    emp"
     $env:Tmp=$env:Temp
     [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "Machine")
     [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "Machine")
