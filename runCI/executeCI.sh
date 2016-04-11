@@ -43,13 +43,15 @@
 #	SKIP_UNIT_TESTS			if defined skips the unit tests
 #
 #	SKIP_INTEGRATION_TESTS	if defined skips the integration tests
+#
+#	DOCKER_DUT_HYPERV		if default daemon under test default isolation is hyperv
 # -------------------------------------------------------------------------------------------
 
 
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="05-Apr-2016 18:34 PDT"
+SCRIPT_VER="11-Apr-2016 15:09 PDT"
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -486,14 +488,23 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
+# Are we starting the daemon under test with Hyper-V containers as the default isolation?
+if [ $ec -eq 0 ]; then
+	DUT_HYPERV_FLAG=""
+	if [ ! -z "$DOCKER_DUT_HYPERV" ]; then
+		echo "INFO: Running the daemon under test in debug mode"
+		DUT_HYPERV_FLAG=" --isolation=hyperv "
+	fi
+fi
+
 # Start the daemon under test, ensuring everything is redirected to folders under $TEMP.
 # Important - we launch the -$COMMITHASH version so that we can kill it without
 # killing the control daemon
 if [ $ec -eq 0 ]; then
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
-	echo $TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid 
-	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
+	echo $TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid 
+	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
