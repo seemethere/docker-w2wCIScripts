@@ -9,7 +9,7 @@ echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configu
 $GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.4.windows.1/Git-2.7.4-64-bit.exe"
 $JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-windows-x64.exe"
 $LITEIDE_LOCATION="https://sourceforge.net/projects/liteide/files/X28/liteidex28.windows-qt4.zip/download"
-$NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9/npp.6.9.Installer.exe"
+$NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.1/npp.6.9.1.Installer.exe"
 $PuTTY_LOCATION="https://the.earth.li/~sgtatham/putty/latest/x86/putty.zip"
 $JQ_LOCATION="https://github.com/stedolan/jq/releases/download/jq-1.5/jq-win64.exe"
 $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
