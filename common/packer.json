@@ -5,7 +5,7 @@
         "password": "{{env `password`}}",
         "sn": "Microsoft Azure Sponsorship",
         "ps": "{{ env `HOME` }}/.azure/engine-team@docker.com.publishsettings",
-        "sa": "{{env `storageaccount`}}"
+        "sa": "{{env `storageaccount`}}",
         "oil": "{{env `osimagelabel`}}"
     },
     "builders": [
