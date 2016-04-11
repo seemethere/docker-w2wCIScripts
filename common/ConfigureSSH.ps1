@@ -9,7 +9,7 @@ try {
     echo "$(date) ConfigureSSH.ps1 starting" >> $env:SystemDrive\packer\configure.log
 
     # Open the firewall
-    echo "$(date) PostSysprep.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\configure.log
+    echo "$(date) ConfigureSSH.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
 
     # Configure cygwin ssh daemon
