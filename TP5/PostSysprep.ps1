@@ -10,6 +10,12 @@ echo "$(date) PostSysprep.ps1 started" >> $env:SystemDrive\packer\configure.log
 try {
 
     echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log    
+
+    #--------------------------------------------------------------------------------------------
+    # Set full crashdumps
+    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 1 /f | Out-Null
+    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 1 /f | Out-Null
+    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "d:\memory.dmp" /f | Out-Null
     
     #--------------------------------------------------------------------------------------------
     # Configure the CI Environment
