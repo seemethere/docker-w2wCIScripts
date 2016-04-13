@@ -17,12 +17,14 @@ try {
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "d:\memory.dmp" /f | Out-Null
-    echo "$(date) PostSysprep.ps1 Directing pagefile.sys to C:..." >> $env:SystemDrive\packer\configure.log    
-    wmic pagefileset create name="C:\pagefile.sys" 
-    echo "$(date) PostSysprep.ps1 Setting pagefile size to 15000..." >> $env:SystemDrive\packer\configure.log    
-    wmic pagefileset where name="C:\\pagefile.sys" set InitialSize=15000,MaximumSize=15000
+
     echo "$(date) PostSysprep.ps1 Removing pagefile from D:..." >> $env:SystemDrive\packer\configure.log    
-    wmic pagefileset where name="D:\\pagefile.sys" delete
+    $pagefile = Get-WmiObject -Query "Select * From Win32_PageFileSetting Where Name='d:\\pagefile.sys'"
+    $pagefile.Delete()
+
+    echo "$(date) PostSysprep.ps1 Directing pagefile.sys to C:..." >> $env:SystemDrive\packer\configure.log    
+    Set-WMIInstance -class Win32_PageFileSetting -Arguments @{name="c:\pagefile.sys";InitialSize = 15000;MaximumSize = 15000}
+
     $ErrorActionPreference='Stop'
     
     #--------------------------------------------------------------------------------------------
