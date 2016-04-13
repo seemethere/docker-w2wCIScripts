@@ -8,14 +8,22 @@ $ErrorActionPreference='Stop'
 echo "$(date) PostSysprep.ps1 started" >> $env:SystemDrive\packer\configure.log
 
 try {
-
     echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log    
 
     #--------------------------------------------------------------------------------------------
-    # Set full crashdumps
+    # Set full crashdumps (don't fail if by any chance these fail - eg a different config Azure VM. Set for D3_V2)
+    $ErrorActionPreference='SilentlyContinue'
+    echo "$(date) PostSysprep.ps1 Enabling full crashdumps..." >> $env:SystemDrive\packer\configure.log    
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "d:\memory.dmp" /f | Out-Null
+    echo "$(date) PostSysprep.ps1 Directing pagefile.sys to C:..." >> $env:SystemDrive\packer\configure.log    
+    wmic pagefileset create name="C:\pagefile.sys" 
+    echo "$(date) PostSysprep.ps1 Setting pagefile size to 15000..." >> $env:SystemDrive\packer\configure.log    
+    wmic pagefileset where name="C:\\pagefile.sys" set InitialSize=15000,MaximumSize=15000
+    echo "$(date) PostSysprep.ps1 Removing pagefile from D:..." >> $env:SystemDrive\packer\configure.log    
+    wmic pagefileset where name="D:\\pagefile.sys" delete
+    $ErrorActionPreference='Stop'
     
     #--------------------------------------------------------------------------------------------
     # Configure the CI Environment
