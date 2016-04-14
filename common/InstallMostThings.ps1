@@ -13,7 +13,7 @@ $NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.1/npp.6.9.1.Inst
 $PuTTY_LOCATION="https://the.earth.li/~sgtatham/putty/latest/x86/putty.zip"
 $JQ_LOCATION="https://github.com/stedolan/jq/releases/download/jq-1.5/jq-win64.exe"
 $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
-$DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64/docker.exe"
+$DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
 
 echo "$(date)  Git:       $GIT_LOCATION"         >> $env:SystemDrive\packer\configure.log
 echo "$(date)  JDK:       $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log
@@ -125,10 +125,21 @@ try {
     Start-Process -wait go -ArgumentList "install -v"
 
 
-    # Download docker.
-    echo "$(date) InstallMostThings.ps1 Downloading docker..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile($DOCKER_LOCATION,"$env:SystemRoot\System32\docker.exe")
+    # Download docker. In single binary mode, this is joint daemon and client. In dual mode it's just the client
+    echo "$(date) InstallMostThings.ps1 Downloading docker.exe..." >> $env:SystemDrive\packer\configure.log
+    $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/docker.exe","$env:SystemRoot\System32\docker.exe")
 
+    # Split binary mode - download the daemon binary if it exists. TODO - No need for HTTP request once in master.
+    $ErrorActionPreference = "SilentlyContinue"
+    $HTTP_Request = [System.Net.WebRequest]::Create("$DOCKER_LOCATION/dockerd.exe")
+    $HTTP_Response = $HTTP_Request.GetResponse()
+    $HTTP_Status = [int]$HTTP_Response.StatusCode
+    If ($HTTP_Status -eq 200) { 
+        echo "$(date) InstallMostThings.ps1 Downloading dockerd.exe..." >> $env:SystemDrive\packer\configure.log
+        $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/dockerd.exe","$env:SystemRoot\System32\dockerd.exe")
+    }
+    $HTTP_Response.Close()
+    $ErrorActionPreference="stop"
 
     # Download and install Notepad++
     echo "$(date) InstallMostThings.ps1 Downloading Notepad++..." >> $env:SystemDrive\packer\configure.log
