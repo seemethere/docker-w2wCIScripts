@@ -478,15 +478,28 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Copy the built docker.exe to docker-$COMMITHASH.exe so that easily spotted in task manager,
-# and make sure the built binaries are first on our path
+# Copy the built docker.exe to docker-$COMMITHASH.exe in single binary mode, or
+# dockerd-$COMMITHASH.exe in split binary mode, so that easily spotted in task manager.
 if [ $ec -eq 0 ]; then
 	if [ $splitBinary -eq 0 ]; then
 		echo "INFO: Linking the built binary to $TEMP/docker-$COMMITHASH.exe..."
 		ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
 	else
-		echo "INFO: Linking the built binary to $TEMP/dockerd-$COMMITHASH.exe..."
+		echo "INFO: Linking the built daemon binary to $TEMP/dockerd-$COMMITHASH.exe..."
 		ln $TEMP/binary/dockerd.exe $TEMP/binary/dockerd-$COMMITHASH.exe
+	fi
+	ec=$?
+	if [ 0 -ne $ec ]; then
+		echo "ERROR: Failed to create link to the daemon binary"
+	fi
+fi
+
+# Copy the built docker.exe to docker-$COMMITHASH.exe in split binary mode.
+# This is our client binary.
+if [ $ec -eq 0 ]; then
+	if [ $splitBinary -eq 1 ]; then
+		echo "INFO: Linking the built client binary to $TEMP/docker-$COMMITHASH.exe..."
+		ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
 	fi
 	ec=$?
 	if [ 0 -ne $ec ]; then
@@ -526,15 +539,13 @@ fi
 # Important - we launch the -$COMMITHASH version so that we can kill it without
 # killing the control daemon
 if [ $ec -eq 0 ]; then
-	if [ $splitBinary -eq 0 ]; then
-		commandLine="$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log"
-	else
-		commandLine="$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log"
-	fi
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
-	echo $commandLine
-	$commandLine &
+	if [ $splitBinary -eq 0 ]; then
+		$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
+	else
+		$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log	&
+	fi
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
