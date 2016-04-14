@@ -15,5 +15,12 @@ if exist d:\daemon (goto :run)
 mkdir d:\daemon
 
 :run
-copy %systemroot%\system32\docker.exe %systemroot%\system32\dockernssm.exe /Y
-dockernssm daemon --graph=d:\daemon --pidfile=d:\daemon\daemon.pid
+if EXIST %systemroot%\system32\dockerd.exe (
+	rem Split binary mode
+	copy %systemroot%\system32\dockerd.exe %systemroot%\system32\dockernssm.exe /Y
+	dockernssm --graph=d:\daemon --pidfile=d:\daemon\daemon.pid
+) ELSE (
+	rem Single binary mode
+	copy %systemroot%\system32\docker.exe %systemroot%\system32\dockernssm.exe /Y
+	dockernssm daemon --graph=d:\daemon --pidfile=d:\daemon\daemon.pid
+)
