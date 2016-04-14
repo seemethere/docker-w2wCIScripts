@@ -129,17 +129,21 @@ try {
     echo "$(date) InstallMostThings.ps1 Downloading docker.exe..." >> $env:SystemDrive\packer\configure.log
     $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/docker.exe","$env:SystemRoot\System32\docker.exe")
 
-    # Split binary mode - download the daemon binary if it exists. TODO - No need for HTTP request once in master.
-    $ErrorActionPreference = "SilentlyContinue"
-    $HTTP_Request = [System.Net.WebRequest]::Create("$DOCKER_LOCATION/dockerd.exe")
-    $HTTP_Response = $HTTP_Request.GetResponse()
-    $HTTP_Status = [int]$HTTP_Response.StatusCode
-    If ($HTTP_Status -eq 200) { 
-        echo "$(date) InstallMostThings.ps1 Downloading dockerd.exe..." >> $env:SystemDrive\packer\configure.log
+    # Split binary mode - download the daemon binary if it exists. TODO - No need for optional once in master.
+    echo "$(date) InstallMostThings.ps1 Downloading dockerd.exe..." >> $env:SystemDrive\packer\configure.log
+    try {
         $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/dockerd.exe","$env:SystemRoot\System32\dockerd.exe")
+    } 
+    catch [System.Net.WebException]
+    {
+        $statusCode = [int]$_.Exception.Response.StatusCode
+        if (($statusCode -eq 404) -or ($statusCode -eq 403)) { 
+            # This is OK. master.dockerproject.org returns 403 for some reason!
+            echo "$(date) InstallMostThings.ps1 dockerd.exe was not found" >> $env:SystemDrive\packer\configure.log
+        } else {
+            Throw ("Failed to download $DOCKERLOCATION/dockerd.exe")
+        }
     }
-    $HTTP_Response.Close()
-    $ErrorActionPreference="stop"
 
     # Download and install Notepad++
     echo "$(date) InstallMostThings.ps1 Downloading Notepad++..." >> $env:SystemDrive\packer\configure.log
