@@ -4,6 +4,7 @@
 set +e  # Keep going on errors
 set +x 
 
+# This function is copied from the cleanup script
 nuke_everything()
 {
 	! containerCount=$(docker ps -aq | wc -l)
@@ -20,6 +21,7 @@ nuke_everything()
 
 	# Kill any spurious daemons. The '-' in 'docker-' is IMPORTANT otherwise will kill the control daemon!
 	IFS=$'\n'
+
 	for PID in $(tasklist | grep docker- | awk {'print $2'})
 	do
 		echo "INFO: Killing daemon with PID $PID"
@@ -62,14 +64,13 @@ nuke_everything()
 	
 	echo "INFO: End of cleanup"
 }
-
 export ver=$(reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion" | grep BuildLabEx | awk '{print $3}')
 ! nuke_everything
 
 #TP5 Workaround
-echo TP5 Workaround - Marking node as temporarilyOffline...
-! powershell -command c:\\scripts\\TakeNodeOffline.ps1
-sleep 10 # Give it time to actually be taken offline
-echo TP5 Workaround - Rebooting node...
-shutdown -t 0 -r
+#echo TP5 Workaround - Marking node as temporarilyOffline...
+#! powershell -command c:\\scripts\\TakeNodeOffline.ps1
+#sleep 10 # Give it time to actually be taken offline
+#echo TP5 Workaround - Rebooting node...
+#shutdown -t 0 -r
 true
