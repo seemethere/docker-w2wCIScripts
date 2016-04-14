@@ -6,7 +6,7 @@
 # Version configuration. We put them here rather than in packer variables so that this script block can be run on any machine,
 # not just a CI server. Note Git is a full location, not a version as interim releases have more than just the version in the path.
 echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configure.log
-$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.4.windows.1/Git-2.7.4-64-bit.exe"
+$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
 $JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-windows-x64.exe"
 $LITEIDE_LOCATION="https://sourceforge.net/projects/liteide/files/X28/liteidex28.windows-qt4.zip/download"
 $NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.1/npp.6.9.1.Installer.exe"
