@@ -51,7 +51,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="11-Apr-2016 15:09 PDT"
+SCRIPT_VER="14-Apr-2016 21:41 PDT" 
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -70,6 +70,7 @@ nuke_everything()
 
 	# Kill any spurious daemons. The '-' in 'docker-' is IMPORTANT otherwise will kill the control daemon!
 	IFS=$'\n'
+
 	for PID in $(tasklist | grep docker- | awk {'print $2'})
 	do
 		echo "INFO: Killing daemon with PID $PID"
@@ -224,29 +225,6 @@ if [ $ec -eq 0 ]; then
 	command -v docker-ci-zap >& /dev/null || { echo "ERROR: docker-ci-zap is not installed or not found on path"; ec=1; }
 fi
 
-# Make sure windowsservercore image is installed
-if [ $ec -eq 0 ]; then
-	! build=$(docker images | grep windowsservercore | grep -v latest | awk '{print $2}')
-	if [ -z $build ]; then
-		echo "ERROR: Could not find windowsservercore image"
-		ec=1
-	fi
-fi
-
-# Tag it as latest if not already tagged
-if [ $ec -eq 0 ]; then
-	! latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
-	if [ $latestCount -ne 1 ]; then
-		docker tag windowsservercore:$build windowsservercore:latest
-		ec=$?
-		if [ $ec -eq 0 ]; then
-			echo "INFO: Tagged windowsservercore:$build with latest"
-		else
-			echo "ERROR: Failed to tag windowsservercore:$build as latest"
-		fi
-	fi
-fi
-
 # Make sure each of the variables are set
 if [ $ec -eq 0 ]; then
 	validate_driveletter "SOURCES_DRIVE" $SOURCES_DRIVE
@@ -305,6 +283,55 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
+# Make sure we are in repo
+if [ $ec -eq 0 ]; then
+	if [ ! -e Dockerfile.windows ]; then
+		echo
+		echo "---------------------------------------------------------------------------"
+		echo "ERROR: Are you sure this is being launched from the root of a docker repository?"
+		echo "       If this is a Windows CI machine, it should be "
+		echo "       c:\gopath\src\github.com\docker\docker."
+		echo "       Current directory is `pwd`"
+		echo "---------------------------------------------------------------------------"
+		ec=1
+	else
+		inRepo=1
+		echo "INFO: Repository was found"
+	fi
+fi
+
+# Are we in split binary mode?
+if [ `grep DOCKER_CLIENTONLY Makefile | wc -l` -gt 0 ]; then
+    splitBinary=0
+	echo "INFO: Running in single binary mode"
+else
+    splitBinary=1
+	echo "INFO: Running in split binary mode"
+fi
+
+# Make sure windowsservercore image is installed
+if [ $ec -eq 0 ]; then
+	! build=$(docker images | grep windowsservercore | grep -v latest | awk '{print $2}')
+	if [ -z $build ]; then
+		echo "ERROR: Could not find windowsservercore image"
+		ec=1
+	fi
+fi
+
+# Tag it as latest if not already tagged
+if [ $ec -eq 0 ]; then
+	! latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
+	if [ $latestCount -ne 1 ]; then
+		docker tag windowsservercore:$build windowsservercore:latest
+		ec=$?
+		if [ $ec -eq 0 ]; then
+			echo "INFO: Tagged windowsservercore:$build with latest"
+		else
+			echo "ERROR: Failed to tag windowsservercore:$build as latest"
+		fi
+	fi
+fi
+
 
 # Provide the docker version for debugging purposes.
 if [ $ec -eq 0 ]; then
@@ -336,23 +363,6 @@ if [ $ec -eq 0 ]; then
 		echo "ERROR: The control daemon does not appear to be running."
     fi
 	echo
-fi
-
-# Make sure we are in repo
-if [ $ec -eq 0 ]; then
-	if [ ! -e Dockerfile.windows ]; then
-		echo
-		echo "---------------------------------------------------------------------------"
-		echo "ERROR: Are you sure this is being launched from the root of a docker repository?"
-		echo "       If this is a Windows CI machine, it should be "
-		echo "       c:\gopath\src\github.com\docker\docker."
-		echo "       Current directory is `pwd`"
-		echo "---------------------------------------------------------------------------"
-		ec=1
-	else
-		inRepo=1
-		echo "INFO: Repository was found"
-	fi
 fi
 
 # Get the commit has and verify we have something
@@ -438,21 +448,32 @@ fi
 # Build the binary in a container
 if [ $ec -eq 0 ]; then
 	echo "INFO: Building the test binary..."
-	set -x 
-	docker run --rm -v "$TEMPWIN:c:\target"	docker sh -c 'cd /c/go/src/github.com/docker/docker; \
-	hack/make.sh binary; \
-	ec=$?; \
-	if [ $ec -eq 0 ]; then \
-		robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary /c/target/binary; \
-	fi; \
-	exit $ec'
+	set -x
+	if [ $splitBinary -eq 0 ]; then
+		docker run --rm -v "$TEMPWIN:c:\target"	docker sh -c 'cd /c/go/src/github.com/docker/docker; \
+		hack/make.sh binary; \
+		ec=$?; \
+		if [ $ec -eq 0 ]; then \
+			robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary /c/target/binary; \
+		fi; \
+		exit $ec'
+	else
+		docker run --rm -v "$TEMPWIN:c:\target"	docker sh -c 'cd /c/go/src/github.com/docker/docker; \
+		hack/make.sh binary; \
+		ec=$?; \
+		if [ $ec -eq 0 ]; then \
+			robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary-client /c/target/binary; \
+			robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary-daemon /c/target/binary; \
+		fi; \
+		exit $ec'
+	fi
 	ec=$?
 	set +x
 	if [ 0 -ne $ec ]; then
 		echo
-		echo "----------------------------------"
-		echo "ERROR: Failed to build test binary"
-		echo "----------------------------------"
+		echo "----------------------"
+		echo "ERROR: Failed to build"
+		echo "----------------------"
 		echo
 	fi
 fi
@@ -460,14 +481,18 @@ fi
 # Copy the built docker.exe to docker-$COMMITHASH.exe so that easily spotted in task manager,
 # and make sure the built binaries are first on our path
 if [ $ec -eq 0 ]; then
-	echo "INFO: Linking the built binary to $TEMP/docker-$COMMITHASH.exe..."
-	ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
+	if [ $splitBinary -eq 0 ]; then
+		echo "INFO: Linking the built binary to $TEMP/docker-$COMMITHASH.exe..."
+		ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
+	else
+		echo "INFO: Linking the built binary to $TEMP/dockerd-$COMMITHASH.exe..."
+		ln $TEMP/binary/dockerd.exe $TEMP/binary/dockerd-$COMMITHASH.exe
+	fi
 	ec=$?
 	if [ 0 -ne $ec ]; then
-		echo "ERROR: Failed to link"
+		echo "ERROR: Failed to create link to the daemon binary"
 	fi
 fi
-
 
 # Work out the the -H parameter for the daemon under test (DASHH_DUT)
 if [ -z "$DOCKER_HOST" ]; then
@@ -475,7 +500,7 @@ if [ -z "$DOCKER_HOST" ]; then
 elif [[ $DOCKER_HOST == npipe* ]]; then
     DASHH_DUT="npipe:////./pipe/$COMMITHASH"
 else
-    # No, this is not a type. If TCP, the control daemon is at 2375. The DUT is 2357.
+    # No, this is not a typo. If TCP, the control daemon is at 2375. The DUT is 2357.
     DASHH_DUT="tcp://127.0.0.1:2357"
 fi
 
@@ -501,10 +526,15 @@ fi
 # Important - we launch the -$COMMITHASH version so that we can kill it without
 # killing the control daemon
 if [ $ec -eq 0 ]; then
+	if [ $splitBinary -eq 0 ]; then
+		commandLine="$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log"
+	else
+		commandLine="$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log"
+	fi
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
-	echo $TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid 
-	$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
+	echo $commandLine
+	$commandLine &
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
