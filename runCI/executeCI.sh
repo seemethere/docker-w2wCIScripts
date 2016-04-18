@@ -656,15 +656,15 @@ if [ $ec -eq 0 ]; then
 		if [ 0 -ne $ec ]; then
 			echo "ERROR: Unit tests failed."
 			echo
-			echo
-			echo "		-----------------------------------------"
-			echo "		IGNORING UNIT TEST FAILURES ON WINDOWS."
-			echo "		These need fixing. @jhowardmsft Jan 2016."
-			echo " 		PRs are welcome :)"
-			echo "		-----------------------------------------"
-			echo
-			echo
-			ec=0
+			#echo
+			#echo "		-----------------------------------------"
+			#echo "		IGNORING UNIT TEST FAILURES ON WINDOWS."
+			#echo "		These need fixing. @jhowardmsft Jan 2016."
+			#echo " 		PRs are welcome :)"
+			#echo "		-----------------------------------------"
+			#echo
+			#echo
+			#ec=0
 		fi
 	fi
 fi
