@@ -51,7 +51,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="14-Apr-2016 21:41 PDT" 
+SCRIPT_VER="18-Apr-2016 13:43 PDT" 
 
 # This function is copied from the cleanup script
 nuke_everything()
