@@ -6,7 +6,9 @@
 # Version configuration. We put them here rather than in packer variables so that this script block can be run on any machine,
 # not just a CI server. Note Git is a full location, not a version as interim releases have more than just the version in the path.
 echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configure.log
-$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
+# 2.8 seems to have issues with path after installing. Need to sort this still. BUGBUG @jhowardmsft Ditto in dockerfile.Windows
+#$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
+$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.2.windows.1/Git-2.7.2-64-bit.exe"
 $JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-windows-x64.exe"
 $LITEIDE_LOCATION="https://sourceforge.net/projects/liteide/files/X28/liteidex28.windows-qt4.zip/download"
 $NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.1/npp.6.9.1.Installer.exe"
@@ -31,7 +33,7 @@ try {
 
     # Set PATH for machine and current session
     echo "$(date) InstallMostThings.ps1 Updating path" >> $env:SystemDrive\packer\configure.log
-    $env:Path="$env:SystemDrive\Program Files (x86)\Notepad++;$env:Path;$env:SystemDrive\gcc\bin;$env:SystemDrive\go\bin;$env:SystemDrive    ools;$env:SystemDrive\gopath\bin;$env:SystemDrive\liteide\bin;$env:SystemDrive\pstools;$env:SystemDrive\putty;$env:SystemDrive\jdk\bin;$env:SystemDrive\git\cmd;$env:SystemDrive\git\bin;$env:SystemDrive\git\usr\bin"
+    $env:Path="$env:SystemDrive\Program Files (x86)\Notepad++;$env:Path;$env:SystemDrive\gcc\bin;$env:SystemDrive\go\bin;$env:SystemDrive\pstools;$env:SystemDrive\gopath\bin;$env:SystemDrive\liteide\bin;$env:SystemDrive\pstools;$env:SystemDrive\putty;$env:SystemDrive\jdk\bin;$env:SystemDrive\git\cmd;$env:SystemDrive\git\bin;$env:SystemDrive\git\usr\bin"
     [Environment]::SetEnvironmentVariable("Path",$env:Path, "Machine")
 
 

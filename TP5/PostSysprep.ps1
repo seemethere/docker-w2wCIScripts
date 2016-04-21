@@ -11,12 +11,19 @@ try {
     echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log    
 
     #--------------------------------------------------------------------------------------------
+    # Re-download the script that downloads our files in case we want to refresh them
+    echo "$(date) InitPostSysprep.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
+    $ErrorActionPreference='SilentlyContinue'
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
+    $ErrorActionPreference='SilentlyContinue'
+
+    #--------------------------------------------------------------------------------------------
     # Set full crashdumps (don't fail if by any chance these fail - eg a different config Azure VM. Set for D3_V2)
     $ErrorActionPreference='SilentlyContinue'
     echo "$(date) PostSysprep.ps1 Enabling full crashdumps..." >> $env:SystemDrive\packer\configure.log    
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 1 /f | Out-Null
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 1 /f | Out-Null
-    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "d:\memory.dmp" /f | Out-Null
+    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "c:\memory.dmp" /f | Out-Null
 
     echo "$(date) PostSysprep.ps1 Removing pagefile from D:..." >> $env:SystemDrive\packer\configure.log    
     $pagefile = Get-WmiObject -Query "Select * From Win32_PageFileSetting Where Name='d:\\pagefile.sys'"
