@@ -120,6 +120,7 @@ try {
 
 
     # Build RSRC for embedding resources in the binary (manifest and icon)
+    # BUGBUG Remove after https://github.com/docker/docker/pull/22275
     echo "$(date) InstallMostThings.ps1 Building RSRC..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait git -ArgumentList "clone https://github.com/akavel/rsrc.git $env:SystemDrive\go\src\github.com\akavel\rsrc"
     cd $env:SystemDrive\go\src\github.com\akavel\rsrc
@@ -127,25 +128,13 @@ try {
     Start-Process -wait go -ArgumentList "install -v"
 
 
-    # Download docker. In single binary mode, this is joint daemon and client. In dual mode it's just the client
+    # Download docker client
     echo "$(date) InstallMostThings.ps1 Downloading docker.exe..." >> $env:SystemDrive\packer\configure.log
     $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/docker.exe","$env:SystemRoot\System32\docker.exe")
 
-    # Split binary mode - download the daemon binary if it exists. TODO - No need for optional once in master.
+    # Download docker daemon
     echo "$(date) InstallMostThings.ps1 Downloading dockerd.exe..." >> $env:SystemDrive\packer\configure.log
-    try {
-        $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/dockerd.exe","$env:SystemRoot\System32\dockerd.exe")
-    } 
-    catch [System.Net.WebException]
-    {
-        $statusCode = [int]$_.Exception.Response.StatusCode
-        if (($statusCode -eq 404) -or ($statusCode -eq 403)) { 
-            # This is OK. master.dockerproject.org returns 403 for some reason!
-            echo "$(date) InstallMostThings.ps1 dockerd.exe was not found" >> $env:SystemDrive\packer\configure.log
-        } else {
-            Throw ("Failed to download $DOCKERLOCATION/dockerd.exe")
-        }
-    }
+    $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/dockerd.exe","$env:SystemRoot\System32\dockerd.exe")
 
     # Download and install Notepad++
     echo "$(date) InstallMostThings.ps1 Downloading Notepad++..." >> $env:SystemDrive\packer\configure.log
