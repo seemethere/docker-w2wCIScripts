@@ -22,12 +22,6 @@ nuke_everything()
 	# Kill any spurious daemons. The '-' in 'docker-' is IMPORTANT otherwise will kill the control daemon!
 	IFS=$'\n'
 
-	for PID in $(tasklist | grep docker- | awk {'print $2'})
-	do
-		echo "INFO: Killing daemon with PID $PID"
-		taskkill -f -t -pid $PID
-	done
-    # Split binary mode. Remove above block when split binary in master
 	for PID in $(tasklist | grep dockerd- | awk {'print $2'})
 	do
 		echo "INFO: Killing daemon with PID $PID"

@@ -51,7 +51,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="18-Apr-2016 13:43 PDT" 
+SCRIPT_VER="23-Apr-2016 16:34 PDT" 
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -71,12 +71,6 @@ nuke_everything()
 	# Kill any spurious daemons. The '-' in 'docker-' is IMPORTANT otherwise will kill the control daemon!
 	IFS=$'\n'
 
-	for PID in $(tasklist | grep docker- | awk {'print $2'})
-	do
-		echo "INFO: Killing daemon with PID $PID"
-		taskkill -f -t -pid $PID
-	done
-    # Split binary mode. Remove above block when split binary in master
 	for PID in $(tasklist | grep dockerd- | awk {'print $2'})
 	do
 		echo "INFO: Killing daemon with PID $PID"
@@ -300,15 +294,6 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Are we in split binary mode?
-if [ `grep DOCKER_CLIENTONLY Makefile | wc -l` -gt 0 ]; then
-    splitBinary=0
-	echo "INFO: Running in single binary mode"
-else
-    splitBinary=1
-	echo "INFO: Running in split binary mode"
-fi
-
 # Make sure windowsservercore image is installed
 if [ $ec -eq 0 ]; then
 	! build=$(docker images | grep windowsservercore | grep -v latest | awk '{print $2}')
@@ -449,24 +434,14 @@ fi
 if [ $ec -eq 0 ]; then
 	echo "INFO: Building the test binary..."
 	set -x
-	if [ $splitBinary -eq 0 ]; then
-		docker run --rm -v "$TEMPWIN:c:\target"	docker sh -c 'cd /c/go/src/github.com/docker/docker; \
-		hack/make.sh binary; \
-		ec=$?; \
-		if [ $ec -eq 0 ]; then \
-			robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary /c/target/binary; \
-		fi; \
-		exit $ec'
-	else
-		docker run --rm -v "$TEMPWIN:c:\target"	docker sh -c 'cd /c/go/src/github.com/docker/docker; \
-		hack/make.sh binary; \
-		ec=$?; \
-		if [ $ec -eq 0 ]; then \
-			robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary-client /c/target/binary; \
-			robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary-daemon /c/target/binary; \
-		fi; \
-		exit $ec'
-	fi
+	docker run --rm -v "$TEMPWIN:c:\target"	docker sh -c 'cd /c/go/src/github.com/docker/docker; \
+	hack/make.sh binary; \
+	ec=$?; \
+	if [ $ec -eq 0 ]; then \
+		robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary-client /c/target/binary; \
+		robocopy /c/go/src/github.com/docker/docker/bundles/$(cat VERSION)/binary-daemon /c/target/binary; \
+	fi; \
+	exit $ec'
 	ec=$?
 	set +x
 	if [ 0 -ne $ec ]; then
@@ -478,29 +453,20 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Copy the built docker.exe to docker-$COMMITHASH.exe in single binary mode, or
-# dockerd-$COMMITHASH.exe in split binary mode, so that easily spotted in task manager.
+# Copy the built dockerd.exe to dockerd-$COMMITHASH.exe so that easily spotted in task manager.
 if [ $ec -eq 0 ]; then
-	if [ $splitBinary -eq 0 ]; then
-		echo "INFO: Linking the built binary to $TEMP/docker-$COMMITHASH.exe..."
-		ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
-	else
-		echo "INFO: Linking the built daemon binary to $TEMP/dockerd-$COMMITHASH.exe..."
-		ln $TEMP/binary/dockerd.exe $TEMP/binary/dockerd-$COMMITHASH.exe
-	fi
+	echo "INFO: Linking the built daemon binary to $TEMP/dockerd-$COMMITHASH.exe..."
+	ln $TEMP/binary/dockerd.exe $TEMP/binary/dockerd-$COMMITHASH.exe
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Failed to create link to the daemon binary"
 	fi
 fi
 
-# Copy the built docker.exe to docker-$COMMITHASH.exe in split binary mode.
-# This is our client binary.
+# Copy the built docker.exe to docker-$COMMITHASH.exe. This is our client binary.
 if [ $ec -eq 0 ]; then
-	if [ $splitBinary -eq 1 ]; then
-		echo "INFO: Linking the built client binary to $TEMP/docker-$COMMITHASH.exe..."
-		ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
-	fi
+	echo "INFO: Linking the built client binary to $TEMP/docker-$COMMITHASH.exe..."
+	ln $TEMP/binary/docker.exe $TEMP/binary/docker-$COMMITHASH.exe
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Failed to create link to the daemon binary"
@@ -541,11 +507,7 @@ fi
 if [ $ec -eq 0 ]; then
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
-	if [ $splitBinary -eq 0 ]; then
-		$TEMP/binary/docker-$COMMITHASH daemon $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log &
-	else
-		$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log	&
-	fi
+	$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log	&
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
