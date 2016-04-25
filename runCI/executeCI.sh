@@ -410,8 +410,6 @@ if [ $ec -eq 0 -a ! $inRepo -eq 0 ]; then
 	fi
 fi
 
-# TODO RSRC integrity check...
-
 # Build the image
 if [ $ec -eq 0 ]; then
 	echo "INFO: Building the image from Dockerfile.windows..."
