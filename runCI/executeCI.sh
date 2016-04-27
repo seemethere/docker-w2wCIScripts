@@ -51,7 +51,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="23-Apr-2016 16:34 PDT" 
+SCRIPT_VER="27-Apr-2016 13:27 PDT" 
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -303,7 +303,7 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Tag it as latest if not already tagged
+ Tag it as latest if not already tagged
 if [ $ec -eq 0 ]; then
 	! latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
 	if [ $latestCount -ne 1 ]; then
@@ -581,6 +581,30 @@ if [ $ec -eq 0 ]; then
 		export DUMPDAEMONLOG=1
 	fi
 	echo
+fi
+
+# Workaround for 7035086. Run windowsservercore once before tagging it as latest.
+if [ $ec -eq 0 ]; then
+	echo "INFO: Workaround: 7305086"
+	if [ $($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT ps -aq | wc -l) -gt 0 ]; then
+		echo "INFO: Workaround: Removing containers"
+		$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT rm -f $($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT ps -aq)
+	fi
+	! build=$(docker images | grep windowsservercore | grep -v latest | awk '{print $2}')
+	if [ $($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images | grep windowsservercore | grep latest | wc -l) -gt 0 ]; then
+		echo "INFO: Workaround: Untagging windowsservercore:latest"
+		! $TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT rmi windowsservercore:latest
+	fi
+	echo "INFO: Workaround: Starting a temporary container on windowsservercore:$build"
+	! $TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT run windowsservercore:$build tasklist > /dev/null
+	containerID=$($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT ps -aq)
+	imageID=$($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT commit $containerID | awk -F':' '{print $2}')
+	echo "INFO: Workaround: Tagging $imageID as windowsservercore:latest"
+    $TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT tag $imageID windowsservercore:latest
+	echo "INFO: Workaround: Removing temporary container"
+	$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT rm $containerID
+	$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images
+	echo "INFO: Workaround: Complete"
 fi
 
 # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
