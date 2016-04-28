@@ -51,7 +51,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="27-Apr-2016 21:08 PDT" 
+SCRIPT_VER="27-Apr-2016 21:46 PDT" 
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -322,8 +322,8 @@ if [ $ec -eq 0 ]; then
 		latestCount=0
 	else
 		# Different, but make sure we have a tar to import
-		if [ ! -f /tmp/$latestImageID.tar ]; then
-			echo "INFO: Workaround - untagging windowsservercore:latest as /tmp/$latestImageID.tar does not exist"
+		if [ ! -f $TEMP/$latestImageID.tar ]; then
+			echo "INFO: Workaround - untagging windowsservercore:latest as $TEMP/$latestImageID.tar does not exist"
 			docker rmi windowsservercore:latest
 			latestImageID=""
 			latestCount=0
@@ -338,8 +338,8 @@ if [ $ec -eq 0 ]; then
 		imageID=$(docker commit $containerID windowsservercore:latest | awk -F ':' '{print $2}') > /dev/null
 		echo "INFO: Workaround - committed $imageID"
 		shortImageID=$(echo $imageID | cut -c 1-12)
-		docker save -o /tmp/$shortImageID.tar $imageID
-		echo "INFO: Saved to /tmp/$shortImageID.tar"
+		docker save -o $TEMP/$shortImageID.tar $imageID
+		echo "INFO: Saved to $TEMP/$shortImageID.tar"
 		docker rm $containerID
 		echo "INFO: Deleted container $containerID"
 		latestImageID=$shortImageID
