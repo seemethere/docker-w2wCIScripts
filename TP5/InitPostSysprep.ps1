@@ -12,12 +12,32 @@ echo "$(date) InitPostSysprep.ps1 starting..." >> $env:SystemDrive\packer\config
 
 try {
 
-    # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot.
+    # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot except install the patches.
     if (-not (Test-Path c:\packer\InitPostSysprep.GoneThroughOneReboot.txt)) {
         echo "$(date) InitPostSysprep.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\configure.log
         New-Item c:\packer\InitPostSysprep.GoneThroughOneReboot.txt
-        # Force a reboot if we don't get one in the next 2 minutes
-        sleep 120
+
+        # 4D ZDP
+        echo "$(date) InitPostSysprep.ps1 Installing 4D ZDP silently..." >> $env:SystemDrive\packer\configure.log
+        Start-Process -Wait "c:\zdp\4D\Windows10.0-KB3157663-x64.msu" -ArgumentList "/quiet /norestart"
+
+        # Hack to retry networking up to 5 times - stops very common busybox not found. Andrew working on real fix post 4D.
+        echo "$(date) InitPostSysprep.ps1 Installing private HostNetSvc.dll..." >> $env:SystemDrive\packer\configure.log
+        copy c:\windows\system32\HostNetSvc.dll c:\windows\system32\HostNetSvc.orig.dll
+        sfpcopy c:\privates\HostNetSvc.dll c:\windows\system32\HostNetSvc.dll
+
+        # JohnR csrss fix for leaking containers
+        echo "$(date) InitPostSysprep.ps1 Installing private ntoskrnl.exe..." >> $env:SystemDrive\packer\configure.log
+        copy c:\windows\system32\ntoskrnl.exe c:\windows\system32\ntoskrnl.orig.exe
+        sfpcopy c:\privates\ntkrnlmp.exe c:\windows\system32\ntoskrnl.exe
+
+        # Scott fixes for filter. Fixes 2 bugs, neither in 4D.
+        echo "$(date) InitPostSysprep.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
+        copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
+        sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
+
+        # Force a reboot if we don't get one in the next 30 seconds
+        sleep 30
         shutdown /t 0 /r /f /c "First reboot in InitPostSysprep"
         exit 0
     }
