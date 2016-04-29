@@ -27,10 +27,10 @@ try {
 	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/Pre4D/1.003/Windows10.0-KB3155191-x64.msu","c:\ZDP\Pre4D\1.003\Windows10.0-KB3155191-x64.msu")
 
 	# Privates - utilities
-	echo "$(date) DownloadPrivates.ps1 Downloading Utilites..." >> $env:SystemDrive\packer\configure.log
-	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/certutil.exe","c:\windows\system32\certutil.exe")
-	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/testroot-sha2.cer","c:\windows\system32\testroot-sha2.cer")
-	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/sfpcopy.exe","c:\windows\system32\sfpcopy.exe")
+	echo "$(date) DownloadPrivates.ps1 Downloading Utilities..." >> $env:SystemDrive\packer\configure.log
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/certutil.exe","c:\privates\certutil.exe")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/testroot-sha2.cer","c:\privates\testroot-sha2.cer")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/sfpcopy.exe","c:\privates\sfpcopy.exe")
 
 	# Privates - binaries
 	echo "$(date) DownloadPrivates.ps1 Downloading Privates..." >> $env:SystemDrive\packer\configure.log

@@ -100,25 +100,6 @@ try {
     Start-Process -wait go -ArgumentList "get -u github.com/golang/lint/golint"
 
 
-    # Build RSRC for embedding resources in the binary (manifest and icon)
-    # BUGBUG Remove this block after https://github.com/docker/docker/pull/22275
-    echo "$(date) InstallMostThings.ps1 Working out RSRC version..." >> $env:SystemDrive\packer\configure.log
-    $pattern=select-string $env:Temp\dockerfile.windows -pattern "RSRC_COMMIT="
-    if ($pattern.Count -eq 1) {
-        $line=$pattern[0]
-        $line=$line -replace "\\",""
-        $line=$line.TrimEnd()
-        $index=$line.indexof("=")
-        if ($index -eq -1) { Throw "Could not find '=' in the RSRC_COMMIT line of dockerfile.Windows" }
-        $RSRC_COMMIT=$line.Substring($index+1)
-        echo "$(date) InstallMostThings.ps1 Need RSRC at $RSRC_COMMIT" >> $env:SystemDrive\packer\configure.log
-        echo "$(date) InstallMostThings.ps1 Building RSRC..." >> $env:SystemDrive\packer\configure.log
-        Start-Process -wait git -ArgumentList "clone https://github.com/akavel/rsrc.git $env:SystemDrive\go\src\github.com\akavel\rsrc"
-        cd $env:SystemDrive\go\src\github.com\akavel\rsrc
-        Start-Process -wait git -ArgumentList "checkout -q $RSRC_COMMIT"
-        Start-Process -wait go -ArgumentList "install -v"
-    }
-
     # Download docker client
     echo "$(date) InstallMostThings.ps1 Downloading docker.exe..." >> $env:SystemDrive\packer\configure.log
     $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/docker.exe","$env:SystemRoot\System32\docker.exe")
