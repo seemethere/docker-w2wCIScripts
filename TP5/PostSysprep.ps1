@@ -12,19 +12,22 @@ try {
 
     #--------------------------------------------------------------------------------------------
     # Turn off antimalware
+    echo "$(date) PostSysprep.ps1 Disabling realtime monitoring..." >> $env:SystemDrive\packer\configure.log
     set-mppreference -disablerealtimemonitoring $true
 
     #--------------------------------------------------------------------------------------------
     # Turn off the powershell execution policy
+    echo "$(date) PostSysprep.ps1 Setting execution policy..." >> $env:SystemDrive\packer\configure.log
     set-executionpolicy bypass -Force
 
     #--------------------------------------------------------------------------------------------
     # Add the containers features
+    echo "$(date) PostSysprep.ps1 Adding containers feature..." >> $env:SystemDrive\packer\configure.log
     Add-WindowsFeature containers
 
     #--------------------------------------------------------------------------------------------
     # Re-download the script that downloads our files in case we want to refresh them
-    echo "$(date) InitPostSysprep.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
+    echo "$(date) PostSysprep.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     $ErrorActionPreference='SilentlyContinue'
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
     $ErrorActionPreference='SilentlyContinue'
