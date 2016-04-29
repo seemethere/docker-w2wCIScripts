@@ -129,6 +129,11 @@ try {
     $Shortcut.TargetPath = $TargetFile
     $Shortcut.Save()
 
+    #--------------------------------------------------------------------------------------------
+    # Download the ZDP and privates
+    echo "$(date) PostSysprep.ps1 Downloading privates..." >> $env:SystemDrive\packer\configure.log    
+    powershell -command "$env:SystemDrive\packer\DownloadPrivates.ps1"
+
 
     # 4D ZDP. Privates are installed by InstallPrivates.ps1 which runs in parallel with ConfigureSSH, but as LocalSystem.
     echo "$(date) PostSysprep.ps1 Installing 4D ZDP silently (needs reboot)..." >> $env:SystemDrive\packer\configure.log
