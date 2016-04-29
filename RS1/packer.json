@@ -1,0 +1,42 @@
+{
+    "variables": {
+        "image_name_prefix": "{{env `imageprefix`}}",
+        "username": "jenkins",
+        "password": "{{env `password`}}",
+        "sn": "Microsoft Azure Sponsorship",
+        "ps": "{{ env `HOME` }}/.azure/engine-team@docker.com.publishsettings",
+        "sa": "{{env `storageaccount`}}",
+        "oil": "{{env `osimagelabel`}}"
+    },
+    "builders": [
+         {
+              "type": "azure",
+              "publish_settings_path": "{{user `ps`}}",
+              "subscription_name": "{{user `sn`}}",
+              "storage_account": "{{user `sa`}}",
+              "storage_account_container": "images",
+              "os_type": "Windows",
+              "os_image_label": "{{user `oil`}}",
+              "location": "Central US",
+              "instance_size": "Standard_D2",
+              "user_image_label": "{{ user `image_name_prefix` }}"
+         }
+    ],
+    "provisioners": [
+         {
+              "type": "azure-custom-script-extension",
+              "inline": [
+                "Write-Host INFO: Creating packer directory...",
+                "mkdir c:\\packer -ErrorAction SilentlyContinue 2>&1 | Out-Null",
+                "Write-Host INFO: Storing password temporarily...",
+                "[System.IO.File]::WriteAllText('c:\\packer\\password.txt', '{{user `password`}}', (New-Object System.Text.UTF8Encoding($False)))",
+                "Write-Host INFO: Downloading BootstrapAutomatedInstall.ps1...",
+                "$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/RS1/BootstrapAutomatedInstall.ps1\",\"c://packer//BootstrapAutomatedInstall.ps1\")",
+                "$action = New-ScheduledTaskAction -Execute \"powershell.exe\" -Argument \"-command c:\\packer\\BootstrapAutomatedInstall.ps1\"",
+                "$trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00",
+                "Register-ScheduledTask -TaskName \"BootstrapAutomatedInstall\" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest",
+                "Write-Host INFO: Packer provisioner complete"
+            ]
+        }
+    ]
+}
