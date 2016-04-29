@@ -10,6 +10,9 @@ try {
     echo "$(date) InstallPrivates.ps1 starting" >> $env:SystemDrive\packer\configure.log    
     # Privates installed after ZDP has rebooted.
 
+    c:\privates\certutil -addstore root "c:\privates\testroot-sha2.cer"
+    bcdedit /set "{current}" testsigning On
+
     # Hack to retry networking up to 5 times - stops very common busybox not found. Andrew working on real fix post 4D.
     echo "$(date) InstallPrivates.ps1 Installing private HostNetSvc.dll..." >> $env:SystemDrive\packer\configure.log
     copy c:\windows\system32\HostNetSvc.dll c:\windows\system32\HostNetSvc.orig.dll
@@ -35,6 +38,6 @@ Finally {
     $ConfirmPreference='none'
     Get-ScheduledTask 'InstallPrivates' | Disable-ScheduledTask
 
-    echo "$(date) InstallPrivates.ps1 completed successfully" >> $env:SystemDrive\packer\configure.log
+    echo "$(date) InstallPrivates.ps1 completed. Reboot required" >> $env:SystemDrive\packer\configure.log
 } 
 

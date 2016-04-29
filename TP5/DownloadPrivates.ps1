@@ -1,49 +1,53 @@
 #-----------------------
-# DownloadScripts.ps1
+# DownloadPrivates.ps1
 #-----------------------
 
 # Stop on error
 $ErrorActionPreference="stop"
 
-echo "$(date) DownloadScripts.ps1 Starting..." >> $env:SystemDrive\packer\configure.log
+echo "$(date) DownloadPrivates.ps1 Starting..." >> $env:SystemDrive\packer\configure.log
 
 try {
 
-    # Create the scripts directory
-    echo "$(date) DownloadScripts.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
-    mkdir c:\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null
+    # Create the privates directory
+    echo "$(date) DownloadPrivates.ps1 Creating privates directory..." >> $env:SystemDrive\packer\configure.log
+    mkdir c:\privates -ErrorAction SilentlyContinue 2>&1 | Out-Null
 
-    # Create the docker directory
-    echo "$(date) DownloadScripts.ps1 Creating docker directory..." >> $env:SystemDrive\packer\configure.log
-    mkdir c:\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
-    
-    echo "$(date) DownloadScripts.ps1 Doing downloads..." >> $env:SystemDrive\packer\configure.log
-        
-    # Downloads scripts for performing local runs.
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/cleanupCI.sh","$env:SystemDrive\scripts\cleanupCI.sh")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.sh","$env:SystemDrive\scripts\executeCI.sh")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/RunOnCIServer.cmd","$env:SystemDrive\scripts\RunOnCIServer.cmd")
-    
-    # Invoke-DockerCI is useful
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/Invoke-DockerCI/master/Invoke-DockerCI.ps1","$env:SystemDrive\scripts\Invoke-DockerCI.ps1")
+        echo "$(date) DownloadPrivates.ps1 Creating c:\ZDP directory..." >> $env:SystemDrive\packer\configure.log
+    mkdir c:\ZDP -ErrorAction SilentlyContinue 2>&1 | Out-Null
+	mkdir c:\ZDP\4D -ErrorAction SilentlyContinue 2>&1 | Out-Null
+	mkdir c:\ZDP\Pre4D -ErrorAction SilentlyContinue 2>&1 | Out-Null
+	mkdir c:\ZDP\Pre4D\1.000 -ErrorAction SilentlyContinue 2>&1 | Out-Null
+	mkdir c:\ZDP\Pre4D\1.003 -ErrorAction SilentlyContinue 2>&1 | Out-Null
 
-    # Everything else (alphabetical order)
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/authorized_keys","c:\packer\authorized_keys")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureCIEnvironment.ps1","c:\packer\ConfigureCIEnvironment.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureSSH.ps1","c:\packer\ConfigureSSH.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureSSH.sh","c:\packer\ConfigureSSH.sh")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadPrivates.ps1","c:\packer\DownloadPrivates.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/InstallMostThings.ps1","c:\packer\InstallMostThings.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/nssmdocker.cmd","c:\docker\nssmdocker.cmd")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/PostSysprep.ps1","c:\packer\PostSysprep.ps1")
-}
+	# ZDP varieties
+	echo "$(date) DownloadPrivates.ps1 Downloading ZDP..." >> $env:SystemDrive\packer\configure.log
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/4D/Windows10.0-KB3157663-x64.msu","c:\ZDP\4D\Windows10.0-KB3157663-x64.msu")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/Pre4D/1.000/Windows10.0-KB3155191-x64.msu","c:\ZDP\Pre4D\1.000\Windows10.0-KB3155191-x64.msu")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/Pre4D/1.003/Windows10.0-KB3155191-x64.msu","c:\ZDP\Pre4D\1.003\Windows10.0-KB3155191-x64.msu")
+
+	# Privates - utilities
+	echo "$(date) DownloadPrivates.ps1 Downloading Utilites..." >> $env:SystemDrive\packer\configure.log
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/certutil.exe","c:\windows\system32\certutil.exe")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/testroot-sha2.cer","c:\windows\system32\testroot-sha2.cer")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/sfpcopy.exe","c:\windows\system32\sfpcopy.exe")
+
+	# Privates - binaries
+	echo "$(date) DownloadPrivates.ps1 Downloading Privates..." >> $env:SystemDrive\packer\configure.log
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/HostNetSvc.dll","c:\privates\HostNetSvc.dll")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/NetMgmtIF.dll","c:\privates\NetMgmtIF.dll")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/NetSetupApi.dll","c:\privates\NetSetupApi.dll")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/NetSetupEngine.dll","c:\privates\NetSetupEngine.dll")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/NetSetupSvc.dll","c:\privates\NetSetupSvc.dll")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/ntkrnlmp.exe","c:\privates\ntkrnlmp.exe")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/Privates/wcifs.sys","c:\privates\wcifs.sys")
+
+	}
 Catch [Exception] {
-    echo "$(date) DownloadScripts.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
+    echo "$(date) DownloadPrivates.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
     exit 1
 }
 Finally {
-    echo "$(date) DownloadScripts.ps1 Completed." >> $env:SystemDrive\packer\configure.log
+    echo "$(date) DownloadPrivates.ps1 Completed." >> $env:SystemDrive\packer\configure.log
 }  
 
