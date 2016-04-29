@@ -15,7 +15,9 @@ try {
     Install-ContainerOSImage c:\BaseImages\CBaseOs_rs1_release_svc_14300.1000.160324-1723_amd64fre_ServerDatacenterCore_en-us.wim -Force
 
     # Configure cygwin ssh daemon
+    echo "$(date) ConfigureSSH.ps1 Hack - killing sshd if running..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
+    echo "$(date) ConfigureSSH.ps1 Hack - invoking ConfigureSSH.sh..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/configure.log 2>&1"
 }
 Catch [Exception] {
