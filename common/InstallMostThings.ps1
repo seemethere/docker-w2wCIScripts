@@ -146,16 +146,6 @@ try {
     echo "$(date) InstallMostThings.ps1 Compiling SQLite3.dll..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait gcc -ArgumentList "-shared sqlite3.c -o sqlite3.dll"
     copy sqlite3.dll $env:SystemRoot\system32
-
-    # Install NSSM by extracting archive and placing in system32
-    # BUGBUG This can be removed after service PR merged
-    echo "$(date) InstallMostThings.ps1 downloading NSSM..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://nssm.cc/release/nssm-2.24.zip","$env:Temp\nssm.zip")
-    echo "$(date) InstallMostThings.ps1 extracting NSSM..." >> $env:SystemDrive\packer\configure.log
-    Expand-Archive -Path $env:Temp\nssm.zip -DestinationPath $env:Temp
-    echo "$(date) InstallMostThings.ps1 installing NSSM..." >> $env:SystemDrive\packer\configure.log
-    Copy-Item $env:Temp\nssm-2.24\win64\nssm.exe $env:SystemRoot\System32
-
 }
 Catch [Exception] {
     echo "$(date) InstallMostThings.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log

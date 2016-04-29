@@ -10,26 +10,9 @@ try {
     echo "$(date) Phase3.ps1 starting" >> $env:SystemDrive\packer\configure.log    
 
     #--------------------------------------------------------------------------------------------
-    
-    # Create directory for storing the nssm configuration
-    mkdir $env:SystemDrive\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
-    
-    # Configure the docker NSSM service
-    echo "$(date) Phase1.ps1 configuring NSSM..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\docker\nssmdocker.cmd < nul"
-    Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
-    Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\nssmdaemon\nssmdaemon.log"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout d:\nssmdaemon\nssmdaemon.log"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
-    
-    #--------------------------------------------------------------------------------------------
-    # We delayed docker earlier until after privates were installed. Enabled it now and start it.
-    echo "$(date) Phase3.ps1 Starting docker..." >> $env:SystemDrive\packer\configure.log    
-    nssm start docker
-    sleep 5
-    docker version >> $env:SystemDrive\packer\configure.log
-    
+    # Configure the control daemon
+    echo "$(date) Phase3.ps1 Configuring control daemon..." >> $env:SystemDrive\packer\configure.log
+    powershell -command "$env:SystemDrive\packer\ConfigureControlDaemon.ps1"
 
     #--------------------------------------------------------------------------------------------
     # Install the container OS images
@@ -55,8 +38,6 @@ try {
     $Shortcut.Arguments ="-command c:\packer\Phase4.ps1"
     $Shortcut.TargetPath = $TargetFile
     $Shortcut.Save()
-
-
 }
 Catch [Exception] {
     echo "$(date) Phase3.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log

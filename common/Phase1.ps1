@@ -81,8 +81,8 @@ try {
     
     #--------------------------------------------------------------------------------------------
     # Download the ZDP and privates
-    echo "$(date) Phase1.ps1 Downloading privates..." >> $env:SystemDrive\packer\configure.log    
-    powershell -command "$env:SystemDrive\packer\DownloadPrivates.ps1"
+    echo "$(date) Phase1.ps1 Downloading patches..." >> $env:SystemDrive\packer\configure.log    
+    powershell -command "$env:SystemDrive\packer\DownloadPatches.ps1"
 
 
     #--------------------------------------------------------------------------------------------
