@@ -15,6 +15,12 @@ try {
     # Configure cygwin ssh daemon
     Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
     Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/configure.log 2>&1"
+
+    # Hack by putting it here for now. Install the container OS images
+    echo "$(date) ConfigureSSH.ps1 Hack - installing nanoserver image..." >> $env:SystemDrive\packer\configure.log
+    Install-ContainerOSImage c:\BaseImages\CBaseOs_rs1_release_svc_14300.1000.160324-1723_amd64fre_NanoServer_en-us.wim -Force
+    echo "$(date) ConfigureSSH.ps1 Hack - installing windowsservercore image..." >> $env:SystemDrive\packer\configure.log
+    Install-ContainerOSImage c:\BaseImages\CBaseOs_rs1_release_svc_14300.1000.160324-1723_amd64fre_ServerDatacenterCore_en-us.wim -Force
 }
 Catch [Exception] {
     echo "$(date) ConfigureSSH.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log

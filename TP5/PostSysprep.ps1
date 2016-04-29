@@ -11,6 +11,18 @@ try {
     echo "$(date) PostSysprep.ps1 starting" >> $env:SystemDrive\packer\configure.log    
 
     #--------------------------------------------------------------------------------------------
+    # Turn off antimalware
+    set-mppreference -disablerealtimemonitoring $true
+
+    #--------------------------------------------------------------------------------------------
+    # Turn off the powershell execution policy
+    set-executionpolicy bypass -Force
+
+    #--------------------------------------------------------------------------------------------
+    # Add the containers features
+    Add-WindowsFeature containers
+
+    #--------------------------------------------------------------------------------------------
     # Re-download the script that downloads our files in case we want to refresh them
     echo "$(date) InitPostSysprep.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     $ErrorActionPreference='SilentlyContinue'
@@ -119,6 +131,9 @@ try {
     echo "$(date) PostSysprep.ps1 Installing 4D ZDP silently (needs reboot)s..." >> $env:SystemDrive\packer\configure.log
     Start-Process -Wait "c:\zdp\4D\Windows10.0-KB3157663-x64.msu" -ArgumentList "/quiet /norestart"
 
+    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\InstallPrivates.ps1"
+    $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+    Register-ScheduledTask -TaskName "InstallPrivates" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
 }
 Catch [Exception] {
     echo "$(date) PostSysprep.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
