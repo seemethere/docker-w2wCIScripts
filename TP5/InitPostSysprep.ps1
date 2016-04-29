@@ -5,6 +5,9 @@
 # This runs as a scheduled tasks after coming out of sysprep. At this point, we have the jenkins user
 # so can schedule tasks as that user to do the post-sysprep configuration. This script itself though
 # is running as Local System.
+#
+# Don't put anything in here apart from things that are required for launching the post sysprep tasks.
+# This file is the only thing put in the Azure image when built using packer.
 
 $ErrorActionPreference="stop"
 
@@ -17,33 +20,11 @@ try {
         echo "$(date) InitPostSysprep.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\configure.log
         New-Item c:\packer\InitPostSysprep.GoneThroughOneReboot.txt
 
-        # 4D ZDP
-        echo "$(date) InitPostSysprep.ps1 Installing 4D ZDP silently..." >> $env:SystemDrive\packer\configure.log
-        Start-Process -Wait "c:\zdp\4D\Windows10.0-KB3157663-x64.msu" -ArgumentList "/quiet /norestart"
-
         # Force a reboot if we don't get one in the next 30 seconds
         sleep 30
         shutdown /t 0 /r /f /c "First reboot in InitPostSysprep"
         exit 0
     }
-
-    # Privates installed after ZDP has rebooted.
-
-    # Hack to retry networking up to 5 times - stops very common busybox not found. Andrew working on real fix post 4D.
-    echo "$(date) InitPostSysprep.ps1 Installing private HostNetSvc.dll..." >> $env:SystemDrive\packer\configure.log
-    copy c:\windows\system32\HostNetSvc.dll c:\windows\system32\HostNetSvc.orig.dll
-    sfpcopy c:\privates\HostNetSvc.dll c:\windows\system32\HostNetSvc.dll
-
-    # JohnR csrss fix for leaking containers
-    echo "$(date) InitPostSysprep.ps1 Installing private ntoskrnl.exe..." >> $env:SystemDrive\packer\configure.log
-    copy c:\windows\system32\ntoskrnl.exe c:\windows\system32\ntoskrnl.orig.exe
-    sfpcopy c:\privates\ntkrnlmp.exe c:\windows\system32\ntoskrnl.exe
-
-    # Scott fixes for filter. Fixes 2 bugs, neither in 4D.
-    echo "$(date) InitPostSysprep.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
-    copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
-    sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
-
 
     # Create the scripts directory
     echo "$(date) InitPostSysprep.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
@@ -68,8 +49,8 @@ try {
     $ConfirmPreference='none'
     Get-ScheduledTask 'InitPostSysprep' | Disable-ScheduledTask
 
-    echo "$(date) InitPostSysprep.ps1 sleeping for 1 minute before reboot..." >> $env:SystemDrive\packer\configure.log
-    sleep 60
+    echo "$(date) InitPostSysprep.ps1 sleeping for 30 seconds before reboot..." >> $env:SystemDrive\packer\configure.log
+    sleep 30
     echo "$(date) InitPostSysprep.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
     shutdown /t 0 /r /f /c "InitPostSysprep"
 }

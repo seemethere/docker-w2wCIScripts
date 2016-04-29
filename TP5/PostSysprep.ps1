@@ -114,6 +114,11 @@ try {
     $Shortcut.TargetPath = $TargetFile
     $Shortcut.Save()
 
+
+    # 4D ZDP. Privates are installed by InstallPrivates.ps1 which runs in parallel with ConfigureSSH, but as LocalSystem.
+    echo "$(date) PostSysprep.ps1 Installing 4D ZDP silently (needs reboot)s..." >> $env:SystemDrive\packer\configure.log
+    Start-Process -Wait "c:\zdp\4D\Windows10.0-KB3157663-x64.msu" -ArgumentList "/quiet /norestart"
+
 }
 Catch [Exception] {
     echo "$(date) PostSysprep.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
