@@ -1,0 +1,132 @@
+#-----------------------
+# Phase1.ps1
+#-----------------------
+
+$ErrorActionPreference='Stop'
+
+echo "$(date) Phase1.ps1 started" >> $env:SystemDrive\packer\configure.log
+
+try {
+    echo "$(date) Phase1.ps1 starting" >> $env:SystemDrive\packer\configure.log    
+
+    #--------------------------------------------------------------------------------------------
+    # Turn off antimalware
+    echo "$(date) Phase1.ps1 Disabling realtime monitoring..." >> $env:SystemDrive\packer\configure.log
+    set-mppreference -disablerealtimemonitoring $true
+
+    #--------------------------------------------------------------------------------------------
+    # Turn off the powershell execution policy
+    echo "$(date) Phase1.ps1 Setting execution policy..." >> $env:SystemDrive\packer\configure.log
+    set-executionpolicy bypass -Force
+
+    #--------------------------------------------------------------------------------------------
+    # Add the containers features
+    echo "$(date) Phase1.ps1 Adding containers feature..." >> $env:SystemDrive\packer\configure.log
+    Add-WindowsFeature containers
+
+    #--------------------------------------------------------------------------------------------
+    # Re-download the script that downloads our files in case we want to refresh them
+    echo "$(date) Phase1.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
+    $ErrorActionPreference='SilentlyContinue'
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
+    $ErrorActionPreference='SilentlyContinue'
+
+    #--------------------------------------------------------------------------------------------
+    # Set full crashdumps (don't fail if by any chance these fail - eg a different config Azure VM. Set for D3_V2)
+    $ErrorActionPreference='SilentlyContinue'
+    echo "$(date) Phase1.ps1 Enabling full crashdumps..." >> $env:SystemDrive\packer\configure.log    
+    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 1 /f | Out-Null
+    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 1 /f | Out-Null
+    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "c:\memory.dmp" /f | Out-Null
+
+    echo "$(date) Phase1.ps1 Removing pagefile from D:..." >> $env:SystemDrive\packer\configure.log    
+    $pagefile = Get-WmiObject -Query "Select * From Win32_PageFileSetting Where Name='d:\\pagefile.sys'"
+    $pagefile.Delete()
+
+    echo "$(date) Phase1.ps1 Directing pagefile.sys to C:..." >> $env:SystemDrive\packer\configure.log    
+    Set-WMIInstance -class Win32_PageFileSetting -Arguments @{name="c:\pagefile.sys";InitialSize = 15000;MaximumSize = 15000}
+
+    $ErrorActionPreference='Stop'
+    
+    #--------------------------------------------------------------------------------------------
+    # Configure the CI Environment
+    echo "$(date) Phase1.ps1 Configuring the CI environment..." >> $env:SystemDrive\packer\configure.log    
+    powershell -command "$env:SystemDrive\packer\ConfigureCIEnvironment.ps1"
+
+    #--------------------------------------------------------------------------------------------
+    # Install most things
+    echo "$(date) Phase1.ps1 Installing most things..." >> $env:SystemDrive\packer\configure.log    
+    powershell -command "$env:SystemDrive\packer\InstallMostThings.ps1"
+
+    #--------------------------------------------------------------------------------------------
+
+    # Download and install Cygwin for SSH capability  # BUGBUG Hope to get rid of using this....
+    echo "$(date) Phase1.ps1 downloading cygwin..." >> $env:SystemDrive\packer\configure.log
+    mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwin\cygwinsetup.exe")
+    echo "$(date) Phase1.ps1 installing cygwin..." >> $env:SystemDrive\packer\configure.log
+    Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
+    
+    #--------------------------------------------------------------------------------------------
+    
+    # Create directory for storing the nssm configuration
+    mkdir $env:SystemDrive\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
+    
+    # Configure the docker NSSM service
+    echo "$(date) Phase1.ps1 configuring NSSM..." >> $env:SystemDrive\packer\configure.log
+    Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\docker\nssmdocker.cmd < nul"
+    Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
+    Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
+    Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\nssmdaemon\nssmdaemon.log"
+    Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout d:\nssmdaemon\nssmdaemon.log"
+    Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
+    
+    # Make sure the nssm service is disabled until much later on (especially until after privates installed). The space is not a typo.
+    sc config "docker" start= disabled
+
+    #--------------------------------------------------------------------------------------------
+    
+    echo "$(date) Phase1.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
+    $env:Temp="d:\temp"
+    $env:Tmp=$env:Temp
+    [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "Machine")
+    [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "Machine")
+    [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "User")
+    [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "User")
+    mkdir $env:Temp -erroraction silentlycontinue 2>&1 | Out-Null
+    
+    
+    #--------------------------------------------------------------------------------------------
+    # Download the ZDP and privates
+    echo "$(date) Phase1.ps1 Downloading privates..." >> $env:SystemDrive\packer\configure.log    
+    powershell -command "$env:SystemDrive\packer\DownloadPrivates.ps1"
+
+
+    #--------------------------------------------------------------------------------------------
+    # Install the ZDP (TP5 only)
+    echo "$(date) Phase1.ps1 Installing ZDP..." >> $env:SystemDrive\packer\configure.log
+    powershell -command "$env:SystemDrive\packer\InstallZDP.ps1"
+
+
+    #--------------------------------------------------------------------------------------------
+    # Initiate Phase2
+    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase2.ps1"
+    $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+    Register-ScheduledTask -TaskName "Phase2" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
+}
+Catch [Exception] {
+    echo "$(date) Phase1.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
+    exit 1
+}
+Finally {
+
+    # Disable the scheduled task
+    echo "$(date) Phase1.ps1 disabling scheduled task.." >> $env:SystemDrive\packer\configure.log
+    $ConfirmPreference='none'
+    Get-ScheduledTask 'Phase1' | Disable-ScheduledTask
+
+    # Reboot
+    echo "$(date) Phase1.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
+    shutdown /t 0 /r /f /c "Phase1"
+    echo "$(date) Phase1.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
+}    

@@ -11,9 +11,9 @@ set TEMP=d:\temp
 set TMP=d:\temp
 mkdir d:\temp > nul 2>&1
 
-if exist d:\daemon (goto :run)
-mkdir d:\daemon
+if exist d:\nssmdaemon (goto :run)
+mkdir d:\nssmdaemon
 
 :run
-copy %systemroot%\system32\dockerd.exe %systemroot%\system32\dockerdnssm.exe /Y
-dockerdnssm --graph=d:\daemon --pidfile=d:\daemon\daemon.pid
+copy %systemroot%\system32\dockerd.exe %systemroot%\system32\nssmdockerd.exe /Y
+nssmdockerd --graph=d:\nssmdaemon --pidfile=d:\nssmdaemon\daemon.pid

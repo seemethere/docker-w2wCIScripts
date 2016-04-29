@@ -9,9 +9,7 @@ echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configu
 # 2.8 seems to have issues with path after installing. Need to sort this still. BUGBUG @jhowardmsft Ditto in dockerfile.Windows
 #$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
 $GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.2.windows.1/Git-2.7.2-64-bit.exe"
-#$JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-windows-x64.exe"
 $JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-8u92-windows-x64.exe"  # 4/24/2016
-$LITEIDE_LOCATION="https://sourceforge.net/projects/liteide/files/X29/liteidex29.windows-qt4.zip/download"
 $NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.1/npp.6.9.1.Installer.exe"
 $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
 $DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
@@ -113,12 +111,6 @@ try {
     $wc=New-Object net.webclient;$wc.Downloadfile($NPP_LOCATION,"$env:Temp\nppinstaller.exe")
     echo "$(date) InstallMostThings.ps1 Installing Notepad++..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait $env:Temp\nppinstaller.exe -ArgumentList "/S"
-
-    # Download and install LiteIDE
-    #echo "$(date) InstallMostThings.ps1 Downloading LiteIDE..." >> $env:SystemDrive\packer\configure.log
-    #$wc=New-Object net.webclient;$wc.Downloadfile($LITEIDE_LOCATION,"$env:Temp\liteide.zip")
-    #echo "$(date) InstallMostThings.ps1 Installing LiteIDE..." >> $env:SystemDrive\packer\configure.log
-    #Expand-Archive $env:Temp\liteide.zip $env:SystemDrive\
 
     # Download and install PSTools
     echo "$(date) InstallMostThings.ps1 Downloading PSTools..." >> $env:SystemDrive\packer\configure.log
