@@ -69,23 +69,6 @@ try {
     
     #--------------------------------------------------------------------------------------------
     
-    # Create directory for storing the nssm configuration
-    mkdir $env:SystemDrive\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
-    
-    # Configure the docker NSSM service
-    echo "$(date) Phase1.ps1 configuring NSSM..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\docker\nssmdocker.cmd < nul"
-    Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
-    Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\nssmdaemon\nssmdaemon.log"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout d:\nssmdaemon\nssmdaemon.log"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
-    
-    # Make sure the nssm service is disabled until much later on (especially until after privates installed). The space is not a typo.
-    sc config "docker" start= disabled
-
-    #--------------------------------------------------------------------------------------------
-    
     echo "$(date) Phase1.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
     $env:Temp="d:\temp"
     $env:Tmp=$env:Temp
