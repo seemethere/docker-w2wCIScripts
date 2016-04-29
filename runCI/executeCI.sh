@@ -6,7 +6,7 @@
 #DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
 
 # TP5 Base image workaround (no need with v3)
-#DOCKER_TP5_BASEIMAGE_WORKAROUND=1
+DOCKER_TP5_BASEIMAGE_WORKAROUND=0
 
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
