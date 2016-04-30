@@ -46,7 +46,9 @@ try {
     echo "$(date) BootstrapAutomatedInstall.ps1 Invoking DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     powershell -command "$env:SystemDrive\packer\DownloadScripts.ps1"
 
-
+    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
+    $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+    Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
     
 }
 Catch [Exception] {
