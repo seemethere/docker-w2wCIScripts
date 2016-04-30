@@ -110,9 +110,11 @@ Catch [Exception] {
 Finally {
 
     # Disable the scheduled task
-    echo "$(date) Phase1.ps1 disabling scheduled task.." >> $env:SystemDrive\packer\configure.log
-    $ConfirmPreference='none'
-    Get-ScheduledTask 'Phase1' | Disable-ScheduledTask
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        echo "$(date) Phase1.ps1 disabling scheduled task.." >> $env:SystemDrive\packer\configure.log
+        $ConfirmPreference='none'
+        Get-ScheduledTask 'Phase1' | Disable-ScheduledTask
+    }
 
     # Reboot
     echo "$(date) Phase1.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
