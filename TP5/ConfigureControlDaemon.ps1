@@ -24,9 +24,14 @@ try {
     Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\docker\nssmdocker.cmd < nul"
     Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
     Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\nssmdaemon\nssmdaemon.log"
-    Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout d:\nssmdaemon\nssmdaemon.log"
     Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\nssmdaemon\nssmdaemon.log"
+        Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout d:\nssmdaemon\nssmdaemon.log"
+    } else {
+        Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr c:\nssmdaemon\nssmdaemon.log"
+        Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout c:\nssmdaemon\nssmdaemon.log"
+    }
     
     echo "$(date) ConfigureControlDaemon.ps1 Starting docker..." >> $env:SystemDrive\packer\configure.log    
     nssm start docker
