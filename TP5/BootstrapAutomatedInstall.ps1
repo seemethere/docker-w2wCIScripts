@@ -15,8 +15,19 @@ echo "$(date) BootstrapAutomatedInstall.ps1 starting..." >> $env:SystemDrive\pac
 
 try {
 
-    # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot except install the patches.
+    # Disable the scheduled task
+    echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
+    $ConfirmPreference='none'
+    Get-ScheduledTask 'BootstrapAutomatedInstall' | Disable-ScheduledTask -ErrorAction SilentlyContinue
+
+    # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot
     if (-not (Test-Path c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt)) {
+
+        # Re-register on account of local install on development machine (done in packer for production)
+        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\BootstrapAutomatedInstall.ps1"
+        $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+        Register-ScheduledTask -TaskName "BootstrapAutomatedInstall" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
+
         echo "$(date) BootstrapAutomatedInstall.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\configure.log
         New-Item c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt
         shutdown /t 0 /r /f /c "First reboot in BootstrapAutomatedInstall"
@@ -36,15 +47,7 @@ try {
     powershell -command "$env:SystemDrive\packer\DownloadScripts.ps1"
 
 
-    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
-    $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
-    Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
-
-    # Disable the scheduled task
-    echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
-    $ConfirmPreference='none'
-    Get-ScheduledTask 'BootstrapAutomatedInstall' | Disable-ScheduledTask -ErrorAction SilentlyContinue
-
+    
 }
 Catch [Exception] {
     echo "$(date) BootstrapAutomatedInstall.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
