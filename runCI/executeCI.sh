@@ -54,7 +54,7 @@ DOCKER_TP5_BASEIMAGE_WORKAROUND=0
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="27-Apr-2016 21:46 PDT" 
+SCRIPT_VER="30-Apr-2016 14:15 PDT" 
 
 # This function is copied from the cleanup script
 nuke_everything()
@@ -475,7 +475,9 @@ if [ $ec -eq 0 ]; then
 	set +x
 	end=`date +%s`
 	runtime=$((end-start))
+	printf("\n\n")
 	echo "INFO: Image build ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
+	printf("\n\n")
 	if [ 0 -ne $ec ]; then
 		echo
 		echo "----------------------------"
@@ -503,7 +505,9 @@ if [ $ec -eq 0 ]; then
 	set +x
 	end=`date +%s`
 	runtime=$((end-start))
+	printf("\n\n")
 	echo "INFO: Build ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
+	printf("\n\n")
 	if [ 0 -ne $ec ]; then
 		echo
 		echo "----------------------"
@@ -694,9 +698,9 @@ if [ $ec -eq 0 ]; then
 		set +x
 		end=`date +%s`
 		runtime=$((end-start))
+		printf("\n\n")
 		echo "INFO: Validation tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
-
-
+		printf("\n\n")
 		if [ 0 -ne $ec ]; then
 			echo
 			echo "-------------------------"
@@ -718,7 +722,9 @@ if [ $ec -eq 0 ]; then
 		set +x
 		end=`date +%s`
 		runtime=$((end-start))
+		printf("\n\n")
 		echo "INFO: Unit tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
+		printf("\n\n")
 		if [ 0 -ne $ec ]; then
 			echo "ERROR: Unit tests failed."
 			echo
@@ -768,7 +774,9 @@ if [ $ec -eq 0 ]; then
 		set +x
 		end=`date +%s`
 		runtime=$((end-start))
+		printf("\n\n")
 		echo "INFO: Integration tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
+		printf("\n\n")
 		# revert back
 		export PATH=$ORIGPATH
 		export DOCKER_HOST=$ORIG_DOCKER_HOST
