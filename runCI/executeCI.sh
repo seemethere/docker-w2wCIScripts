@@ -467,12 +467,15 @@ fi
 
 # Build the image
 if [ $ec -eq 0 ]; then
-	echo "INFO: Building the image from Dockerfile.windows..."
+	echo "INFO: Building the image from Dockerfile.windows at `date`..."
+	start=`date +%s`
 	set -x
 	docker build -t docker -f Dockerfile.windows .
 	ec=$?
 	set +x
-
+	end=`date +%s`
+	runtime=$((end-start))
+	echo "INFO: Image build ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
 	if [ 0 -ne $ec ]; then
 		echo
 		echo "----------------------------"
@@ -485,7 +488,8 @@ fi
 
 # Build the binary in a container
 if [ $ec -eq 0 ]; then
-	echo "INFO: Building the test binary..."
+	echo "INFO: Building the test binary at `date`"
+	start=`date +%s`
 	set -x
 	docker run --rm -v "$TEMPWIN:c:\target"	docker sh -c 'cd /c/go/src/github.com/docker/docker; \
 	hack/make.sh binary; \
@@ -497,6 +501,9 @@ if [ $ec -eq 0 ]; then
 	exit $ec'
 	ec=$?
 	set +x
+	end=`date +%s`
+	runtime=$((end-start))
+	echo "INFO: Build ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
 	if [ 0 -ne $ec ]; then
 		echo
 		echo "----------------------"
@@ -675,8 +682,9 @@ fi
 # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
 if [ $ec -eq 0 ]; then
 	if [ -z "$SKIP_VALIDATION_TESTS" ]; then
-		echo "INFO: Running validation tests..."
 		# Note sleep is necessary for Windows networking workaround (see dockerfile.Windows)
+		echo "INFO: Running validation tests at `date`..."
+		start=`date +%s`
 		set -x
 		docker run --rm docker sh -c \
 		'cd /c/go/src/github.com/docker/docker; \
@@ -684,6 +692,11 @@ if [ $ec -eq 0 ]; then
 		hack/make.sh validate-dco validate-gofmt validate-pkg'
 		ec=$?
 		set +x
+		end=`date +%s`
+		runtime=$((end-start))
+		echo "INFO: Validation tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
+
+
 		if [ 0 -ne $ec ]; then
 			echo
 			echo "-------------------------"
@@ -697,11 +710,15 @@ fi
 # Run the unit tests inside a container unless SKIP_UNIT_TESTS is defined
 if [ $ec -eq 0 ]; then
 	if [ -z "$SKIP_UNIT_TESTS" ]; then
-		echo "INFO: Running unit tests..."
+		echo "INFO: Running unit tests at `date`..."
+		start=`date +%s`
 		set -x
 		docker run --rm docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit'
 		ec=$?
 		set +x
+		end=`date +%s`
+		runtime=$((end-start))
+		echo "INFO: Unit tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
 		if [ 0 -ne $ec ]; then
 			echo "ERROR: Unit tests failed."
 			echo
@@ -722,7 +739,8 @@ fi
 # unless SKIP_INTEGRATION_TESTS is defined
 if [ $ec -eq 0 ]; then
 	if [ -z "$SKIP_INTEGRATION_TESTS" ]; then
-	echo "INFO: Running integration tests..."
+		echo "INFO: Running integration tests at `date`..."
+		start=`date +%s`
 
 		#	## For in a container. Not sure if this will work with NAT ##
 		#   ## Keep this block of code safe for when I get back to     ##
@@ -748,6 +766,9 @@ if [ $ec -eq 0 ]; then
 		hack/make.sh test-integration-cli
 		ec=$?
 		set +x
+		end=`date +%s`
+		runtime=$((end-start))
+		echo "INFO: Integration tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
 		# revert back
 		export PATH=$ORIGPATH
 		export DOCKER_HOST=$ORIG_DOCKER_HOST
