@@ -43,15 +43,14 @@ try {
     # Disable the scheduled task
     echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
     $ConfirmPreference='none'
-    Get-ScheduledTask 'BootstrapAutomatedInstall' | Disable-ScheduledTask
+    Get-ScheduledTask 'BootstrapAutomatedInstall' | Disable-ScheduledTask -ErrorAction SilentlyContinue
 
-    echo "$(date) BootstrapAutomatedInstall.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
-    shutdown /t 0 /r /f /c "BootstrapAutomatedInstall"
 }
 Catch [Exception] {
     echo "$(date) BootstrapAutomatedInstall.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
     exit 1
 }
 Finally {
-    echo "$(date) BootstrapAutomatedInstall.ps1 Completed." >> $env:SystemDrive\packer\configure.log
+    echo "$(date) BootstrapAutomatedInstall.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
+    shutdown /t 0 /r /f /c "BootstrapAutomatedInstall"
 }  
