@@ -19,7 +19,7 @@ try {
     echo "$(date) Phase3.ps1 Installing OS images..." >> $env:SystemDrive\packer\configure.log    
     powershell -command "$env:SystemDrive\packer\InstallOSImages.ps1"
 
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         #--------------------------------------------------------------------------------------------
         # Initiate Phase4. This runs as the Jenkins user interactively. This is particularly on account
         # of configuring cygwin SSH not working as local system, RunOnce regkey also fails. And so does

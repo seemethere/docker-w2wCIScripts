@@ -8,7 +8,7 @@ try {
 
     echo "$(date) Phase4.ps1 starting" >> $env:SystemDrive\packer\configure.log
 
-    if ($LOCAL_CI_INSTALL -eq 1) {
+    if ($env:LOCAL_CI_INSTALL -eq 1) {
         echo "$(date) Phase4.ps1 quitting on local CI" >> $env:SystemDrive\packer\configure.log
         exit 0
     }
@@ -24,7 +24,7 @@ Catch [Exception] {
     exit 1
 }
 Finally {
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         $ErrorActionPreference='SilentlyContinue'
         echo "$(date) Phase4.ps1 turning off auto admin logon" >> $env:SystemDrive\packer\configure.log
         REG DELETE "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /f | Out-Null

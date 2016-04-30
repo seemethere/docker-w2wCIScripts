@@ -7,7 +7,7 @@ $ErrorActionPreference='Stop'
 try {
     echo "$(date) InstallOSImages.ps1 starting" >> $env:SystemDrive\packer\configure.log
 
-    if ($LOCAL_CI_INSTALL -eq 1) {
+    if ($env:LOCAL_CI_INSTALL -eq 1) {
         echo "$(date) InstallOSImages.ps1 Copying base images..." >> $env:SystemDrive\packer\configure.log
         mkdir c:\BaseImages
         $bl=(Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion"  -Name BuildLabEx).BuildLabEx

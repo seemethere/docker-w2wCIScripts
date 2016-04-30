@@ -7,7 +7,7 @@ echo "$(date) ConfigureCIEnvironment started" >> $env:SystemDrive\packer\configu
 Write-Host "INFO: Executing ConfigureCIEnvironment.ps1"
 [Environment]::SetEnvironmentVariable("SOURCES_DRIVE", "c", "Machine")
 [Environment]::SetEnvironmentVariable("SOURCES_SUBDIR", "gopath", "Machine")
-if ($LOCAL_CI_INSTALL -eq 1) {
+if ($env:LOCAL_CI_INSTALL -eq 1) {
     [Environment]::SetEnvironmentVariable("TESTRUN_DRIVE", "c", "Machine")
 } else {
     [Environment]::SetEnvironmentVariable("TESTRUN_DRIVE", "d", "Machine")

@@ -61,7 +61,7 @@ try {
     [Environment]::SetEnvironmentVariable("GOROOT", "$env:SystemDrive\go", "Machine")
     $env:GOROOT="$env:SystemDrive\go"
     # Don't persist this for local development machines
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         [Environment]::SetEnvironmentVariable("GOPATH", "$env:SystemDrive\gopath", "Machine")
     }
     $env:GOPATH="$env:SystemDrive\gopath"
@@ -129,7 +129,7 @@ try {
     echo "$(date) InstallMostThings.ps1 Turning off server manager at logon..." >> $env:SystemDrive\packer\configure.log
     REG ADD "HKLM\SOFTWARE\Microsoft\ServerManager" /v DoNotOpenServerManagerAtLogon /t REG_DWORD /d 1 /f | Out-Null
 
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         # Download and install Java Development Kit 
         # http://stackoverflow.com/questions/10268583/downloading-java-jdk-on-linux-via-wget-is-shown-license-page-instead
         echo "$(date) InstallMostThings.ps1 Downloading JDK..." >> $env:SystemDrive\packer\configure.log

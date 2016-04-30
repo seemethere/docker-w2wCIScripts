@@ -16,7 +16,7 @@ echo "$(date) BootstrapAutomatedInstall.ps1 starting..." >> $env:SystemDrive\pac
 try {
 
     # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot except install the patches.
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         if (-not (Test-Path c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt)) {
             echo "$(date) BootstrapAutomatedInstall.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\configure.log
             New-Item c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt
@@ -38,7 +38,7 @@ try {
     powershell -command "$env:SystemDrive\packer\DownloadScripts.ps1"
 
 
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
         $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
         Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest

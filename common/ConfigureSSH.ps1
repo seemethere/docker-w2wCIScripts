@@ -5,7 +5,7 @@
 $ErrorActionPreference='Stop'
 
 try {
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         echo "$(date) ConfigureSSH.ps1 starting" >> $env:SystemDrive\packer\configure.log
 
         # Configure cygwin ssh daemon
@@ -24,7 +24,7 @@ Catch [Exception] {
     exit 1
 }
 Finally {
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         echo "$(date) ConfigureSSH.ps1 completed" >> $env:SystemDrive\packer\configure.log
         shutdown /t 0 /r /f /c "ConfigureSSH.ps1"
     }

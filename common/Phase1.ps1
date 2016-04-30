@@ -32,7 +32,7 @@ try {
     $ErrorActionPreference='SilentlyContinue'
 
 
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         #--------------------------------------------------------------------------------------------
         # Set full crashdumps (don't fail if by any chance these fail - eg a different config Azure VM. Set for D3_V2)
         $ErrorActionPreference='SilentlyContinue'
@@ -63,7 +63,7 @@ try {
 
     #--------------------------------------------------------------------------------------------
 
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         # Download and install Cygwin for SSH capability  # BUGBUG Hope to get rid of using this....
         echo "$(date) Phase1.ps1 downloading cygwin..." >> $env:SystemDrive\packer\configure.log
         mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
@@ -74,7 +74,7 @@ try {
     
     #--------------------------------------------------------------------------------------------
     
-    if ($LOCAL_CI_INSTALL -ne 1) {
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
         echo "$(date) Phase1.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
         $env:Temp="d:\temp"
         $env:Tmp=$env:Temp
