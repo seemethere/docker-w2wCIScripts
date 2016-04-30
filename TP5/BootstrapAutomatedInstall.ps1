@@ -16,12 +16,13 @@ echo "$(date) BootstrapAutomatedInstall.ps1 starting..." >> $env:SystemDrive\pac
 try {
 
     # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot except install the patches.
-    if (-not (Test-Path c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt)) {
-        echo "$(date) BootstrapAutomatedInstall.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\configure.log
-        New-Item c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt
-
-        shutdown /t 0 /r /f /c "First reboot in BootstrapAutomatedInstall"
-        exit 0
+    if ($LOCAL_CI_INSTALL -ne 1) {
+        if (-not (Test-Path c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt)) {
+            echo "$(date) BootstrapAutomatedInstall.GoneThroughOneReboot.txt doesn't exist, so creating it and not doing anything..." >> $env:SystemDrive\packer\configure.log
+            New-Item c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt
+            shutdown /t 0 /r /f /c "First reboot in BootstrapAutomatedInstall"
+            exit 0
+        }
     }
 
     # Create the scripts directory
@@ -36,19 +37,23 @@ try {
     echo "$(date) BootstrapAutomatedInstall.ps1 Invoking DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     powershell -command "$env:SystemDrive\packer\DownloadScripts.ps1"
 
-    $pass = Get-Content c:\packer\password.txt -raw
 
-    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
-    $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
-    Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User jenkins -Password $pass -RunLevel Highest
+    if ($LOCAL_CI_INSTALL -ne 1) {
+        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
+        $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+        Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
 
-    # Disable the scheduled task
-    echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
-    $ConfirmPreference='none'
-    Get-ScheduledTask 'BootstrapAutomatedInstall' | Disable-ScheduledTask
+        # Disable the scheduled task
+        echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
+        $ConfirmPreference='none'
+        Get-ScheduledTask 'BootstrapAutomatedInstall' | Disable-ScheduledTask
 
-    echo "$(date) BootstrapAutomatedInstall.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
-    shutdown /t 0 /r /f /c "BootstrapAutomatedInstall"
+        echo "$(date) BootstrapAutomatedInstall.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
+        shutdown /t 0 /r /f /c "BootstrapAutomatedInstall"
+    } else {
+        # Local development VM just run it locally
+        $env:SystemDrive\packer\Phase1.ps1
+    }
 }
 Catch [Exception] {
     echo "$(date) BootstrapAutomatedInstall.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log

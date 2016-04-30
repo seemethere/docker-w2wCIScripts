@@ -31,22 +31,25 @@ try {
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
     $ErrorActionPreference='SilentlyContinue'
 
-    #--------------------------------------------------------------------------------------------
-    # Set full crashdumps (don't fail if by any chance these fail - eg a different config Azure VM. Set for D3_V2)
-    $ErrorActionPreference='SilentlyContinue'
-    echo "$(date) Phase1.ps1 Enabling full crashdumps..." >> $env:SystemDrive\packer\configure.log    
-    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 1 /f | Out-Null
-    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 1 /f | Out-Null
-    REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "c:\memory.dmp" /f | Out-Null
 
-    echo "$(date) Phase1.ps1 Removing pagefile from D:..." >> $env:SystemDrive\packer\configure.log    
-    $pagefile = Get-WmiObject -Query "Select * From Win32_PageFileSetting Where Name='d:\\pagefile.sys'"
-    $pagefile.Delete()
+    if ($LOCAL_CI_INSTALL -ne 1) {
+        #--------------------------------------------------------------------------------------------
+        # Set full crashdumps (don't fail if by any chance these fail - eg a different config Azure VM. Set for D3_V2)
+        $ErrorActionPreference='SilentlyContinue'
+        echo "$(date) Phase1.ps1 Enabling full crashdumps..." >> $env:SystemDrive\packer\configure.log    
+        REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v AutoReboot /t REG_DWORD /d 1 /f | Out-Null
+        REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v CrashDumpEnabled /t REG_DWORD /d 1 /f | Out-Null
+        REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\CrashControl" /v DumpFile /t REG_EXPAND_SZ /d "c:\memory.dmp" /f | Out-Null
 
-    echo "$(date) Phase1.ps1 Directing pagefile.sys to C:..." >> $env:SystemDrive\packer\configure.log    
-    Set-WMIInstance -class Win32_PageFileSetting -Arguments @{name="c:\pagefile.sys";InitialSize = 15000;MaximumSize = 15000}
+        echo "$(date) Phase1.ps1 Removing pagefile from D:..." >> $env:SystemDrive\packer\configure.log    
+        $pagefile = Get-WmiObject -Query "Select * From Win32_PageFileSetting Where Name='d:\\pagefile.sys'"
+        $pagefile.Delete()
 
-    $ErrorActionPreference='Stop'
+        echo "$(date) Phase1.ps1 Directing pagefile.sys to C:..." >> $env:SystemDrive\packer\configure.log    
+        Set-WMIInstance -class Win32_PageFileSetting -Arguments @{name="c:\pagefile.sys";InitialSize = 15000;MaximumSize = 15000}
+
+        $ErrorActionPreference='Stop'
+    }
     
     #--------------------------------------------------------------------------------------------
     # Configure the CI Environment
@@ -60,24 +63,27 @@ try {
 
     #--------------------------------------------------------------------------------------------
 
-    # Download and install Cygwin for SSH capability  # BUGBUG Hope to get rid of using this....
-    echo "$(date) Phase1.ps1 downloading cygwin..." >> $env:SystemDrive\packer\configure.log
-    mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwin\cygwinsetup.exe")
-    echo "$(date) Phase1.ps1 installing cygwin..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
+    if ($LOCAL_CI_INSTALL -ne 1) {
+        # Download and install Cygwin for SSH capability  # BUGBUG Hope to get rid of using this....
+        echo "$(date) Phase1.ps1 downloading cygwin..." >> $env:SystemDrive\packer\configure.log
+        mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
+        $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwin\cygwinsetup.exe")
+        echo "$(date) Phase1.ps1 installing cygwin..." >> $env:SystemDrive\packer\configure.log
+        Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
+    }
     
     #--------------------------------------------------------------------------------------------
     
-    echo "$(date) Phase1.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
-    $env:Temp="d:\temp"
-    $env:Tmp=$env:Temp
-    [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "Machine")
-    [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "Machine")
-    [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "User")
-    [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "User")
-    mkdir $env:Temp -erroraction silentlycontinue 2>&1 | Out-Null
-    
+    if ($LOCAL_CI_INSTALL -ne 1) {
+        echo "$(date) Phase1.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
+        $env:Temp="d:\temp"
+        $env:Tmp=$env:Temp
+        [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "Machine")
+        [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "Machine")
+        [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "User")
+        [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "User")
+        mkdir $env:Temp -erroraction silentlycontinue 2>&1 | Out-Null
+    }
     
     #--------------------------------------------------------------------------------------------
     # Download the ZDP and privates

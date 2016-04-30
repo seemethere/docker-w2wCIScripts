@@ -60,9 +60,11 @@ try {
     echo "$(date) InstallMostThings.ps1 Updating GOROOT and GOPATH..." >> $env:SystemDrive\packer\configure.log
     [Environment]::SetEnvironmentVariable("GOROOT", "$env:SystemDrive\go", "Machine")
     $env:GOROOT="$env:SystemDrive\go"
-    [Environment]::SetEnvironmentVariable("GOPATH", "$env:SystemDrive\gopath", "Machine")
+    # Don't persist this for local development machines
+    if ($LOCAL_CI_INSTALL -ne 1) {
+        [Environment]::SetEnvironmentVariable("GOPATH", "$env:SystemDrive\gopath", "Machine")
+    }
     $env:GOPATH="$env:SystemDrive\gopath"
-
 
     # Download and install git
     echo "$(date) InstallMostThings.ps1 Downloading git..." >> $env:SystemDrive\packer\configure.log
@@ -127,14 +129,16 @@ try {
     echo "$(date) InstallMostThings.ps1 Turning off server manager at logon..." >> $env:SystemDrive\packer\configure.log
     REG ADD "HKLM\SOFTWARE\Microsoft\ServerManager" /v DoNotOpenServerManagerAtLogon /t REG_DWORD /d 1 /f | Out-Null
 
-    # Download and install Java Development Kit 
-    # http://stackoverflow.com/questions/10268583/downloading-java-jdk-on-linux-via-wget-is-shown-license-page-instead
-    echo "$(date) InstallMostThings.ps1 Downloading JDK..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;
-    $wc.Headers.Set("Cookie","oraclelicense=accept-securebackup-cookie")
-    $wc.Downloadfile("$JDK_LOCATION","$env:Temp\jdkinstaller.exe")
-    echo "$(date) InstallMostThings.ps1 Installing JDK..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -Wait "$env:Temp\jdkinstaller.exe" -ArgumentList "/s /INSTALLDIRPUBJRE=$env:SystemDrive\jdk"
+    if ($LOCAL_CI_INSTALL -ne 1) {
+        # Download and install Java Development Kit 
+        # http://stackoverflow.com/questions/10268583/downloading-java-jdk-on-linux-via-wget-is-shown-license-page-instead
+        echo "$(date) InstallMostThings.ps1 Downloading JDK..." >> $env:SystemDrive\packer\configure.log
+        $wc=New-Object net.webclient;
+        $wc.Headers.Set("Cookie","oraclelicense=accept-securebackup-cookie")
+        $wc.Downloadfile("$JDK_LOCATION","$env:Temp\jdkinstaller.exe")
+        echo "$(date) InstallMostThings.ps1 Installing JDK..." >> $env:SystemDrive\packer\configure.log
+        Start-Process -Wait "$env:Temp\jdkinstaller.exe" -ArgumentList "/s /INSTALLDIRPUBJRE=$env:SystemDrive\jdk"
+    }
 
     # Download and compile sqlite3.dll from amalgamation sources in case of a dynamically linked docker binary
     echo "$(date) InstallMostThings.ps1 Downloading SQLite sources..." >> $env:SystemDrive\packer\configure.log

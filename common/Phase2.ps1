@@ -32,7 +32,7 @@ Finally {
 
     # Reboot
     echo "$(date) Phase2.ps1 completed. Rebooting" >> $env:SystemDrive\packer\configure.log
-    shutdown /t 0 /r /f /c "Phase1"
+    shutdown /t 0 /r /f /c "Phase2"
     echo "$(date) Phase2.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
 
 } 
