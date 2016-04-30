@@ -39,9 +39,10 @@ try {
 
 
     if ($env:LOCAL_CI_INSTALL -ne 1) {
+        $pass = Get-Content c:\packer\password.txt -raw
         $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
         $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
-        Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
+        Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User jenkins -Password $pass -RunLevel Highest
 
         # Disable the scheduled task
         echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log

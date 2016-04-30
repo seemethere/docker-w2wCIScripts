@@ -88,9 +88,11 @@ try {
     Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
 
 
-    # Perform an initial clone so that we can do a local verification outside of jenkins through c:\scripts\doit.sh
-    echo "$(date) InstallMostThings.ps1 Cloning docker sources..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -wait git -ArgumentList "clone https://github.com/docker/docker $env:SystemDrive\gopath\src\github.com\docker\docker"
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        # Perform an initial clone so that we can do a local verification outside of jenkins through c:\scripts\doit.sh
+        echo "$(date) InstallMostThings.ps1 Cloning docker sources..." >> $env:SystemDrive\packer\configure.log
+        Start-Process -wait git -ArgumentList "clone https://github.com/docker/docker $env:SystemDrive\gopath\src\github.com\docker\docker"
+    }
 
 
     # Install utilities for zapping CI, signalling the daemon and for linting changes. These go to c:\gopath\bin

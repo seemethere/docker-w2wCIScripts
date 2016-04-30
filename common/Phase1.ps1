@@ -101,7 +101,12 @@ try {
     # Initiate Phase2
     $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase2.ps1"
     $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
-    Register-ScheduledTask -TaskName "Phase2" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        $pass = Get-Content c:\packer\password.txt -raw
+        Register-ScheduledTask -TaskName "Phase2" -Action $action -Trigger $trigger -User jenkins -Password $pass -RunLevel Highest
+    } else {
+        Register-ScheduledTask -TaskName "Phase2" -Action $action -Trigger $trigger -User "administrator" -Password "p@ssw0rd" -RunLevel Highest
+    }
 }
 Catch [Exception] {
     echo "$(date) Phase1.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
