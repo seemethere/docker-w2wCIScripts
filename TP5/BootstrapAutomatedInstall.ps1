@@ -52,7 +52,7 @@ try {
         shutdown /t 0 /r /f /c "BootstrapAutomatedInstall"
     } else {
         # Local development VM just run it locally
-        $env:SystemDrive\packer\Phase1.ps1
+        "$env:SystemDrive\packer\Phase1.ps1"
     }
 }
 Catch [Exception] {
