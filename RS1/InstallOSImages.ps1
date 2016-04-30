@@ -9,7 +9,7 @@ try {
 
     if ($env:LOCAL_CI_INSTALL -eq 1) {
         echo "$(date) InstallOSImages.ps1 Copying base images..." >> $env:SystemDrive\packer\configure.log
-        mkdir c:\BaseImages
+        mkdir c:\BaseImages -ErrorAction SilentlyContinue
         $bl=(Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion"  -Name BuildLabEx).BuildLabEx
         $a=$bl.ToString().Split(".")
         $Branch=$a[3]
