@@ -475,9 +475,9 @@ if [ $ec -eq 0 ]; then
 	set +x
 	end=`date +%s`
 	runtime=$((end-start))
-	printf("\n\n")
+	printf "\n\n"
 	echo "INFO: Image build ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
-	printf("\n\n")
+	printf "\n\n"
 	if [ 0 -ne $ec ]; then
 		echo
 		echo "----------------------------"
@@ -505,9 +505,9 @@ if [ $ec -eq 0 ]; then
 	set +x
 	end=`date +%s`
 	runtime=$((end-start))
-	printf("\n\n")
+	printf "\n\n"
 	echo "INFO: Build ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
-	printf("\n\n")
+	printf "\n\n"
 	if [ 0 -ne $ec ]; then
 		echo
 		echo "----------------------"
@@ -698,9 +698,9 @@ if [ $ec -eq 0 ]; then
 		set +x
 		end=`date +%s`
 		runtime=$((end-start))
-		printf("\n\n")
+		printf "\n\n"
 		echo "INFO: Validation tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
-		printf("\n\n")
+		printf "\n\n"
 		if [ 0 -ne $ec ]; then
 			echo
 			echo "-------------------------"
@@ -722,9 +722,9 @@ if [ $ec -eq 0 ]; then
 		set +x
 		end=`date +%s`
 		runtime=$((end-start))
-		printf("\n\n")
+		printf "\n\n"
 		echo "INFO: Unit tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
-		printf("\n\n")
+		printf "\n\n"
 		if [ 0 -ne $ec ]; then
 			echo "ERROR: Unit tests failed."
 			echo
@@ -774,9 +774,9 @@ if [ $ec -eq 0 ]; then
 		set +x
 		end=`date +%s`
 		runtime=$((end-start))
-		printf("\n\n")
+		printf "\n\n"
 		echo "INFO: Integration tests ended at `date`. Took $(($runtime/60)) min $(($runtime%60)) sec"
-		printf("\n\n")
+		printf "\n\n"
 		# revert back
 		export PATH=$ORIGPATH
 		export DOCKER_HOST=$ORIG_DOCKER_HOST
