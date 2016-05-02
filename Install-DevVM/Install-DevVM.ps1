@@ -24,7 +24,7 @@ Try {
 	REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d administrator /f
 	REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d "p@ssw0rd" /f 
 
-	net use "$DEV_MACHINE_DRIVE:" "\\$DEV_MACHINE\$DEV_MACHINE_DRIVE`$"
+	net use "$DEV_MACHINE_DRIVE`:" "\\$DEV_MACHINE\$DEV_MACHINE_DRIVE`$"
 
 	# Stop WU on TP5Pre4D to stop the final ZDP getting installed and breaking things
 	if ($Branch.ToLower() -eq "tp5pre4d") {
@@ -45,7 +45,7 @@ Try {
 	powershell -command .\docker-docker-shortcut.ps1
 
 	mkdir c:\liteide -ErrorAction SilentlyContinue
-	xcopy liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
+	xcopy ..\..\..\install\liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
 	Remove-Item c:\windows\system32\docker.exe -ErrorAction SilentlyContinue
 
 	set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
@@ -61,8 +61,8 @@ Try {
 	[Environment]::SetEnvironmentVariable("GOARCH","amd64", "Machine")
 	[Environment]::SetEnvironmentVariable("GOOS","windows", "Machine")
 	[Environment]::SetEnvironmentVariable("GOEXE",".exe", "Machine")
-	[Environment]::SetEnvironmentVariable("GOPATH","$DEV_MACHINE_DRIVE:\go\src\github.com\docker\docker\vendor;$DEV_MACHINE_DRIVE:\go", "Machine")
-	[Environment]::SetEnvironmentVariable("Path","$env:Path;c:\gopath\bin;$DEV_MACHINE_DRIVE:\docker\utils", "Machine")
+	[Environment]::SetEnvironmentVariable("GOPATH",$DEV_MACHINE_DRIVE+":\go\src\github.com\docker\docker\vendor;"+$DEV_MACHINE_DRIVE+":\go", "Machine")
+	[Environment]::SetEnvironmentVariable("Path","$env:Path;c:\gopath\bin;"+$DEV_MACHINE_DRIVE+":\docker\utils", "Machine")
 	[Environment]::SetEnvironmentVariable("LOCAL_CI_INSTALL","1","Machine")
 	$env:LOCAL_CI_INSTALL="1"
 

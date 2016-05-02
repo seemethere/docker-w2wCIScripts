@@ -29,6 +29,11 @@ try {
         Throw "Branch must be one of TP5, TP5Pre4D or RS1"
     }
 
+    # Case matching
+    if ($Branch.ToLower() -eq "tp5") { $Branch = "TP5" }
+    if ($Branch.ToLower() -eq "tp5pre4d") { $Branch = "TP5Pre4D" }
+    if ($Branch.ToLower() -eq "rs1") { $Branch = "RS1" }
+
     # Disable the scheduled task. May not exist on local install
     $ConfirmPreference='none'
     $t = Get-ScheduledTask 'BootstrapAutomatedInstall' -ErrorAction SilentlyContinue
