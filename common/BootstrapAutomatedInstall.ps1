@@ -29,16 +29,19 @@ try {
         Throw "Branch must be one of TP5, TP5Pre4D or RS1"
     }
 
-    # Disable the scheduled task
-    echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
+    # Disable the scheduled task. May not exist on local install
     $ConfirmPreference='none'
-    Get-ScheduledTask 'BootstrapAutomatedInstall' | Disable-ScheduledTask -ErrorAction SilentlyContinue
+    $t = Get-ScheduledTask 'BootstrapAutomatedInstall' -ErrorAction SilentlyContinue
+    if ($t -ne $null) {
+        echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
+        Disable-ScheduledTask $t -ErrorAction SilentlyContinue
+    }
 
     # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot
     if (-not (Test-Path c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt)) {
 
         # Re-register on account of local install on development machine (done in packer for production)
-        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\BootstrapAutomatedInstall.ps1"
+        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\BootstrapAutomatedInstall.ps1 $Branch"
         $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
         Register-ScheduledTask -TaskName "BootstrapAutomatedInstall" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
 
