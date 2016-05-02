@@ -8,6 +8,7 @@ echo "$(date) Phase2.ps1 started" >> $env:SystemDrive\packer\configure.log
 
 try {
     echo "$(date) Phase2.ps1 starting" >> $env:SystemDrive\packer\configure.log    
+    echo $(date) > "c:\users\public\desktop\Phase2 Start.txt"
 
     #--------------------------------------------------------------------------------------------
     # Install privates
@@ -37,6 +38,7 @@ Finally {
 
     # Reboot
     echo "$(date) Phase2.ps1 completed. Rebooting" >> $env:SystemDrive\packer\configure.log
+    echo $(date) > "c:\users\public\desktop\Phase2 End.txt"
     shutdown /t 0 /r /f /c "Phase2"
     echo "$(date) Phase2.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
 

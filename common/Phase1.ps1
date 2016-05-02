@@ -8,7 +8,7 @@ echo "$(date) Phase1.ps1 started" >> $env:SystemDrive\packer\configure.log
 
 try {
     echo "$(date) Phase1.ps1 starting" >> $env:SystemDrive\packer\configure.log    
-
+    echo $(date) > "c:\users\public\desktop\Phase1 Start.txt"
     #--------------------------------------------------------------------------------------------
     # Turn off antimalware
     echo "$(date) Phase1.ps1 Disabling realtime monitoring..." >> $env:SystemDrive\packer\configure.log
@@ -121,6 +121,7 @@ Finally {
 
     # Reboot
     echo "$(date) Phase1.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
+    echo $(date) > "c:\users\public\desktop\Phase1 End.txt"
     shutdown /t 0 /r /f /c "Phase1"
     echo "$(date) Phase1.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
 }    

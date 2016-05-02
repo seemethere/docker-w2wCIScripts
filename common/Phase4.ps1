@@ -7,6 +7,7 @@ $ErrorActionPreference='Stop'
 try {
 
     echo "$(date) Phase4.ps1 starting" >> $env:SystemDrive\packer\configure.log
+    echo $(date) > "c:\users\public\desktop\Phase4 Start.txt"
 
     if ($env:LOCAL_CI_INSTALL -eq 1) {
         echo "$(date) Phase4.ps1 quitting on local CI" >> $env:SystemDrive\packer\configure.log
@@ -38,5 +39,6 @@ Finally {
         Remove-Item c:\packer\ConfigureSSH.log -Force -ErrorAction SilentlyContinue
     }
     echo "$(date) Phase4.ps1 is rebooting" >> $env:SystemDrive\packer\configure.log
+    echo $(date) > "c:\users\public\desktop\Phase4 End.txt"
     shutdown /t 0 /r /f /c "Phase4.ps1"
 } 

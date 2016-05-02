@@ -7,7 +7,8 @@ $ErrorActionPreference='Stop'
 echo "$(date) Phase3.ps1 started" >> $env:SystemDrive\packer\configure.log
 
 try {
-    echo "$(date) Phase3.ps1 starting" >> $env:SystemDrive\packer\configure.log    
+    echo "$(date) Phase3.ps1 starting" >> $env:SystemDrive\packer\configure.log   
+    echo $(date) > "c:\users\public\desktop\Phase3 Start.txt"
 
     #--------------------------------------------------------------------------------------------
     # Configure the control daemon
@@ -53,6 +54,7 @@ Finally {
 
     # Reboot
     echo "$(date) Phase3.ps1 completed. Rebooting" >> $env:SystemDrive\packer\configure.log
+    echo $(date) > "c:\users\public\desktop\Phase3 End.txt"
     shutdown /t 0 /r /f /c "Phase3"
     echo "$(date) Phase3.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
 } 
