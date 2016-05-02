@@ -7,11 +7,11 @@ $DEV_MACHINE_DRIVE="e"
 
 # TP5 Debugging
 $env:DOCKER_DUT_DEBUG=1 
-[Environment]::SetEnvironmentVariable("DOCKERDUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
+[Environment]::SetEnvironmentVariable("DOCKER_DUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
 
 # TP5 Base image workaround 
 $env:DOCKER_TP5_BASEIMAGE_WORKAROUND=0
-[Environment]::SetEnvironmentVariable("DOCKERDUT_DEBUG","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
+[Environment]::SetEnvironmentVariable("DOCKER_TP5_BASEIMAGE_WORKAROUND","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
 
 Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
