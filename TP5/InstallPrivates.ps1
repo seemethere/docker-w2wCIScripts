@@ -14,9 +14,24 @@ try {
 
     #--------------------------------------------------------------------------------------------
     # Hack to retry networking up to 5 times - stops very common busybox not found. Andrew working on real fix post 4D.
-    echo "$(date) Phase2.ps1 Installing private HostNetSvc.dll..." >> $env:SystemDrive\packer\configure.log
-    copy c:\windows\system32\HostNetSvc.dll c:\windows\system32\HostNetSvc.orig.dll
-    c:\privates\sfpcopy c:\privates\HostNetSvc.dll c:\windows\system32\HostNetSvc.dll
+    #echo "$(date) Phase2.ps1 Installing private HostNetSvc.dll..." >> $env:SystemDrive\packer\configure.log
+    #copy c:\windows\system32\HostNetSvc.dll c:\windows\system32\HostNetSvc.orig.dll
+    #c:\privates\sfpcopy c:\privates\HostNetSvc.dll c:\windows\system32\HostNetSvc.dll
+
+
+    #--------------------------------------------------------------------------------------------
+    # Updated networking fix.
+    echo "$(date) Phase2.ps1 Installing private Net*.dll..." >> $env:SystemDrive\packer\configure.log
+    copy c:\windows\system32\NetMgmtIF.dll          c:\windows\system32\NetMgmtIF.orig.dll
+    copy c:\windows\system32\NetSetupApi.dll        c:\windows\system32\NetSetupApi.orig.dll
+    copy c:\windows\system32\NetSetupEngine.dll     c:\windows\system32\NetSetupEngine.orig.dll
+    copy c:\windows\system32\NetSetupSvc.dll        c:\windows\system32\NetSetupSvc.orig.dll
+
+    c:\privates\sfpcopy c:\privates\NetMgmtIF.dll      c:\windows\system32\NetMgmtIF.dll
+    c:\privates\sfpcopy c:\privates\NetSetupApi.dll    c:\windows\system32\NetSetupApi.dll
+    c:\privates\sfpcopy c:\privates\NetSetupEngine.dll c:\windows\system32\NetSetupEngine.dll
+    c:\privates\sfpcopy c:\privates\NetSetupSvc.dll    c:\windows\system32\NetSetupSvc.dll
+
 
     #--------------------------------------------------------------------------------------------
     # JohnR csrss fix for leaking containers
