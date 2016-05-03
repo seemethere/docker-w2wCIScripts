@@ -1,5 +1,6 @@
 param(
-    [Parameter(Mandatory=$false)][string]$Branch
+    [Parameter(Mandatory=$false)][string]$Branch,
+    [Parameter(Mandatory=$false)][int]$DebugPort
 )
 $ErrorActionPreference = 'Stop'
 $DEV_MACHINE="jhoward-z420"
@@ -19,6 +20,19 @@ Try {
 	if ([string]::IsNullOrWhiteSpace($Branch)) {
 		Throw "Branch must be supplied (eg TP5, TP5Pre4D, RS1)"
 	}
+
+	# Setup Debugging
+	if ($DebugPort -gt 0) {
+		if (($DebugPort -lt 50000) -or ($DebugPort -gt 50030)) {
+			Throw "Debug port must be 50000-50030"
+		}
+		$ip = (resolve-dnsname $DEV_MACHINE -type A).IPAddress
+		Write-Host "INFO: KD to $DEV_MACHINE ($ip`:$DebugPort) cle.ar.te.xt"
+		bcdedit /dbgsettings NET HOSTIP`:$ip PORT`:$DebugPort KEY`:cle.ar.te.xt
+		bcdedit /debug on
+		pause
+	}
+	
 	
 	REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f
 	REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d administrator /f
