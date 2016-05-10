@@ -21,7 +21,22 @@ Try {
         Throw "Branch must be supplied (eg TP5, TP5Pre4D, RS1)"
     }
 
+    if (($Branch.ToLower() -ne "tp5") -and 
+        ($Branch.ToLower() -ne "tp5pre4d") -and
+        ($Branch.ToLower() -ne "rs1")) {
+        Throw "Branch must be one of TP5, TP5Pre4D or RS1"
+    }
+
     # Setup Debugging
+
+    if ($DebugPort -eq 0) {
+        if ($(Test-Path "HKLM:software\microsoft\virtual machine\guest") -eq $True) {
+            Write-Host "INFO: KD to COM1. Configure COM1 to \\.\pipe\<VMName>"
+            bcdedit /debug on
+            bcdedit /dbgsettings serial debugport:1 baudrate:115200
+            pause
+        }
+    }
     if ($DebugPort -gt 0) {
         if (($DebugPort -lt 50000) -or ($DebugPort -gt 50030)) {
             Throw "Debug port must be 50000-50030"
@@ -61,12 +76,6 @@ Try {
         cmd /s /c sc config wuauserv start= disabled
         net stop wuauserv
     }
-
-    if (($Branch.ToLower() -ne "tp5") -and 
-        ($Branch.ToLower() -ne "tp5pre4d") -and
-        ($Branch.ToLower() -ne "rs1")) {
-        Throw "Branch must be one of TP5, TP5Pre4D or RS1"
-    }
     
     set-mppreference -disablerealtimemonitoring $true
     Set-ExecutionPolicy bypass
@@ -77,8 +86,8 @@ Try {
     xcopy ..\..\..\install\liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
     Remove-Item c:\windows\system32\docker.exe -ErrorAction SilentlyContinue
 
-    set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control   erminal Server'-name "fDenyTSConnections" -Value 0
-    set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control   erminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 0
+    set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+    set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 0
     enable-netfirewallrule -displaygroup 'Remote Desktop'
 
     NetSh Advfirewall set allprofiles state off

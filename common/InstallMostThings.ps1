@@ -155,7 +155,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) InstallMostThings.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
-    exit 1
+    Throw $_
 }
 Finally {
     echo "$(date) InstallMostThings.ps1 Completed." >> $env:SystemDrive\packer\configure.log

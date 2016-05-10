@@ -12,7 +12,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) InstallZDP.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
-    exit 1
+    Throw $_
 }
 Finally {
     echo "$(date) InstallZDP.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log

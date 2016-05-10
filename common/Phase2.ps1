@@ -13,7 +13,7 @@ try {
     #--------------------------------------------------------------------------------------------
     # Install privates
     echo "$(date) Phase2.ps1 Installing privates..." >> $env:SystemDrive\packer\configure.log    
-    powershell -command "$env:SystemDrive\packer\InstallPrivates.ps1"
+    $("$env:SystemDrive\packer\InstallPrivates.ps1")
 
     #--------------------------------------------------------------------------------------------
     # Initiate Phase3
@@ -28,6 +28,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) Phase2.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
+    echo $(date) > "c:\users\public\desktop\ERROR Phase2.txt"
     exit 1
 }
 Finally {

@@ -22,7 +22,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) InstallOSImages.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
-    exit 1
+    Throw $_
 }
 Finally {
     echo "$(date) InstallOSImages.ps1 completed" >> $env:SystemDrive\packer\configure.log

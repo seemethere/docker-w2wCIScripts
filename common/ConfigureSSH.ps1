@@ -21,7 +21,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) ConfigureSSH.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
-    exit 1
+    Throw $_
 }
 Finally {
     if ($env:LOCAL_CI_INSTALL -ne 1) {

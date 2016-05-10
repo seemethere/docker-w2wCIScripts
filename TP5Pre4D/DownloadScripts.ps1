@@ -52,7 +52,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) DownloadScripts.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
-    exit 1
+    Throw $_
 }
 Finally {
     echo "$(date) DownloadScripts.ps1 Completed." >> $env:SystemDrive\packer\configure.log

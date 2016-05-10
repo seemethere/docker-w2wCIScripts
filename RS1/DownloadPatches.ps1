@@ -16,7 +16,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) DownloadPatches.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
-    exit 1
+    Throw $_
 }
 Finally {
     echo "$(date) DownloadPatches.ps1 Completed." >> $env:SystemDrive\packer\configure.log

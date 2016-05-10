@@ -22,6 +22,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) Phase4.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
+    echo $(date) > "c:\users\public\desktop\ERROR Phase4.txt"
     exit 1
 }
 Finally {

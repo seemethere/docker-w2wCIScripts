@@ -10,7 +10,7 @@ try {
 }
 Catch [Exception] {
     echo "$(date) InstallPrivates.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
-    exit 1
+    Throw $_
 }
 Finally {
     echo "$(date) InstallPrivates.ps1 completed. Reboot required" >> $env:SystemDrive\packer\configure.log
