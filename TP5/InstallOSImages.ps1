@@ -10,9 +10,9 @@ try {
     if ($env:LOCAL_CI_INSTALL -eq 1) {
         echo "$(date) InstallOSImages.ps1 LOCAL_CI_INSTALL copying base images..." >> $env:SystemDrive\packer\configure.log	
         mkdir c:\BaseImages -ErrorAction SilentlyContinue
-        # v4 has TI disabled
-        copy "\\redmond\osg\Teams\CORE\BASE\HYP\Public\mebersol\temp\containers\TP5 images\V4\CBaseOs_rs1_release_svc_14300.1000.160324-1723_amd64fre_ServerDatacenterCore_en-us.wim" c:\BaseImages\windowsservercore.wim
-        copy "\\redmond\osg\Teams\CORE\BASE\HYP\Public\mebersol\temp\containers\TP5 images\V2\CBaseOs_rs1_release_svc_14300.1000.160324-1723_amd64fre_NanoServer_en-us.wim" c:\BaseImages\nanoserver.wim
+        # v5 fixes the 30/60 second delays due to TI, and contains the 5B ZDP
+        copy "\\redmond\osg\Teams\CORE\BASE\HYP\Public\mebersol\temp\containers\TP5 images\V5\ServerDatacenterCore.wim" c:\BaseImages\windowsservercore.wim
+        copy "\\redmond\osg\Teams\CORE\BASE\HYP\Public\mebersol\temp\containers\TP5 images\V5\ServerDatacenterNano.wim" c:\BaseImages\nanoserver.wim
     }
 
     echo "$(date) InstallOSImages.ps1 installing nanoserver image..." >> $env:SystemDrive\packer\configure.log

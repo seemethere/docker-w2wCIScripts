@@ -15,6 +15,7 @@ try {
 
     echo "$(date) DownloadPatches.ps1 Creating c:\ZDP directory..." >> $env:SystemDrive\packer\configure.log
     mkdir c:\ZDP -ErrorAction SilentlyContinue 2>&1 | Out-Null
+    mkdir c:\ZDP\5B -ErrorAction SilentlyContinue 2>&1 | Out-Null
     mkdir c:\ZDP\4D -ErrorAction SilentlyContinue 2>&1 | Out-Null
     mkdir c:\ZDP\Pre4D -ErrorAction SilentlyContinue 2>&1 | Out-Null
     mkdir c:\ZDP\Pre4D\1.000 -ErrorAction SilentlyContinue 2>&1 | Out-Null
@@ -22,6 +23,7 @@ try {
 
     # ZDP varieties
     echo "$(date) DownloadPatches.ps1 Downloading ZDP..." >> $env:SystemDrive\packer\configure.log
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/5B/Windows10.0-KB3158987-x64.msu","c:\ZDP\5B\Windows10.0-KB3158987-x64.msu")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/4D/Windows10.0-KB3157663-x64.msu","c:\ZDP\4D\Windows10.0-KB3157663-x64.msu")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/Pre4D/1.000/Windows10.0-KB3155191-x64.msu","c:\ZDP\Pre4D\1.000\Windows10.0-KB3155191-x64.msu")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ZDP/Pre4D/1.003/Windows10.0-KB3155191-x64.msu","c:\ZDP\Pre4D\1.003\Windows10.0-KB3155191-x64.msu")
