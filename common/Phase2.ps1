@@ -10,6 +10,15 @@ try {
     echo "$(date) Phase2.ps1 starting" >> $env:SystemDrive\packer\configure.log    
     echo $(date) > "c:\users\public\desktop\Phase2 Start.txt"
 
+    # Stop WU on TP5Pre4D and TP5 to stop the final ZDP getting installed and breaking things
+    # Important - this is done in phase 2 AFTER the script-managed ZDP has been installed by phase 1
+    # otherwise the install will fail
+    if (($env:branch -eq "tp5") -or ($env:branch -eq "tp5pre4d")) {
+        reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 1 /f
+        cmd /s /c sc config wuauserv start= disabled
+        net stop wuauserv
+    }
+
     #--------------------------------------------------------------------------------------------
     # Install privates
     echo "$(date) Phase2.ps1 Installing privates..." >> $env:SystemDrive\packer\configure.log    

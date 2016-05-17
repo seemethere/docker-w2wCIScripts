@@ -66,13 +66,6 @@ Try {
 
     net use "$DEV_MACHINE_DRIVE`:" "\\$DEV_MACHINE\$DEV_MACHINE_DRIVE`$"
 
-    # Stop WU on TP5Pre4D and TP5 to stop the final ZDP getting installed and breaking things
-    if (($Branch.ToLower() -eq "tp5pre4d") -or ($Branch.ToLower() -eq "tp5")) {
-        reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 1 /f
-        cmd /s /c sc config wuauserv start= disabled
-        net stop wuauserv
-    }
-    
     set-mppreference -disablerealtimemonitoring $true
     Set-ExecutionPolicy bypass
     Unblock-File .\docker-docker-shortcut.ps1

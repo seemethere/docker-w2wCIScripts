@@ -45,11 +45,6 @@ try {
     #copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
     #c:\privates\sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
 
-    # Stop WU on TP5Pre4D and TP5 to stop the final ZDP getting installed and breaking things
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 1 /f
-    cmd /s /c sc config wuauserv start= disabled
-    net stop wuauserv
-
 }
 Catch [Exception] {
     echo "$(date) InstallPrivates.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
