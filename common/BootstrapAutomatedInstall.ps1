@@ -7,7 +7,6 @@
 # is running as Local System.
 #
 # Don't put anything in here apart from things that are required for launching the post sysprep tasks.
-# This file is the only thing put in the Azure image when built using packer.
 
 param(
     [Parameter(Mandatory=$false)][string]$Branch
