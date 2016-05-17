@@ -5,14 +5,14 @@ if (($env:BranchType.ToLower() -ne "tp5") -and
     Throw "BranchType must be set in the environment one of TP5, TP5Pre4D or RS1"
 }
 
-$env:imageprefix="jenkins-$BranchType.ToLower()"
+$env:imageprefix="jenkins-"+$BranchType.ToLower()
 
-if ($env:Branch.ToLower() -eq "rs1") {
+if ($env:BranchType.ToLower() -eq "rs1") {
     $env:storageaccount="winrs1"
 } else {
     $env:storageaccount="tp5"
 }
-$env:osimagelabel="azure$BranchType$version"
+$env:osimagelabel="azure"+$BranchType+"v"+$version
 
 if (($env:version -eq "") -or ($env:version -eq $null)) {
     Write-Error "Must have environment variable 'version'"
@@ -35,4 +35,4 @@ if (($env:osimagelabel -eq "") -or ($env:osimagelabel -eq $null)) {
     exit 1
 }
 
-packer.exe build .\packer.json
+packer.exe build packer.json
