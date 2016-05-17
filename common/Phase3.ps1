@@ -13,12 +13,12 @@ try {
     #--------------------------------------------------------------------------------------------
     # Configure the control daemon
     echo "$(date) Phase3.ps1 Configuring control daemon..." >> $env:SystemDrive\packer\configure.log
-    $("$env:SystemDrive\packer\ConfigureControlDaemon.ps1")
+    . $("$env:SystemDrive\packer\ConfigureControlDaemon.ps1")
 
     #--------------------------------------------------------------------------------------------
     # Install the container OS images
     echo "$(date) Phase3.ps1 Installing OS images..." >> $env:SystemDrive\packer\configure.log    
-    $("$env:SystemDrive\packer\InstallOSImages.ps1")
+    . $("$env:SystemDrive\packer\InstallOSImages.ps1")
 
     if ($env:LOCAL_CI_INSTALL -ne 1) {
         #--------------------------------------------------------------------------------------------

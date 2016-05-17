@@ -54,12 +54,12 @@ try {
     #--------------------------------------------------------------------------------------------
     # Configure the CI Environment
     echo "$(date) Phase1.ps1 Configuring the CI environment..." >> $env:SystemDrive\packer\configure.log    
-    $("$env:SystemDrive\packer\ConfigureCIEnvironment.ps1")
+    . $("$env:SystemDrive\packer\ConfigureCIEnvironment.ps1")
 
     #--------------------------------------------------------------------------------------------
     # Install most things
     echo "$(date) Phase1.ps1 Installing most things..." >> $env:SystemDrive\packer\configure.log    
-    $("$env:SystemDrive\packer\InstallMostThings.ps1")
+    . $("$env:SystemDrive\packer\InstallMostThings.ps1")
 
     #--------------------------------------------------------------------------------------------
 
@@ -88,13 +88,13 @@ try {
     #--------------------------------------------------------------------------------------------
     # Download the ZDP and privates
     echo "$(date) Phase1.ps1 Downloading patches..." >> $env:SystemDrive\packer\configure.log    
-    $("$env:SystemDrive\packer\DownloadPatches.ps1")
+    . $("$env:SystemDrive\packer\DownloadPatches.ps1")
 
 
     #--------------------------------------------------------------------------------------------
     # Install the ZDP (TP5 only)
     echo "$(date) Phase1.ps1 Installing ZDP..." >> $env:SystemDrive\packer\configure.log
-    $("$env:SystemDrive\packer\InstallZDP.ps1")
+    . $("$env:SystemDrive\packer\InstallZDP.ps1")
 
 
     #--------------------------------------------------------------------------------------------

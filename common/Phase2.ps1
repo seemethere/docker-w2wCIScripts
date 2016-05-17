@@ -13,7 +13,7 @@ try {
     #--------------------------------------------------------------------------------------------
     # Install privates
     echo "$(date) Phase2.ps1 Installing privates..." >> $env:SystemDrive\packer\configure.log    
-    $("$env:SystemDrive\packer\InstallPrivates.ps1")
+    . $("$env:SystemDrive\packer\InstallPrivates.ps1")
 
     #--------------------------------------------------------------------------------------------
     # Initiate Phase3
