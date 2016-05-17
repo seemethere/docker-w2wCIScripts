@@ -22,10 +22,8 @@ try {
     # Downloads scripts for performing local runs.
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/cleanupCI.sh","$env:SystemDrive\scripts\cleanupCI.sh")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.sh","$env:SystemDrive\scripts\executeCI.sh")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/Invoke-DockerCI.ps1","$env:SystemDrive\scripts\Invoke-DockerCI.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/RunOnCIServer.cmd","$env:SystemDrive\scripts\RunOnCIServer.cmd")
-    
-    # Invoke-DockerCI is useful
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/Invoke-DockerCI/master/Invoke-DockerCI.ps1","$env:SystemDrive\scripts\Invoke-DockerCI.ps1")
 
     # Build agnostic files (alphabetical order)
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/authorized_keys","c:\packer\authorized_keys")
