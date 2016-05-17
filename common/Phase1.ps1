@@ -28,7 +28,7 @@ try {
     # Re-download the script that downloads our files in case we want to refresh them
     echo "$(date) Phase1.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     $ErrorActionPreference='SilentlyContinue'
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$env:Branch/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
     $ErrorActionPreference='SilentlyContinue'
 
 

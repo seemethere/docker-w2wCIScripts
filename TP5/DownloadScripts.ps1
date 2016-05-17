@@ -39,13 +39,13 @@ try {
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase4.ps1","c:\packer\Phase4.ps1")
 
     # OS Version specific files (alphabetical order)
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/ConfigureControlDaemon.ps1","c:\packer\ConfigureControlDaemon.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/DownloadPatches.ps1","c:\packer\DownloadPatches.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/InstallOSImages.ps1","c:\packer\InstallOSImages.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/InstallZDP.ps1","c:\packer\InstallZDP.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/TP5/nssmdocker.cmd","c:\docker\nssmdocker.cmd")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5/ConfigureControlDaemon.ps1","c:\packer\ConfigureControlDaemon.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5/DownloadPatches.ps1","c:\packer\DownloadPatches.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5/InstallOSImages.ps1","c:\packer\InstallOSImages.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5/InstallZDP.ps1","c:\packer\InstallZDP.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5/nssmdocker.cmd","c:\docker\nssmdocker.cmd")
 }
 Catch [Exception] {
     echo "$(date) DownloadScripts.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log

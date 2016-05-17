@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory=$false)][string]$Branch,
-    [Parameter(Mandatory=$false)][int]$DebugPort
+    [Parameter(Mandatory=$true)][int]$DebugPort
 )
 $ErrorActionPreference = 'Stop'
 $DEV_MACHINE="jhoward-z420"
@@ -18,17 +18,13 @@ Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
-        Throw "Branch must be supplied (eg TP5, TP5Pre4D, RS1)"
+        Throw "Branch must be supplied (eg tp5, tp5pre4d], rs1)"
     }
+    $Branch = $Branch.ToLower()
 
-    if (($Branch.ToLower() -ne "tp5") -and 
-        ($Branch.ToLower() -ne "tp5pre4d") -and
-        ($Branch.ToLower() -ne "rs1")) {
-        Throw "Branch must be one of TP5, TP5Pre4D or RS1"
-    }
+    # BUGBUG Could check if branch is valid by looking if directory exists
 
     # Setup Debugging
-
     if ($DebugPort -eq 0) {
         if ($(Test-Path "HKLM:software\microsoft\virtual machine\guest") -eq $True) {
             Write-Host "INFO: KD to COM1. Configure COM1 to \\.\pipe\<VMName>"
@@ -102,6 +98,7 @@ Try {
     [Environment]::SetEnvironmentVariable("GOPATH",$DEV_MACHINE_DRIVE+":\go\src\github.com\docker\docker\vendor;"+$DEV_MACHINE_DRIVE+":\go", "Machine")
     [Environment]::SetEnvironmentVariable("Path","$env:Path;c:\gopath\bin;"+$DEV_MACHINE_DRIVE+":\docker\utils", "Machine")
     [Environment]::SetEnvironmentVariable("LOCAL_CI_INSTALL","1","Machine")
+    [Environment]::SetEnvironmentVariable("Branch",$Branch,"Machine")
     $env:LOCAL_CI_INSTALL="1"
 
     mkdir c:\packer -ErrorAction SilentlyContinue

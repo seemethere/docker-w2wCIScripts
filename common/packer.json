@@ -32,8 +32,8 @@
                 "Write-Host INFO: Storing password temporarily...",
                 "[System.IO.File]::WriteAllText('c:\\packer\\password.txt', '{{user `password`}}', (New-Object System.Text.UTF8Encoding($False)))",
                 "Write-Host INFO: Downloading BootstrapAutomatedInstall.ps1...",
-                "$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/{{user `branch`}}/BootstrapAutomatedInstall.ps1\",\"c://packer//BootstrapAutomatedInstall.ps1\")",
-                "$action = New-ScheduledTaskAction -Execute \"powershell.exe\" -Argument \"-command c:\\packer\\BootstrapAutomatedInstall.ps1\"",
+                "$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/BootstrapAutomatedInstall.ps1\",\"c://packer//BootstrapAutomatedInstall.ps1\")",
+                "$action = New-ScheduledTaskAction -Execute \"powershell.exe\" -Argument \"-command c:\\packer\\BootstrapAutomatedInstall.ps1 {{user `branch`}}\"",
                 "$trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00",
                 "Register-ScheduledTask -TaskName \"BootstrapAutomatedInstall\" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest",
                 "Write-Host INFO: Packer provisioner complete"
