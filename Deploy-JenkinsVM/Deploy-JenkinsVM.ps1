@@ -6,7 +6,7 @@ param(
     [Parameter(Mandatory=$false)][string]$size="D3", # Size of the VM
     [Parameter(Mandatory=$false)][string]$ImagePrefix, # Image matching string. Must start with this
     [Parameter(Mandatory=$false)][string]$Password=$env:JENKINS_PASSWORD_W2W, 
-    [Parameter(Mandatory=$false)][string]$AzureSubscriptionID=$env:AZURE_SUBSCRIPTION_ID, 
+    [Parameter(Mandatory=$false)][string]$AzureSubscriptionID=$env:AZURE_SUBSCRIPTION_ID 
 )
 
 $vnetSiteName = 'Jenkins'             # Network to connect to
