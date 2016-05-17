@@ -26,12 +26,12 @@ try {
     # Store the branch
     [Environment]::SetEnvironmentVariable("Branch",$Branch,"Machine")
 
-    # Disable the scheduled task. May not exist on local install
+    # Delete the scheduled task. May not exist on local install
     $ConfirmPreference='none'
     $t = Get-ScheduledTask 'BootstrapAutomatedInstall' -ErrorAction SilentlyContinue
     if ($t -ne $null) {
-        echo "$(date) BootstrapAutomatedInstall.ps1 disable scheduled task.." >> $env:SystemDrive\packer\configure.log
-        Disable-ScheduledTask $t -ErrorAction SilentlyContinue
+        echo "$(date) BootstrapAutomatedInstall.ps1 deleting scheduled task.." >> $env:SystemDrive\packer\configure.log
+        Unregister-ScheduledTask 'BootstrapAutomatedInstall' -Confirm:$False -ErrorAction SilentlyContinue
     }
 
     # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot. This also has the nice
@@ -47,30 +47,33 @@ try {
         New-Item c:\packer\BootstrapAutomatedInstall.GoneThroughOneReboot.txt
         shutdown /t 0 /r /f /c "First reboot in BootstrapAutomatedInstall"
         exit 0
+    } else {
+        # We've rebooted once. On our way forward then...
+
+        # Create the scripts directory
+        echo "$(date) BootstrapAutomatedInstall.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
+        mkdir c:\\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null
+
+        # Download the script that downloads our files
+        echo "$(date) BootstrapAutomatedInstall.ps1 Downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
+        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$Branch/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
+
+        # Invoke the downloads
+        echo "$(date) BootstrapAutomatedInstall.ps1 Invoking DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
+        powershell -command "$env:SystemDrive\packer\DownloadScripts.ps1"
+
+        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
+        $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+        Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
+
+        echo "$(date) BootstrapAutomatedInstall.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
+        shutdown /t 0 /r /f /c "Second reboot in BootstrapAutomatedInstall"
     }
-
-    # Create the scripts directory
-    echo "$(date) BootstrapAutomatedInstall.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
-    mkdir c:\\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null
-
-    # Download the script that downloads our files
-    echo "$(date) BootstrapAutomatedInstall.ps1 Downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$Branch/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
-
-    # Invoke the downloads
-    echo "$(date) BootstrapAutomatedInstall.ps1 Invoking DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
-    powershell -command "$env:SystemDrive\packer\DownloadScripts.ps1"
-
-    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase1.ps1"
-    $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
-    Register-ScheduledTask -TaskName "Phase1" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
-    
 }
 Catch [Exception] {
     echo "$(date) BootstrapAutomatedInstall.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
     exit 1
 }
 Finally {
-    echo "$(date) BootstrapAutomatedInstall.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
-    shutdown /t 0 /r /f /c "BootstrapAutomatedInstall"
+    echo "$(date) BootstrapAutomatedInstall.ps1 completed..." >> $env:SystemDrive\packer\configure.log
 }  
