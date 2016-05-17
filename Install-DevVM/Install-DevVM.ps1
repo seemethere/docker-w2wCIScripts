@@ -3,16 +3,12 @@ param(
     [Parameter(Mandatory=$true)][int]$DebugPort
 )
 $ErrorActionPreference = 'Stop'
+
+$env:DOCKER_DUT_DEBUG=1                      # TP5 Debugging
+$env:DOCKER_TP5_BASEIMAGE_WORKAROUND=0       # TP5 Base image workaround 
+
 $DEV_MACHINE="jhoward-z420"
 $DEV_MACHINE_DRIVE="e"
-
-# TP5 Debugging
-$env:DOCKER_DUT_DEBUG=1 
-[Environment]::SetEnvironmentVariable("DOCKER_DUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
-
-# TP5 Base image workaround 
-$env:DOCKER_TP5_BASEIMAGE_WORKAROUND=0
-[Environment]::SetEnvironmentVariable("DOCKER_TP5_BASEIMAGE_WORKAROUND","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
 
 Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
@@ -23,6 +19,12 @@ Try {
     $Branch = $Branch.ToLower()
 
     # BUGBUG Could check if branch is valid by looking if directory exists
+    if ($False -eq $(Test-Path -PathType Container ..\$Branch)) {
+        Throw "Branch doesn't appear to be valid"
+    }
+
+    [Environment]::SetEnvironmentVariable("DOCKER_DUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
+    [Environment]::SetEnvironmentVariable("DOCKER_TP5_BASEIMAGE_WORKAROUND","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
 
     # Setup Debugging
     if ($DebugPort -eq 0) {
@@ -30,7 +32,6 @@ Try {
             Write-Host "INFO: KD to COM1. Configure COM1 to \\.\pipe\<VMName>"
             bcdedit /debug on
             bcdedit /dbgsettings serial debugport:1 baudrate:115200
-            pause
         }
     }
     if ($DebugPort -gt 0) {
@@ -41,7 +42,6 @@ Try {
         Write-Host "INFO: KD to $DEV_MACHINE ($ip`:$DebugPort) cle.ar.te.xt"
         bcdedit /dbgsettings NET HOSTIP`:$ip PORT`:$DebugPort KEY`:cle.ar.te.xt
         bcdedit /debug on
-        pause
     }
     
     # VSCode (useful for markdown editing). But really annoying as I can't find a way to
