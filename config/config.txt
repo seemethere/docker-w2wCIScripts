@@ -6,7 +6,7 @@
 jenkins-tp5-[1-9]$,tp5prod
 
 # Staging jenkins-tp5-91 through jenkins-tp5-99
-jenkins-tp5-[9][1-9]$,tp5dev
+jenkins-tp5-[9][1-9]$,tp5prod
 
 # Any other jenkins-tp5-n machine, assume production
 jenkins-tp5-\d+$,tp5prod
