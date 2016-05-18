@@ -4,7 +4,7 @@
 
 $ErrorActionPreference='Stop'
 
-echo "$(date) InstallPrivates.ps1 started" >> $env:SystemDrive\packer\configure.log
+echo "$(date) InstallPrivates.ps1 started (tp5prod)" >> $env:SystemDrive\packer\configure.log
 
 try {
     #--------------------------------------------------------------------------------------------
@@ -41,9 +41,9 @@ try {
 
     #--------------------------------------------------------------------------------------------
     # Scott fixes for filter. Fixes 2 bugs, neither in 4D. No longer needed for 5B
-    #echo "$(date) Phase2.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
-    #copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
-    #c:\privates\sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
+    echo "$(date) Phase2.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
+    copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
+    c:\privates\sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
 
 }
 Catch [Exception] {

@@ -11,7 +11,7 @@ jenkins-tp5-[9][1-9]$,tp5prod
 # Any other jenkins-tp5-n machine, assume production
 jenkins-tp5-\d+$,tp5prod
 
-# eg rs1-MMMMM-NN
+# eg rs1-MMMMM-NN or rs1-MMMMM-N
 rs1-\d+-\d{1,2}$,rs1
 
 # eg rs2-MMMMM-NN
