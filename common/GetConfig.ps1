@@ -2,6 +2,7 @@
 # GetConfig.ps1
 #-----------------------
 
+$ErrorActionPreference='stop'
 try {
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
@@ -35,11 +36,10 @@ try {
         if ($Branch.Length -eq 0) { Throw "Branch not supplied and $hostname regex match not found in configuration" }
      }
 
-    # Store the branch
-    [Environment]::SetEnvironmentVariable("Branch",$Branch,"Machine")
 }
 Catch [Exception] {
-    Throw $_
+    ###Throw $_
+	Write-Error "Error $_"
 }
 Finally {
     Write-Host "$(date) GetConfig.ps1 completed..." 
