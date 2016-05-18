@@ -18,6 +18,13 @@ echo "$(date) Bootstrap.ps1 starting..." >> $env:SystemDrive\packer\configure.lo
 echo $(date) > "c:\users\public\desktop\Bootstrap Start.txt"
 
 try {
+    # Delete the scheduled task. May not exist on local install
+    $ConfirmPreference='none'
+    $t = Get-ScheduledTask 'Bootstrap' -ErrorAction SilentlyContinue
+    if ($t -ne $null) {
+        echo "$(date) Bootstrap.ps1 deleting scheduled task.." >> $env:SystemDrive\packer\configure.log
+        Unregister-ScheduledTask 'Bootstrap' -Confirm:$False -ErrorAction SilentlyContinue
+    }
 
     # BUGBUG TODO - If branch isn't supplied, look it up from a file on GH
 
@@ -27,14 +34,6 @@ try {
 
     # Store the branch
     [Environment]::SetEnvironmentVariable("Branch",$Branch,"Machine")
-
-    # Delete the scheduled task. May not exist on local install
-    $ConfirmPreference='none'
-    $t = Get-ScheduledTask 'Bootstrap' -ErrorAction SilentlyContinue
-    if ($t -ne $null) {
-        echo "$(date) Bootstrap.ps1 deleting scheduled task.." >> $env:SystemDrive\packer\configure.log
-        Unregister-ScheduledTask 'Bootstrap' -Confirm:$False -ErrorAction SilentlyContinue
-    }
 
     # Create the scripts and packer directories
     echo "$(date) Bootstrap.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
