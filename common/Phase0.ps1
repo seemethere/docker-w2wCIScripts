@@ -13,10 +13,6 @@ echo "$(date) Phase0.ps1 starting..." >> $env:SystemDrive\packer\configure.log
 echo $(date) > "c:\users\public\desktop\Phase0 Start.txt"
 
 try {
-
-Throw "Test"
-exit 1
-
     if ([string]::IsNullOrWhiteSpace($Branch)) {
          Throw "Branch must be supplied (eg tp5dev, tp5pre4d, tp5prod, rs1,...)"
     }
