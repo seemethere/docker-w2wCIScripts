@@ -58,8 +58,6 @@ exit 1
     }
 }
 Catch [Exception] {
-    echo "$(date) Phase0.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
-    echo $(date) > "c:\users\public\desktop\ERROR Phase0.txt"
     Throw $_
 }
 Finally {
