@@ -12,7 +12,7 @@
 
 param(
     [Parameter(Mandatory=$false)][string]$Branch,
-    [Parameter(Mandatory=$true)][int]$DebugPort
+    [Parameter(Mandatory=$false)][int]$DebugPort
 )
 $ErrorActionPreference = 'Stop'
 
@@ -26,7 +26,31 @@ Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
-        Throw "Branch must be supplied (eg tp5dev, tp5prod, tp5pre4d, rs1,...)"
+        $Branch=""
+        
+        $hostname=$env:COMPUTERNAME.ToLower()
+        Write-Host "Matching $hostname for a branch type..." >> $env:SystemDrive\packer\configure.log
+        
+        foreach ($line in Get-Content ..\config\config.txt) {
+            $line=$line.Trim()
+            if (($line[0] -eq "#") -or ($line -eq "")) {
+                continue
+            }
+            $elements=$line.Split(",")
+            if ($elements.Length -ne 2) {
+                continue
+            }
+            if (($elements[0].Length -eq 0) -or ($elements[1].Length -eq 0)) {
+                continue
+            }
+            if ($hostname -match $elements[0]) {
+                $Branch=$elements[1]
+                Write-Host $hostname matches $elements[0]
+                break
+            }
+        }
+        if ($Branch.Length -eq 0) { Throw "Branch not supplied and $hostname regex match not found in configuration" }
+        Write-Host "Branch matches $Branch through "$elements[0]
     }
     $Branch = $Branch.ToLower()
 
@@ -35,11 +59,11 @@ Try {
         Throw "Branch doesn't appear to be valid"
     }
 
-    [Environment]::SetEnvironmentVariable("DOCKER_DUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
-    [Environment]::SetEnvironmentVariable("DOCKER_TP5_BASEIMAGE_WORKAROUND","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
-
     # Setup Debugging
     if ($DebugPort -eq 0) {
+        Write-Host -Fore"If you're sure you want named pipe debugging, press enter."
+        Write-Host "Otherwise, control-C now and add -DebugPort 500nn for network debugging"
+        pause
         if ($(Test-Path "HKLM:software\microsoft\virtual machine\guest") -eq $True) {
             Write-Host "INFO: KD to COM1. Configure COM1 to \\.\pipe\<VMName>"
             bcdedit /debug on
@@ -55,6 +79,9 @@ Try {
         bcdedit /dbgsettings NET HOSTIP`:$ip PORT`:$DebugPort KEY`:cle.ar.te.xt
         bcdedit /debug on
     }
+
+    [Environment]::SetEnvironmentVariable("DOCKER_DUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
+    [Environment]::SetEnvironmentVariable("DOCKER_TP5_BASEIMAGE_WORKAROUND","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
     
     # VSCode (useful for markdown editing). But really annoying as I can't find a way to
     # not make it launch after setup completes, so blocks. Workaround isn't nice but works
@@ -84,7 +111,7 @@ Try {
     powershell -command .\docker-docker-shortcut.ps1
 
     mkdir c:\liteide -ErrorAction SilentlyContinue
-    xcopy ..\..\..\install\liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
+    xcopy \\redmond\osg\Teams\CORE\BASE\HYP\Team\jhoward\Docker\Install\liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
     Remove-Item c:\windows\system32\docker.exe -ErrorAction SilentlyContinue
 
     set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
