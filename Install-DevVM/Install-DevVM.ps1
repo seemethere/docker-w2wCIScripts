@@ -29,7 +29,7 @@ Try {
         $Branch=""
         
         $hostname=$env:COMPUTERNAME.ToLower()
-        Write-Host "Matching $hostname for a branch type..." >> $env:SystemDrive\packer\configure.log
+        Write-Host "Matching $hostname for a branch type..."
         
         foreach ($line in Get-Content ..\config\config.txt) {
             $line=$line.Trim()
