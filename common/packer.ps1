@@ -1,13 +1,13 @@
 
-if (($env:BranchType.ToLower() -ne "tp5") -and 
-    ($env:BranchType.ToLower() -ne "tp5pre4d") -and
-    ($env:BranchType.ToLower() -ne "rs1")) {
-    Throw "BranchType must be set in the environment one of TP5, TP5Pre4D or RS1"
+if (($env:BranchType -eq "") -or ($env:BranchType -eq $null)) {
+    Throw "BranchType must be set in the environment one of tp5, tp5pre4d, tp5prod or rs1, and in lowercase)"
 }
 
+$BranchType = $env:BranchType.ToLower()
 $env:imageprefix="jenkins-"+$BranchType.ToLower()
 
-if ($env:BranchType.ToLower() -eq "rs1") {
+if ($BranchType -eq "rs1") {
+    # rs1 storage account was taken
     $env:storageaccount="winrs1"
 } else {
     $env:storageaccount="tp5"
@@ -27,11 +27,11 @@ if (($env:imageprefix -eq "") -or ($env:imageprefix -eq $null)) {
     exit 1
 }
 if (($env:storageaccount -eq "") -or ($env:storageaccount -eq $null)) {
-    Write-Error "Must have environment variable 'storageaccount' set eg winrs1 pr tp5"
+    Write-Error "Must have environment variable 'storageaccount' set eg winrs1 or tp5"
     exit 1
 }
 if (($env:osimagelabel -eq "") -or ($env:osimagelabel -eq $null)) {
-    Write-Error "Must have environment variable 'osimagelabel' set eg azure$BranchTypexxxxx where xxxxx is a build number"
+    Write-Error "Must have environment variable 'osimagelabel' set eg azure$BranchTypevxxxxx where xxxxx is a build number"
     exit 1
 }
 

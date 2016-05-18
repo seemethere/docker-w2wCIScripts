@@ -1,10 +1,22 @@
+#-----------------------
+# Install-DevVM.ps1
+#-----------------------
+
+# Wrapper for installing a development VM on Microsoft corpnet.
+# Currently has a few hard-coded things for me (@jhowardmsft)
+# Invokes the same processing for setting up a production CI
+# server, but also turns on KD, net uses to the machine where
+# the development sources are, installs VSCode & LiteIDE, 
+# creates a shortcut for a development prompt, plus sets auto-logon.
+# Also assumes that this is running from \\redmond\osg\teams\....\team\jhoward\docker\ci\w2w\Install-DevVM
+
 param(
     [Parameter(Mandatory=$false)][string]$Branch,
     [Parameter(Mandatory=$true)][int]$DebugPort
 )
 $ErrorActionPreference = 'Stop'
 
-$env:DOCKER_DUT_DEBUG=1                      # TP5 Debugging
+$env:DOCKER_DUT_DEBUG=0                      # TP5 Debugging
 $env:DOCKER_TP5_BASEIMAGE_WORKAROUND=0       # TP5 Base image workaround 
 
 $DEV_MACHINE="jhoward-z420"
@@ -14,11 +26,11 @@ Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
-        Throw "Branch must be supplied (eg tp5, tp5pre4d], rs1)"
+        Throw "Branch must be supplied (eg tp5dev, tp5prod, tp5pre4d, rs1,...)"
     }
     $Branch = $Branch.ToLower()
 
-    # BUGBUG Could check if branch is valid by looking if directory exists
+    # Check if branch is valid by looking if directory exists
     if ($False -eq $(Test-Path -PathType Container ..\$Branch)) {
         Throw "Branch doesn't appear to be valid"
     }
@@ -85,9 +97,9 @@ Try {
     Copy-Item sfpcopy.exe c:\windows\system32 -ErrorAction SilentlyContinue
     Copy-Item windiff.exe c:\windows\system32 -ErrorAction SilentlyContinue
 
-    [Environment]::SetEnvironmentVariable("GOARCH","amd64", "Machine")
-    [Environment]::SetEnvironmentVariable("GOOS","windows", "Machine")
-    [Environment]::SetEnvironmentVariable("GOEXE",".exe", "Machine")
+    #[Environment]::SetEnvironmentVariable("GOARCH","amd64", "Machine")
+    #[Environment]::SetEnvironmentVariable("GOOS","windows", "Machine")
+    #[Environment]::SetEnvironmentVariable("GOEXE",".exe", "Machine")
     [Environment]::SetEnvironmentVariable("GOPATH",$DEV_MACHINE_DRIVE+":\go\src\github.com\docker\docker\vendor;"+$DEV_MACHINE_DRIVE+":\go", "Machine")
     [Environment]::SetEnvironmentVariable("Path","$env:Path;c:\gopath\bin;"+$DEV_MACHINE_DRIVE+":\docker\utils", "Machine")
     [Environment]::SetEnvironmentVariable("LOCAL_CI_INSTALL","1","Machine")
@@ -95,9 +107,9 @@ Try {
     $env:LOCAL_CI_INSTALL="1"
 
     mkdir c:\packer -ErrorAction SilentlyContinue
-    Copy-Item "..\common\BootstrapAutomatedInstall.ps1" c:\packer\ -ErrorAction SilentlyContinue
-    Unblock-File c:\packer\BootstrapAutomatedInstall.ps1 
-    c:\packer\BootstrapAutomatedInstall.ps1 -Branch $Branch
+    Copy-Item "..\common\Bootstrap.ps1" c:\packer\ -ErrorAction SilentlyContinue
+    Unblock-File c:\packer\Bootstrap.ps1 
+    . $("c:\packer\Bootstrap.ps1 $Branch")
 
     echo $(date) > "c:\users\public\desktop\$Branch.txt"
 
@@ -109,11 +121,8 @@ Try {
     # TP5 Base image workaround 
     if ($env:DOCKER_TP5_BASEIMAGE_WORKAROUND -eq 1) {
         echo $(date) > "c:\users\public\desktop\DOCKER_TP5_BASEIMAGE_WORKAROUND"
-
-        }
-    
     }
-Catch [Exception] {
+} Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_'")
     exit 1
 }
