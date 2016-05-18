@@ -34,6 +34,7 @@ try {
             }
         }
         if ($Branch.Length -eq 0) { Throw "Branch not supplied and $hostname regex match not found in configuration" }
+		echo "$(date) Bootstrap.ps1 Branch matches $Branch..." >> $env:SystemDrive\packer\configure.log
      }
 
 }
