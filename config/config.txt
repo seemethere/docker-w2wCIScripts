@@ -1,4 +1,6 @@
 # Regex matching for hosts and which configuration to use
+# Syntax of each line is <regex>,<branchtype>
+# Gets more specific as it goes down. Include a default at the end (.*)
 
 # Production jenkins-tp5-1 through jenkins-tp5-9
 jenkins-tp5-[1-9]$,tp5prod
