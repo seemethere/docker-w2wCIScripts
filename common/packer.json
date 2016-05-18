@@ -2,12 +2,11 @@
     "variables": {
         "image_name_prefix": "{{env `imageprefix`}}",
         "username": "jenkins",
-        "password": "{{env `password`}}",
+        "password": "{{env `JENKINS_PASSWORD_W2W`}}",
         "sn": "Microsoft Azure Sponsorship",
         "ps": "{{ env `HOME` }}/.azure/engine-team@docker.com.publishsettings",
         "sa": "{{env `storageaccount`}}",
         "oil": "{{env `osimagelabel`}}",
-        "branch": "{{env `branch`}}"
     },
     "builders": [
          {
@@ -33,7 +32,7 @@
                 "[System.IO.File]::WriteAllText('c:\\packer\\password.txt', '{{user `password`}}', (New-Object System.Text.UTF8Encoding($False)))",
                 "Write-Host INFO: Downloading Bootstrap.ps1...",
                 "$wc=New-Object net.webclient;$wc.Downloadfile(\"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Bootstrap.ps1\",\"c://packer//Bootstrap.ps1\")",
-                "$action = New-ScheduledTaskAction -Execute \"powershell.exe\" -Argument \"-command c:\\packer\\Bootstrap.ps1 {{user `branch`}}\"",
+                "$action = New-ScheduledTaskAction -Execute \"powershell.exe\" -Argument \"-command c:\\packer\\Bootstrap.ps1\"",
                 "$trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00",
                 "Register-ScheduledTask -TaskName \"Bootstrap\" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest",
                 "Write-Host INFO: Packer provisioner complete"

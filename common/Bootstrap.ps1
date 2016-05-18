@@ -26,10 +26,36 @@ try {
         Unregister-ScheduledTask 'Bootstrap' -Confirm:$False -ErrorAction SilentlyContinue
     }
 
-    # BUGBUG TODO - If branch isn't supplied, look it up from a file on GH
-
     if ([string]::IsNullOrWhiteSpace($Branch)) {
-         Throw "Branch must be supplied (eg tp5dev, tp5pre4d, tp5prod, rs1,...)"
+        $Branch=""
+        
+        # Get config.txt
+        echo "$(date) Bootstrap.ps1 Downloading config.txt..." >> $env:SystemDrive\packer\configure.log
+        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/config/config.txt","$env:SystemDrive\packer\config.txt")
+
+        $hostname=$env:COMPUTERNAME.ToLower()
+        echo "$(date) Bootstrap.ps1 Matching $hostname for a branch type..." >> $env:SystemDrive\packer\configure.log
+        
+        foreach ($line in Get-Content $env:SystemDrive\packer\config.txt) {
+            $line=$line.Trim()
+            if (($line[0] -eq "#") -or ($line -eq "")) {
+                continue
+            }
+            $elements=$line.Split(",")
+            if ($elements.Length -ne 2) {
+                continue
+            }
+            if (($elements[0].Length -eq 0) -or ($elements[1].Length -eq 0)) {
+                continue
+            }
+            if ($hostname -match $elements[0]) {
+                $Branch=$elements[1]
+                Write-Host $hostname matches $elements[0]
+                break
+            }
+        }
+        if ($Branch.Length -eq 0) { Throw "Branch not supplied and $hostname regex match not found in configuration" }
+        echo "$(date) Bootstrap.ps1 Branch matches $Branch through "$elements[0] >> $env:SystemDrive\packer\configure.log
     }
 
     # Store the branch
