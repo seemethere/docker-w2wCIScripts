@@ -16,5 +16,5 @@ rs1-\d+-\d{1,2}$,rs1
 rs2-\d+-\d{1,2}$,rs2
 
 # default to rs1
-.*,rs1
+#.*,rs1
 
