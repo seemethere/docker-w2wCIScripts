@@ -136,7 +136,7 @@ Try {
     mkdir c:\packer -ErrorAction SilentlyContinue
     Copy-Item "..\common\Bootstrap.ps1" c:\packer\ -ErrorAction SilentlyContinue
     Unblock-File c:\packer\Bootstrap.ps1 
-    . $("c:\packer\Bootstrap.ps1 $Branch")
+    . "$env:SystemDrive\packer\Bootstrap.ps1" -Branch $Branch
 
     echo $(date) > "c:\users\public\desktop\$Branch.txt"
 
