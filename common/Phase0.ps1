@@ -22,7 +22,7 @@ try {
     }
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
-         Throw "Branch must be supplied (eg tp5dev, tp5pre4d, tp5prod, rs1,...)"
+         Throw "Branch must be supplied (eg tp5dev, tp5prod, rs1,...)"
     }
     # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot. This also has the nice
     # side effect that we are guaranteed after the reboot the $env:Branch is set so that any script subsequently can pick it up.
