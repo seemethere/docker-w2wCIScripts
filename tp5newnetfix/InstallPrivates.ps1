@@ -4,7 +4,7 @@
 
 $ErrorActionPreference='Stop'
 
-echo "$(date) InstallPrivates.ps1 started (tp5prod)" >> $env:SystemDrive\packer\configure.log
+echo "$(date) InstallPrivates.ps1 started (tp5newnetfix)" >> $env:SystemDrive\packer\configure.log
 
 try {
     #--------------------------------------------------------------------------------------------
