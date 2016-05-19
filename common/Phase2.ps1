@@ -10,7 +10,7 @@ try {
     echo "$(date) Phase2.ps1 starting" >> $env:SystemDrive\packer\configure.log    
     echo $(date) > "c:\users\public\desktop\Phase2 Start.txt"
 
-    # Stop WU on TP5Pre4D and TP5 to stop the final ZDP getting installed and breaking things
+    # Stop WU on TP5 variants. This is temporary as 5B broke things.
     # Important - this is done in phase 2 AFTER the script-managed ZDP has been installed by phase 1
     # otherwise the install will fail
     if ($env:branch.StartsWith("tp5")) { 
