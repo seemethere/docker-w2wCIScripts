@@ -16,7 +16,7 @@ try {
 
         # Open the firewall
         echo "$(date) ConfigureSSH.ps1 opening firewall for SSH..." >> $env:SystemDrive\packer\configure.log
-        Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22"
+        Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=SSH dir=in action=allow protocol=TCP localport=22 profile=Any"
     }
 }
 Catch [Exception] {
