@@ -17,8 +17,8 @@ try {
     # Configure cygwin ssh daemon
     echo "$(date) Phase4.ps1 killing sshd if running..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait taskkill -ArgumentList "/F /IM sshd.exe" -ErrorAction SilentlyContinue
-    echo "$(date) Phase4.ps1 invoking ConfigureSSH.sh..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -wait -WorkingDirectory c:\packer -NoNewWindow c:\cygwin\bin\bash -ArgumentList "--login /cygdrive/c/packer/ConfigureSSH.sh >> /cygdrive/c/packer/configure.log 2>&1"
+    echo "$(date) Phase4.ps1 invoking ConfigureSSH.ps1..." >> $env:SystemDrive\packer\configure.log
+    . $("$env:SystemDrive\packer\ConfigureSSH.ps1")
 }
 Catch [Exception] {
     echo "$(date) Phase4.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
