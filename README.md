@@ -86,3 +86,4 @@ Note this will require some username/password/subscription IDs. This is for TP5
     .\Deploy-JenkinsVM -StorageAccount "tp5" -Force -Size "D3" -ImagePrefix "jenkins-tp5" "jenkins-tp5-99" -Password "$env:JENKINS_PASSWORD_W2W" -AzureSubscriptionID "$env:AZURE_SUBSCRIPTION_ID"
 
 
+ 
