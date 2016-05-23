@@ -32,6 +32,7 @@ try {
     # Privates - binaries
     echo "$(date) DownloadPatches.ps1 Downloading Privates..." >> $env:SystemDrive\packer\configure.log
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/Privates/HostNetSvc.dll","c:\privates\HostNetSvc.dll")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/Privates/http.sys","c:\privates\http.sys")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/Privates/NetMgmtIF.dll","c:\privates\NetMgmtIF.dll")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/Privates/NetSetupApi.dll","c:\privates\NetSetupApi.dll")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/Privates/NetSetupEngine.dll","c:\privates\NetSetupEngine.dll")

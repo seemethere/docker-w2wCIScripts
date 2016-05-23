@@ -13,13 +13,6 @@ try {
     bcdedit /set "{current}" testsigning On
 
     #--------------------------------------------------------------------------------------------
-    # Hack to retry networking up to 5 times - stops very common busybox not found. Andrew working on real fix post 4D.
-    #echo "$(date) Phase2.ps1 Installing private HostNetSvc.dll..." >> $env:SystemDrive\packer\configure.log
-    #copy c:\windows\system32\HostNetSvc.dll c:\windows\system32\HostNetSvc.orig.dll
-    #c:\privates\sfpcopy c:\privates\HostNetSvc.dll c:\windows\system32\HostNetSvc.dll
-
-
-    #--------------------------------------------------------------------------------------------
     # Updated networking fix.
     echo "$(date) Phase2.ps1 Installing private Net*.dll..." >> $env:SystemDrive\packer\configure.log
     copy c:\windows\system32\NetMgmtIF.dll          c:\windows\system32\NetMgmtIF.orig.dll
@@ -34,6 +27,12 @@ try {
 
 
     #--------------------------------------------------------------------------------------------
+    # Updated networking fix part 2
+    echo "$(date) Phase2.ps1 Installing private http:sys..." >> $env:SystemDrive\packer\configure.log
+    copy c:\windows\system32\drivers\http.sys       c:\windows\system32\drivers\http.orig.sys
+    c:\privates\sfpcopy c:\privates\http.sys        c:\windows\system32\drivers\http.sys
+
+    #--------------------------------------------------------------------------------------------
     # JohnR csrss fix for leaking containers
     echo "$(date) Phase2.ps1 Installing private ntoskrnl.exe..." >> $env:SystemDrive\packer\configure.log
     copy c:\windows\system32\ntoskrnl.exe c:\windows\system32\ntoskrnl.orig.exe
@@ -41,9 +40,9 @@ try {
 
     #--------------------------------------------------------------------------------------------
     # Scott fixes for filter. Fixes 2 bugs, neither in 4D. No longer needed for 5B
-    echo "$(date) Phase2.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
-    copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
-    c:\privates\sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
+    #echo "$(date) Phase2.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
+    #copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
+    #c:\privates\sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
 
 }
 Catch [Exception] {
