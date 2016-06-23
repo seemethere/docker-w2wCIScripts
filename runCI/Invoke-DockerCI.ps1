@@ -96,10 +96,6 @@
     Jenkins script is in the docker sources. Can be an http: path, or a
     file path (local or UNC).
 
-.PARAMETER Protocol
-    The wire protocol to use for the control daemon and daemon under
-    test to use. Can be npipe (default) or tcp.
-
 .PARAMETER DUTDebugMode
     Whether to run the daemon under test in debug mode. Default is false.
 
@@ -147,7 +143,6 @@ param(
     [Parameter(Mandatory=$false)][string]$DockerBasePath = $DOCKER_DEFAULT_BASEPATH,
     [Parameter(Mandatory=$false)][string]$GitLocation = $GIT_DEFAULT_LOCATION,
     [Parameter(Mandatory=$false)][string]$CIScriptLocation = $CISCRIPT_DEFAULT_LOCATION,
-    [Parameter(Mandatory=$false)][string]$Protocol = $DEFAULT_PROTOCOL,
     [Parameter(Mandatory=$false)][switch]$DUTDebugMode=$False,
     [Parameter(Mandatory=$false)][switch]$ControlDebugMode=$False,
     [Parameter(Mandatory=$false)][switch]$SkipValidationTests=$False,
@@ -160,7 +155,6 @@ param(
 $ErrorActionPreference = 'Stop'
 $DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
 $GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
-$DEFAULT_PROTOCOL="npipe"
 
 # THIS IS TEMPORARY - WILL EVENTUALLY BE CHECKED INTO DOCKER SOURCES
 $CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.sh"
@@ -384,7 +378,7 @@ Function Get-ImageTar {
           
     $ErrorActionPreference = 'Stop'
     try {
-        if ($Build -gt 14363) {
+ #       if ($Build -gt 14363) {
             if (Test-Path c:\baseimages\$type.tar) {
                 Write-Host -ForegroundColor green "INFO: c:\baseimages\$type.tar exists"
                 return
@@ -403,9 +397,9 @@ Function Get-ImageTar {
             $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
             Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
             Export-DockerImage -SourceFilePath $SourceTar -DestinationTarPath c:\BaseImages\$type.tar
-        } else {
-            Write-Host -ForegroundColor green "INFO: Build 14363 assumes images already installed"
-        }
+ #       } else {
+ #           Write-Host -ForegroundColor green "INFO: Build 14363 assumes images already installed"
+ #       }
 
         
     } catch {
@@ -414,16 +408,17 @@ Function Get-ImageTar {
 }
 
 # Load-ImageTar installs the image into docker. Doesn't tag it as latest.
-# Is a no-op prior to build 14353. 
+### Commented out # Is a no-op prior to build 14353. 
 # TODO: Extend for docker pull as well once available. 
 Function Load-ImageTar {
     Param([string]$Type)
     $ErrorActionPreference = 'Stop'
     try {
-        if ($Build -gt 14363) {
+#        if ($Build -gt 14363) {
             Write-Host -foregroundcolor green "INFO: Loading $type.tar into docker. This may take a few minutes..."
-            docker load -i c:\BaseImages\$type.tar
-        } 
+            # Note we always load using TCP as it's significantly faster
+            docker -H=tcp://127.0.0.1:2375 load -i c:\BaseImages\$type.tar
+#        } 
     } catch {
         Throw $_
     }
@@ -509,13 +504,6 @@ Try {
     if ([string]::IsNullOrWhiteSpace($CIScriptLocation)) {
         $CIScriptLocation = $CISCRIPT_DEFAULT_LOCATION
     }
-    if ([string]::IsNullOrWhiteSpace($Protocol)) {
-        $Protocol = $DEFAULT_PROTOCOL
-    }
-    if ($Protocol -ne "npipe" -and $Protocol -ne "tcp") {
-        Write-Error "Invalid protocol. Must be npipe or tcp"
-        exit 1
-    }
 
     # Where we run the control daemon from
     $ControlRoot="$($TestrunDrive):\control"
@@ -550,7 +538,6 @@ Try {
     Write-Host " - Destroy Cache:     $DestroyCache"
     Write-Host " - Control binaries:  $DockerBasePath"
     Write-Host " - CI Script:         $CIScriptLocation"
-    Write-Host " - Protocol:          $Protocol"
 
     # Where we clone the docker sources
     $WorkspaceRoot="$($SourcesDrive):\$($SourcesSubdir)"
@@ -723,16 +710,11 @@ Try {
     $env:GOPATH="$WorkspaceRoot\src\github.com\docker\docker\vendor;$WorkspaceRoot"
    
 
-    # Work out the -H for the protocol
-    if ($Protocol -eq $DEFAULT_PROTOCOL) {
-        $env:DOCKER_HOST="npipe:////./pipe/docker_engine"
-    } else {
-        $env:DOCKER_HOST="tcp://127.0.0.1:2375"
-
-    }
+    # Always by default use the named pipe. We override this for loading images as TCP is faster there.
+    $env:DOCKER_HOST="npipe:////./pipe/docker_engine"
 
     # Start the control daemon
-    $daemon="$env:Temp\dockerdcontrol.exe --graph $ControlRoot --pidfile=$ControlRoot\daemon\docker.pid -H=$env:DOCKER_HOST"
+    $daemon="$env:Temp\dockerdcontrol.exe --graph $ControlRoot --pidfile=$ControlRoot\daemon\docker.pid -H=$env:DOCKER_HOST -H=tcp://0.0.0.0:2375"
     if ($HyperVControl -eq $True) {
         $daemon=$daemon+" --isolation=hyperv"
     }
