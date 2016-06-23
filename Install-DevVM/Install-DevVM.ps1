@@ -83,47 +83,65 @@ Try {
     [Environment]::SetEnvironmentVariable("DOCKER_DUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
     [Environment]::SetEnvironmentVariable("DOCKER_TP5_BASEIMAGE_WORKAROUND","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
     
-    # VSCode (useful for markdown editing). But really annoying as I can't find a way to
-    # not make it launch after setup completes, so blocks. Workaround isn't nice but works
-    $ErrorActionPreference = 'Stop'
-    if (-not (Test-Path $env:Temp\vscodeinstaller.exe)) {
-        Write-Host "INFO: Downloading VSCode installer"
-        Invoke-WebRequest "https://go.microsoft.com/fwlink/?LinkID=623230" -OutFile "$env:Temp\vscodeinstaller.exe"
+    if ($null -eq $(Get-Command code -erroraction silentlycontinue)) {
+        # VSCode (useful for markdown editing). But really annoying as I can't find a way to
+        # not make it launch after setup completes, so blocks. Workaround isn't nice but works
+        $ErrorActionPreference = 'Stop'
+        if (-not (Test-Path $env:Temp\vscodeinstaller.exe)) {
+            Write-Host "INFO: Downloading VSCode installer"
+            Invoke-WebRequest "https://go.microsoft.com/fwlink/?LinkID=623230" -OutFile "$env:Temp\vscodeinstaller.exe"
+        }
+        Write-Host "INFO: Installing VSCode"
+        $j = Start-Job -ScriptBlock {Start-Process -wait "$env:Temp\vscodeinstaller.exe" -ArgumentList "/silent /dir:c:\vscode"}
+        Write-Host "INFO: Waiting for installer to complete"
+        Start-Sleep 60
+        Write-Host "INFO: Force stopping vscode (annoying workaround...)"
+        Get-Process *code* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
+        Write-Host "INFO: Waiting on job"
+        wait-Job $j.id | Out-Null
     }
-    Write-Host "INFO: Installing VSCode"
-    $j = Start-Job -ScriptBlock {Start-Process -wait "$env:Temp\vscodeinstaller.exe" -ArgumentList "/silent /dir:c:\vscode"}
-    Write-Host "INFO: Waiting for installer to complete"
-    Start-Sleep 60
-    Write-Host "INFO: Force stopping vscode (annoying workaround...)"
-    Get-Process *code* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
-    Write-Host "INFO: Waiting on job"
-    wait-Job $j.id | Out-Null
-    
+
+    Write-Host "INFO: Configuring automatic logon"
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d administrator /f
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d "p@ssw0rd" /f 
 
+    Write-Host "INFO: Net using to $DEV_MACHINE"
     net use "$DEV_MACHINE_DRIVE`:" "\\$DEV_MACHINE\$DEV_MACHINE_DRIVE`$"
 
+    Write-Host "INFO: Disabling real time monitoring"
     set-mppreference -disablerealtimemonitoring $true
+    Write-Host "INFO: Setting execution policy"
     Set-ExecutionPolicy bypass
+    Write-Host "INFO: Unblocking the shortcut file"
     Unblock-File .\docker-docker-shortcut.ps1
+    Write-Host "INFO: Running the shortcut file"
     powershell -command .\docker-docker-shortcut.ps1
 
+    Write-Host "INFO: Creating c:\liteide"
     mkdir c:\liteide -ErrorAction SilentlyContinue
+    Write-Host "INFO: Copying liteide..."
     xcopy \\redmond\osg\Teams\CORE\BASE\HYP\Team\jhoward\Docker\Install\liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
+    Write-Host "INFO: Removing docker.exe if it exists"
     Remove-Item c:\windows\system32\docker.exe -ErrorAction SilentlyContinue
+    Write-Host "INFO: Removing dockerd.exe if it exists"
+    Remove-Item c:\windows\system32\dockerd.exe -ErrorAction SilentlyContinue
 
+    Write-Host "INFO: Enabling remote desktop in registry"
     set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
     set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 0
+    Write-Host "INFO: Enabling remote desktop in firewall"
     enable-netfirewallrule -displaygroup 'Remote Desktop'
 
+    Write-Host "INFO: Turning off the firewall"
     NetSh Advfirewall set allprofiles state off
 
+    Write-Host "INFO: Copying some utilities (pipelist, sfpcopy, windiff)"
     Copy-Item pipelist.exe c:\windows\system32  -ErrorAction SilentlyContinue
     Copy-Item sfpcopy.exe c:\windows\system32 -ErrorAction SilentlyContinue
     Copy-Item windiff.exe c:\windows\system32 -ErrorAction SilentlyContinue
 
+    Write-Host "INFO: Setting environment variables"
     #[Environment]::SetEnvironmentVariable("GOARCH","amd64", "Machine")
     #[Environment]::SetEnvironmentVariable("GOOS","windows", "Machine")
     #[Environment]::SetEnvironmentVariable("GOEXE",".exe", "Machine")
