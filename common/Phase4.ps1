@@ -37,9 +37,11 @@ Catch [Exception] {
 Finally {
     $ErrorActionPreference='SilentlyContinue'
     echo "$(date) Phase4.ps1 turning off auto admin logon" >> $env:SystemDrive\packer\configure.log
-    Remove-ItemProperty  -Name "AutoAdminLogon" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
-    Remove-ItemProperty  -Name "DefaultUserName" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
-    Remove-ItemProperty  -Name "DefaultPassword" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        Remove-ItemProperty  -Name "AutoAdminLogon" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
+        Remove-ItemProperty  -Name "DefaultUserName" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
+        Remove-ItemProperty  -Name "DefaultPassword" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
+    }
     
     # Tidy up
     Remove-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
