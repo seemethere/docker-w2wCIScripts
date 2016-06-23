@@ -44,7 +44,11 @@ Finally {
     }
     
     # Tidy up
-    Remove-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
+    $user="administrator"
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        $user="jenkins"
+    }
+    Remove-Item "C:\Users\$user\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
     Remove-Item c:\packer\password.txt -Force -ErrorAction SilentlyContinue
     Remove-Item c:\packer\ConfigureSSH.log -Force -ErrorAction SilentlyContinue
 
