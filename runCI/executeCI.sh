@@ -5,9 +5,6 @@
 # TP5 Debugging
 #DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
 
-# TP5 Base image workaround (no need with v3)
-DOCKER_TP5_BASEIMAGE_WORKAROUND=0
-
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
 #
@@ -191,6 +188,7 @@ fi
 if [ $ec -eq 0 ]; then
 	export ver=$(reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion" | grep BuildLabEx | awk '{print $3}')
 	export productName=$(reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion" | grep ProductName | awk '{print substr($0, index($0,$3))}')
+	buildnumber=$(echo $ver | cut -d "." -f 1)
 	echo "INFO: Running Windows version $ver"
 	echo "INFO: Running $productName"
 fi
@@ -306,72 +304,20 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Workaround for 7035086, part 1. If windowsservercore:latest ID matches that of windowsservercore:<build>
-# then delete it. If it doesn't match, we're OK if we have a TAR file under TEMP, otherwise delete it
-# too. Then, if we don't have a windowsservercore:latest, run a container on windowsservercore:<build>,
-# export it. Then import it as windowsservercore:latest
-if [ $ec -eq 0 ]; then
-	if [ $DOCKER_TP5_BASEIMAGE_WORKAROUND -eq 1 ]; then
-		buildImageID=$(docker images | grep windowsservercore | grep -v latest | awk '{print $3}')
-		echo "INFO: Workaround - windowsservercore:$build '$buildImageID'"
-		latestImageID=""
-		latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
-		latestImageID=$(docker images | grep windowsservercore | grep -v $build | awk '{print $3}')
-		echo "INFO: Workaround - windowsservercore:latest '$latestImageID'"
 
-		if [ "$latestImageID" == "$buildImageID" ]; then
-			echo "INFO: Workaround - untagging windowsservercore:latest as ID matches base image"
-			docker rmi windowsservercore:latest
-			latestImageID=""
-			latestCount=0
-		else
-			# Different, but make sure we have a tar to import
-			if [ ! -f $TEMP/$latestImageID.tar ]; then
-				if [ $latestCount -gt 0 ]; then
-					echo "INFO: Workaround - untagging windowsservercore:latest as $TEMP/$latestImageID.tar does not exist"
-					docker rmi windowsservercore:latest
-					latestCount=0
-				fi
-				latestImageID=""
-			fi
-		fi
-
-		if [ $latestCount -eq 0 ]; then
-			echo "INFO: Workaround - starting a container against windowsservercore:$build"
-			containerID=$(docker run -d windowsservercore:$build tasklist)
-			docker wait $containerID > /dev/null
-			echo "INFO: Workaround - temporary container $containerID"
-			imageID=$(docker commit $containerID windowsservercore:latest | awk -F ':' '{print $2}') > /dev/null
-			echo "INFO: Workaround - committed $imageID"
-			shortImageID=$(echo $imageID | cut -c 1-12)
-			docker save -o $TEMP/$shortImageID.tar $imageID
-			echo "INFO: Saved to $TEMP/$shortImageID.tar"
-			docker rm $containerID
-			echo "INFO: Deleted container $containerID"
-			latestImageID=$shortImageID
-		fi
-
-		echo "INFO: Workaround - end of part one"
-	fi
-fi
-
-# If not working around 7035086. 
 # Tag it as latest if not already tagged
 if [ $ec -eq 0 ]; then
-	if [ $DOCKER_TP5_BASEIMAGE_WORKAROUND -ne 1 ]; then
-		! latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
-		if [ $latestCount -ne 1 ]; then
-			docker tag windowsservercore:$build windowsservercore:latest
-			ec=$?
-			if [ $ec -eq 0 ]; then
-				echo "INFO: Tagged windowsservercore:$build with latest"
-			else
-				echo "ERROR: Failed to tag windowsservercore:$build as latest"
-			fi
+	! latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
+	if [ $latestCount -ne 1 ]; then
+		docker tag windowsservercore:$build windowsservercore:latest
+		ec=$?
+		if [ $ec -eq 0 ]; then
+			echo "INFO: Tagged windowsservercore:$build with latest"
+		else
+			echo "ERROR: Failed to tag windowsservercore:$build as latest"
 		fi
 	fi
 fi
-
 
 # Provide the docker version for debugging purposes.
 if [ $ec -eq 0 ]; then
@@ -560,8 +506,8 @@ fi
 if [ $ec -eq 0 ]; then
 	DUT_HYPERV_FLAG=""
 	if [ ! -z "$DOCKER_DUT_HYPERV" ]; then
-		echo "INFO: Running the daemon under test in debug mode"
-		DUT_HYPERV_FLAG=" --isolation=hyperv "
+		echo "INFO: Running the daemon under test with Hyper-V containers as the default"
+		DUT_HYPERV_FLAG=" --exec-opt isolation=hyperv "
 	fi
 fi
 
@@ -649,37 +595,61 @@ if [ $ec -eq 0 ]; then
 	echo
 fi
 
-# Workaround for 7035086, part 2. 
+# Make sure windowsservercore image is loaded/tagged in the daemon under test (RS1 14363 onwards)
 if [ $ec -eq 0 ]; then
-	if [ $DOCKER_TP5_BASEIMAGE_WORKAROUND -eq 1 ]; then
-		echo "INFO: Workaround part 2"
-
-		$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images
-
-		# We need windowsservercore:latest imageID to match latestImageID
-		dutLatestImageID=$($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images | grep windowsservercore | grep latest | awk '{print $3}')
-	
-		# Does it match what it should be?
-		if [ "$dutLatestImageID" == "$latestImageID" ]; then
-			echo "INFO: Workaround DUT has correct imageID"
-		else
-			echo "INFO: Workaround DUT latest $dutLatestImageID doesn't match $latestImageID."
-			if [ ! -z $dutLatestImageID ]; then 
-				echo "INFO: Workaround DUT has stale image ID, deleting it"
-				$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT rmi windowsservercore:latest
-				dutLatestImageID=""
+	if [ $buildnumber -gt 14363 ]; then
+		if [ $ec -eq 0 ]; then
+			dutWSCNonLatestCount=$($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images | grep windowsservercore | grep -v latest | wc -l)
+			ec=$?
+			if [ $ec -ne 0 ]; then
+				echo "ERROR: Failed to get count of windowsservercore images not tagged latest in daemon under test"
 			fi
 		fi
-	
-		if [ -z $dutLatestImageID ]; then 
-			echo "INFO: Workaround loading image from $TEMPORIG/$latestImageID.tar"
-			$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT load -i $TEMPORIG/$latestImageID.tar
-			echo "INFO: Workaround tagging image"
-			$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT tag $latestImageID windowsservercore:latest
+
+		# Not present at all, load it.
+		if [ $ec -eq 0 ]; then
+			if [ $dutWSCNonLatestCount -eq 0 ]; then
+				# Not present. Load it. Assume under c:\baseimages
+				echo "INFO: Loading windowsservercore.tar. This may take some time..."
+				$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT load -i /c/baseimages/windowsservercore.tar
+				ec=$?
+				if [ $ec -ne 0 ]; then
+					echo "ERROR: Failed to load /c/baseimages/windowsservercore.tar"
+				fi
+			fi
 		fi
 
-		$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images
-		echo "INFO: Workaround end of part 2"
+		# Should now be loaded. Get the image version
+		if [ $ec -eq 0 ]; then
+			dutWSCBuild=$($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images | grep windowsservercore | grep -v latest | awk '{print $2}')
+			ec=$?
+			if [ $ec -eq 0 ]; then
+				echo "INFO: windowsservercore image build version is $dutWSCBuild"
+			else
+				echo "ERROR: Failed to get the version for the windowsservercore image"
+			fi
+		fi
+
+		if [ $ec -eq 0 ]; then
+			dutWSCLatestCount=$($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images | grep windowsservercore | grep latest | wc -l)
+			ec=$?
+			if [ $ec -ne 0 ]; then
+				echo "ERROR: Failed to get count of windowsservercore images tagged latest in daemon under test"
+			fi
+		fi
+
+		# Tag the image
+		if [ $ec -eq 0 ]; then
+			if [ $dutWSCLatestCount -eq 0 ]; then
+				$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT tag windowsservercore:$dutWSCBuild windowsservercore:latest
+				ec=$?
+				if [ $ec -eq 0 ]; then
+					echo "INFO: Tagged windowsservercore:$dutWSCBuild with latest"
+				else
+					echo "ERROR: Failed to tag windowsservercore:$dutWSCBuild as latest"
+				fi
+			fi
+		fi
 	fi
 fi
 
@@ -804,11 +774,13 @@ fi
 
 # Stop the daemon under test
 if [ $daemonStarted -eq 1 ]; then
-	PID=$(< $TEMP/docker.pid)
-	if [ ! -z $PID ]; then
-		echo "INFO: Stopping daemon under test"
-		! taskkill -f -t -pid $PID 
-		sleep 10
+	if [ -e $TEMP/docker.pid ]; then
+		PID=$(< $TEMP/docker.pid)
+		if [ ! -z $PID ]; then
+			echo "INFO: Stopping daemon under test"
+			! taskkill -f -t -pid $PID 
+			sleep 10
+		fi
 	fi
 fi
 

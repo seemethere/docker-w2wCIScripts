@@ -9,6 +9,15 @@ try {
     echo "$(date) Phase4.ps1 starting" >> $env:SystemDrive\packer\configure.log
     echo $(date) > "c:\users\public\desktop\Phase4 Start.txt"
 
+    # Add the registry keys to stop reporting as it skew stats
+    echo "$(date) Phase4 Adding SQM keys" >> $env:SystemDrive\packer\configure.log
+    if (-not (Test-Path "HKCU:Software\Microsoft\SQMClient")) {
+        New-Item -Path "HKCU:Software\Microsoft\SQMClient" -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+    New-ItemProperty -Path "HKCU:Software\Microsoft\SQMClient" -Name "isTest" -Value 1 -PropertyType DWORD -Force -ErrorAction SilentlyContinue | Out-Null
+    New-ItemProperty -Path "HKCU:Software\Microsoft\SQMClient" -Name "MSFTInternal" -Value 1 -PropertyType DWORD -Force -ErrorAction SilentlyContinue | Out-Null
+    echo "$(date) Phase4 SQM Keys added" >> $env:SystemDrive\packer\configure.log
+
     if ($env:LOCAL_CI_INSTALL -eq 1) {
         echo "$(date) Phase4.ps1 quitting on local CI" >> $env:SystemDrive\packer\configure.log
         exit 0
@@ -26,19 +35,17 @@ Catch [Exception] {
     exit 1
 }
 Finally {
-    if ($env:LOCAL_CI_INSTALL -ne 1) {
-        $ErrorActionPreference='SilentlyContinue'
-        echo "$(date) Phase4.ps1 turning off auto admin logon" >> $env:SystemDrive\packer\configure.log
-        REG DELETE "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /f | Out-Null
-        REG DELETE "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName  /f | Out-Null
-        REG DELETE "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword  /f | Out-Null
-        echo "$(date) Phase4.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
+    $ErrorActionPreference='SilentlyContinue'
+    echo "$(date) Phase4.ps1 turning off auto admin logon" >> $env:SystemDrive\packer\configure.log
+    Remove-ItemProperty  -Name "AutoAdminLogon" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
+    Remove-ItemProperty  -Name "DefaultUserName" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
+    Remove-ItemProperty  -Name "DefaultPassword" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
     
-        # Tidy up
-        Remove-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
-        Remove-Item c:\packer\password.txt -Force -ErrorAction SilentlyContinue
-        Remove-Item c:\packer\ConfigureSSH.log -Force -ErrorAction SilentlyContinue
-    }
+    # Tidy up
+    Remove-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
+    Remove-Item c:\packer\password.txt -Force -ErrorAction SilentlyContinue
+    Remove-Item c:\packer\ConfigureSSH.log -Force -ErrorAction SilentlyContinue
+
     echo "$(date) Phase4.ps1 is rebooting" >> $env:SystemDrive\packer\configure.log
     echo $(date) > "c:\users\public\desktop\Phase4 End.txt"
     shutdown /t 0 /r /f /c "Phase4.ps1"

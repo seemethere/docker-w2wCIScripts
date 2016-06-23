@@ -197,7 +197,7 @@ Function Download-File([string] $source, [string] $file, [string] $target) {
         $ErrorActionPreference='Stop'
         Copy-Item "$source" "$target"
     }
-	$ErrorActionPreference='Stop'
+    $ErrorActionPreference='Stop'
     return 0
 }
 
@@ -212,16 +212,16 @@ Function Test-CommandExists
     Finally {$ErrorActionPreference=$oldPreference}
 } 
 
-# Stop-NSSMDocker stops the NSSM controlled docker daemon service
-Function Stop-NSSMDocker {
+# Stop-DockerService stops any docker daemon service
+Function Stop-DockerService {
     $ErrorActionPreference = 'Stop'
     try {
         $service=get-service docker -ErrorAction SilentlyContinue
         if ($service -ne $null) {
-        	if ($service.status -eq "running") {
-                Write-Host -ForegroundColor green "INFO: Stopping NSSM controlled docker service..."
+            if ($service.status -eq "running") {
+                Write-Host -ForegroundColor green "INFO: Stopping the docker service..."
                 stop-service $service -ErrorAction Stop
-    	    }
+            }
         }
     }
     catch {
@@ -269,7 +269,7 @@ Function Get-GoVersionFromDockerfile {
 Function Kill-Processes
 {
     Write-Host -ForegroundColor green "INFO: Killing processes..."
-    Get-Process -Name tail, docker, dockerd, dockercontrol, dockerdcontrol, cc1, link, compile, ld, go, git, git-remote-https, integration-cli.test -ErrorAction SilentlyContinue | `
+    Get-Process -Name tail, docker, dockerd*, dockercontrol, dockerdcontrol, cc1, link, compile, ld, go, git, git-remote-https, integration-cli.test -ErrorAction SilentlyContinue | `
         Stop-Process -Force -ErrorAction SilentlyContinue | Wait-Process -ErrorAction SilentlyContinue
 }
 
@@ -376,6 +376,60 @@ Function Get-Sources
     }
 }
 
+# Get-ImageTar copies the tar from the build share if not already present under \baseimages.
+# Is a no-op prior to build 14353. 
+Function Get-ImageTar {
+    Param([string]$Type,
+          [string]$BuildName)
+          
+    $ErrorActionPreference = 'Stop'
+    try {
+        if ($Build -gt 14363) {
+            if (Test-Path c:\baseimages\$type.tar) {
+                Write-Host -ForegroundColor green "INFO: c:\baseimages\$type.tar exists"
+                return
+            }
+            $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
+            if ($(Test-Path $Location) -eq $False) {
+                Throw "$Location inaccessible. If not on Microsoft corpnet, copy $type.tar manually to c:\baseimages"
+            }
+            
+            # https://github.com/microsoft/wim2img (Microsoft Internal)
+            Write-Host -ForegroundColor green "INFO: Installing containers module for image conversion"
+            Register-PackageSource -Name HyperVDev -Provider PowerShellGet -Location \\redmond\1Windows\TestContent\CORE\Base\HYP\HAT\packages -Trusted -Force | Out-Null
+            Install-Module -Name Containers.Images -Repository HyperVDev | Out-Null
+            Import-Module Containers.Images | Out-Null
+            
+            $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
+            Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
+            Export-DockerImage -SourceFilePath $SourceTar -DestinationTarPath c:\BaseImages\$type.tar
+        } else {
+            Write-Host -ForegroundColor green "INFO: Build 14363 assumes images already installed"
+        }
+
+        
+    } catch {
+        Throw $_
+    }
+}
+
+# Load-ImageTar installs the image into docker. Doesn't tag it as latest.
+# Is a no-op prior to build 14353. 
+# TODO: Extend for docker pull as well once available. 
+Function Load-ImageTar {
+    Param([string]$Type)
+    $ErrorActionPreference = 'Stop'
+    try {
+        if ($Build -gt 14363) {
+            Write-Host -foregroundcolor green "INFO: Loading $type.tar into docker. This may take a few minutes..."
+            docker load -i c:\BaseImages\$type.tar
+        } 
+    } catch {
+        Throw $_
+    }
+}
+
+
 # Start of the main script. In a try block to catch any exception
 Try {
     Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
@@ -466,6 +520,13 @@ Try {
     # Where we run the control daemon from
     $ControlRoot="$($TestrunDrive):\control"
 
+    # Get the build 
+    $bl=(Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion"  -Name BuildLabEx).BuildLabEx
+    $a=$bl.ToString().Split(".")
+    $Branch=$a[3]
+    $Build=$a[0]+"."+$a[1]+"."+$a[4]
+    Write-Host -ForegroundColor green "INFO: Branch:$Branch Build:$Build"
+
     Write-Host -ForegroundColor green "INFO: Configuration:"
     Write-Host -ForegroundColor yellow "Paths"
     Write-Host " - Sources:           $SourcesDrive`:\$SourcesSubdir"
@@ -507,8 +568,8 @@ Try {
     Write-Host -ForegroundColor green "INFO: Disabling Windows Defender for performance..."
     set-mppreference -disablerealtimemonitoring $true -ErrorAction Stop
 
-    # Stop the nssm-controlled docker service if running.
-    Stop-NSSMDocker
+    # Stop the docker service if running.
+    Stop-DockerService
 
     # Terminate processes which might be running
     Kill-Processes
@@ -685,6 +746,21 @@ Try {
     # Give it a few seconds to come up
     Start-Sleep -s 5  # BUGBUG Doing a curl to it to get OK would be better up to 60 seconds.
     $controlDaemonStarted=$true
+
+    # Get the tar image for windowsservercore if not on disk. 
+    if ($(docker images | select -skip 1 | select-string "windowsservercore" | Measure-Object -line).Lines -lt 1) {
+        $installWSC=$true
+        Write-Host -ForegroundColor green "INFO: windowsservercore is not installed as a docker image"
+        Get-ImageTar "windowsservercore" "serverdatacentercore"
+        Load-ImageTar "windowsservercore"
+    }
+    
+    # Get the tar image for nanoserver if not on disk
+    if ($(docker images | select -skip 1 | select-string "nanoserver" | Measure-Object -line).Lines -lt 1) {
+        Write-Host -ForegroundColor green "INFO: nanoserver is not installed as a docker image"
+        Get-ImageTar "nanoserver" "nanoserver"
+        Load-ImageTar "nanoserver"
+    }
 
     # TODO Use the one from the cloned sources once it's checked in to docker/docker master
     #      which will be somewhere under $Workspace/jenkins/w2w/...
