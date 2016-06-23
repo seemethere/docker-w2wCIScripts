@@ -38,10 +38,10 @@ try {
 
     # OS Version specific files (alphabetical order)
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/ConfigureControlDaemon.ps1","c:\packer\ConfigureControlDaemon.ps1")
-	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/DownloadPatches.ps1","c:\packer\DownloadPatches.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/DownloadPatches.ps1","c:\packer\DownloadPatches.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/nssmdocker.cmd","c:\docker\nssmdocker.cmd")
-	
-	# TP5 production version files
+
+    # TP5 6D version files
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallOSImages.ps1","c:\packer\InstallOSImages.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
