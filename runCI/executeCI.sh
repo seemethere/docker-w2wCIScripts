@@ -304,17 +304,25 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
+# Get the name. We started prefixing microsoft/
+if [ $ec -eq 0 ]; then
+	! imagename=$(docker images | grep windowsservercore | grep -v latest | awk '{print $1}')
+	if [ -z $imagename ]; then
+		echo "ERROR: Could not find windowsservercore image"
+		ec=1
+	fi
+fi
 
 # Tag it as latest if not already tagged
 if [ $ec -eq 0 ]; then
 	! latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
 	if [ $latestCount -ne 1 ]; then
-		docker tag windowsservercore:$build windowsservercore:latest
+		docker tag $imagename:$build windowsservercore:latest
 		ec=$?
 		if [ $ec -eq 0 ]; then
-			echo "INFO: Tagged windowsservercore:$build with latest"
+			echo "INFO: Tagged $imagename:$build as windowsservercore:latest"
 		else
-			echo "ERROR: Failed to tag windowsservercore:$build as latest"
+			echo "ERROR: Failed to tag $imagename:$build as windowsservercore:latest"
 		fi
 	fi
 fi
@@ -484,14 +492,7 @@ if [ $ec -eq 0 ]; then
 fi
 
 # Work out the the -H parameter for the daemon under test (DASHH_DUT)
-if [ -z "$DOCKER_HOST" ]; then
-    DASHH_DUT="npipe:////./pipe/$COMMITHASH"
-elif [[ $DOCKER_HOST == npipe* ]]; then
-    DASHH_DUT="npipe:////./pipe/$COMMITHASH"
-else
-    # No, this is not a typo. If TCP, the control daemon is at 2375. The DUT is 2357.
-    DASHH_DUT="tcp://127.0.0.1:2357"
-fi
+DASHH_DUT="npipe:////./pipe/$COMMITHASH"
 
 # Are we starting the daemon under test in debug mode?
 if [ $ec -eq 0 ]; then
@@ -513,11 +514,12 @@ fi
 
 # Start the daemon under test, ensuring everything is redirected to folders under $TEMP.
 # Important - we launch the -$COMMITHASH version so that we can kill it without
-# killing the control daemon
+# killing the control daemon. Note that we also listen on port 2357 (not a typo - the control
+# daemon listens on 2375. The daemon under test uses 2357.
 if [ $ec -eq 0 ]; then
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
-	$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log	&
+	$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT -H=tcp://0.0.0.0:2357 --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log	&
 	ec=$?
 	if [ 0 -ne $ec ]; then
 		echo "ERROR: Could not start daemon"
@@ -597,7 +599,7 @@ fi
 
 # Make sure windowsservercore image is loaded/tagged in the daemon under test (RS1 14363 onwards)
 if [ $ec -eq 0 ]; then
-	if [ $buildnumber -gt 14363 ]; then
+	#if [ $buildnumber -gt 14363 ]; then
 		if [ $ec -eq 0 ]; then
 			dutWSCNonLatestCount=$($TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT images | grep windowsservercore | grep -v latest | wc -l)
 			ec=$?
@@ -609,7 +611,7 @@ if [ $ec -eq 0 ]; then
 		# Not present at all, load it.
 		if [ $ec -eq 0 ]; then
 			if [ $dutWSCNonLatestCount -eq 0 ]; then
-				# Not present. Load it. Assume under c:\baseimages
+				# Not present. Load it. Assume under c:\baseimages. Note we use TCP as it's quicker than the default npipe
 				echo "INFO: Loading windowsservercore.tar. This may take some time..."
 				$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT load -i /c/baseimages/windowsservercore.tar
 				ec=$?
@@ -641,16 +643,17 @@ if [ $ec -eq 0 ]; then
 		# Tag the image
 		if [ $ec -eq 0 ]; then
 			if [ $dutWSCLatestCount -eq 0 ]; then
-				$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT tag windowsservercore:$dutWSCBuild windowsservercore:latest
+				# We use $imagename as around 2016 TP5 6D we started having the microsoft/ prefix
+				$TEMP/binary/docker-$COMMITHASH -H=$DASHH_DUT tag $imagename:$dutWSCBuild windowsservercore:latest
 				ec=$?
 				if [ $ec -eq 0 ]; then
-					echo "INFO: Tagged windowsservercore:$dutWSCBuild with latest"
+					echo "INFO: Tagged $imagename:$dutWSCBuild with latest"
 				else
-					echo "ERROR: Failed to tag windowsservercore:$dutWSCBuild as latest"
+					echo "ERROR: Failed to tag $imagename:$dutWSCBuild as latest"
 				fi
 			fi
 		fi
-	fi
+	#fi
 fi
 
 # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined

@@ -401,8 +401,8 @@ Function Get-ImageTar {
             Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
             Export-DockerImage -SourceFilePath $SourceTar -DestinationTarPath c:\BaseImages\$type.tar
         } else {
-            # Either earlier RS1 builds which didn't have the tar
-            Write-Host -ForegroundColor green "INFO: Build 14363 assumes images already installed"
+            # Assume that we're on later TP5 builds (6B+) where we have a TAR publically available.
+            Write-Host -ForegroundColor green "INFO: Assuming image tar is already locally copied"
         }
 
         
@@ -748,6 +748,7 @@ Try {
         Load-ImageTar "nanoserver"
     }
 
+docker images
     # TODO Use the one from the cloned sources once it's checked in to docker/docker master
     #      which will be somewhere under $Workspace/jenkins/w2w/...
     # Run the shell script!
