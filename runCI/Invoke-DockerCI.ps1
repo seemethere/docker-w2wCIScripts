@@ -378,11 +378,14 @@ Function Get-ImageTar {
           
     $ErrorActionPreference = 'Stop'
     try {
- #       if ($Build -gt 14363) {
-            if (Test-Path c:\baseimages\$type.tar) {
-                Write-Host -ForegroundColor green "INFO: c:\baseimages\$type.tar exists"
-                return
-            }
+        if (Test-Path c:\baseimages\$type.tar) {
+            Write-Host -ForegroundColor green "INFO: c:\baseimages\$type.tar exists - nothing to do"
+            return
+        }
+
+        if ($Build -gt 14300) {
+            # Post TP5 builds. Copy from internal share
+
             $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
             if ($(Test-Path $Location) -eq $False) {
                 Throw "$Location inaccessible. If not on Microsoft corpnet, copy $type.tar manually to c:\baseimages"
@@ -397,9 +400,10 @@ Function Get-ImageTar {
             $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
             Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
             Export-DockerImage -SourceFilePath $SourceTar -DestinationTarPath c:\BaseImages\$type.tar
- #       } else {
- #           Write-Host -ForegroundColor green "INFO: Build 14363 assumes images already installed"
- #       }
+        } else {
+            # Either earlier RS1 builds which didn't have the tar
+            Write-Host -ForegroundColor green "INFO: Build 14363 assumes images already installed"
+        }
 
         
     } catch {
