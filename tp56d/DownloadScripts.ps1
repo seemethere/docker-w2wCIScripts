@@ -42,10 +42,10 @@ try {
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/nssmdocker.cmd","c:\docker\nssmdocker.cmd")
 	
 	# TP5 production version files
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5prod/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5prod/InstallOSImages.ps1","c:\packer\InstallOSImages.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5prod/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5prod/InstallZDP.ps1","c:\packer\InstallZDP.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallOSImages.ps1","c:\packer\InstallOSImages.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallZDP.ps1","c:\packer\InstallZDP.ps1")
     
 }
 Catch [Exception] {
