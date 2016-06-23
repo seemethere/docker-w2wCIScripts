@@ -10,7 +10,7 @@ try {
     
     # 6D 
     echo "$(date) InstallZDP.ps1 Installing 6D ZDP silently (needs reboot)..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -Wait "c:\zdp\6D\Windows10.0-KB3162982-x64.msu" -ArgumentList "/quiet /norestart"
+    Start-Process -Wait "c:\zdp\6D\Windows10.0-KB3172982-x64.msu" -ArgumentList "/quiet /norestart"
 }
 Catch [Exception] {
     echo "$(date) InstallZDP.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
