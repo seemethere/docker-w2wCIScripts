@@ -19,11 +19,11 @@ try {
     mkdir c:\ZDP\5B -ErrorAction SilentlyContinue 2>&1 | Out-Null
     mkdir c:\ZDP\4D -ErrorAction SilentlyContinue 2>&1 | Out-Null
 
-    # ZDP varieties
+    # ZDP varieties (MSUs are on Large File Storage in github)
     echo "$(date) DownloadPatches.ps1 Downloading ZDP..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/ZDP/4D/Windows10.0-KB3157663-x64.msu","c:\ZDP\4D\Windows10.0-KB3157663-x64.msu")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/ZDP/5B/Windows10.0-KB3158987-x64.msu","c:\ZDP\5B\Windows10.0-KB3158987-x64.msu")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp5common/ZDP/6D/Windows10.0-KB3172982-x64.msu","c:\ZDP\6D\Windows10.0-KB3172982-x64.msu")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://github.com/jhowardmsft/docker-w2wCIScripts/blob/f2dfda037fb041f19f6ff7642ac786f49cccfe20/tp5common/ZDP/4D/Windows10.0-KB3157663-x64.msu","c:\ZDP\4D\Windows10.0-KB3157663-x64.msu")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://github.com/jhowardmsft/docker-w2wCIScripts/blob/f2dfda037fb041f19f6ff7642ac786f49cccfe20/tp5common/ZDP/5B/Windows10.0-KB3158987-x64.msu","c:\ZDP\5B\Windows10.0-KB3158987-x64.msu")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://github.com/jhowardmsft/docker-w2wCIScripts/blob/f2dfda037fb041f19f6ff7642ac786f49cccfe20/tp5common/ZDP/6D/Windows10.0-KB3172982-x64.msu","c:\ZDP\6D\Windows10.0-KB3172982-x64.msu")
 
     # Privates - utilities
     echo "$(date) DownloadPatches.ps1 Downloading Utilities..." >> $env:SystemDrive\packer\configure.log
