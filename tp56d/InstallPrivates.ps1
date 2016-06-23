@@ -35,15 +35,15 @@ try {
 
     #--------------------------------------------------------------------------------------------
     # JohnR csrss fix for leaking containers
-    echo "$(date) Phase2.ps1 Installing private ntoskrnl.exe..." >> $env:SystemDrive\packer\configure.log
-    copy c:\windows\system32\ntoskrnl.exe c:\windows\system32\ntoskrnl.orig.exe
-    c:\privates\sfpcopy c:\privates\ntkrnlmp.exe c:\windows\system32\ntoskrnl.exe
+    #echo "$(date) Phase2.ps1 Installing private ntoskrnl.exe..." >> $env:SystemDrive\packer\configure.log
+    #copy c:\windows\system32\ntoskrnl.exe c:\windows\system32\ntoskrnl.orig.exe
+    #c:\privates\sfpcopy c:\privates\ntkrnlmp.exe c:\windows\system32\ntoskrnl.exe
 
     #--------------------------------------------------------------------------------------------
     # Scott fixes for filter. Fixes 2 bugs, neither in 4D. No longer needed for 5B
-    echo "$(date) Phase2.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
-    copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
-    c:\privates\sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
+    #echo "$(date) Phase2.ps1 Installing private wcifs.sys..." >> $env:SystemDrive\packer\configure.log
+    #copy c:\windows\system32\drivers\wcifs.sys c:\windows\system32\drivers\wcifs.orig.sys
+    #c:\privates\sfpcopy c:\privates\wcifs.sys c:\windows\system32\drivers\wcifs.sys
 
 }
 Catch [Exception] {
