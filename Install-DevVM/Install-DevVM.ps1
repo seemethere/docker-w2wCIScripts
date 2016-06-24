@@ -95,8 +95,10 @@ Try {
         $j = Start-Job -ScriptBlock {Start-Process -wait "$env:Temp\vscodeinstaller.exe" -ArgumentList "/silent /dir:c:\vscode"}
         Write-Host "INFO: Waiting for installer to complete"
         Start-Sleep 60
-        Write-Host "INFO: Force stopping vscode (annoying workaround...)"
+        Write-Host "INFO: Force stopping vscode, iexplore and edge (annoying workaround...)"
         Get-Process *code* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
+        Get-Process *iexplore* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
+        Get-Process *MicrosoftEdge* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
         Write-Host "INFO: Waiting on job"
         wait-Job $j.id | Out-Null
     }
