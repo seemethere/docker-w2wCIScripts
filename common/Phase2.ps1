@@ -13,16 +13,22 @@ try {
     # Stop WU on TP5 variants. This is temporary as 5B broke things.
     # Important - this is done in phase 2 AFTER the script-managed ZDP has been installed by phase 1
     # otherwise the install will fail
-    if ($env:branch.StartsWith("tp5")) { 
+    #if ($env:branch.StartsWith("tp5")) { 
+    # 6/24/2016 Just disable it anyway
         reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 1 /f
         cmd /s /c sc config wuauserv start= disabled
         net stop wuauserv
-    }
+    #}
 
     #--------------------------------------------------------------------------------------------
     # Install privates
-    echo "$(date) Phase2.ps1 Installing privates..." >> $env:SystemDrive\packer\configure.log    
-    . $("$env:SystemDrive\packer\InstallPrivates.ps1")
+    if (Test-Path "$env:SystemDrive\packer\InstallPrivates.ps1") {
+        echo "$(date) Phase2.ps1 Installing privates..." >> $env:SystemDrive\packer\configure.log    
+        . $("$env:SystemDrive\packer\InstallPrivates.ps1")
+    } else {
+        echo "$(date) Phase2.ps1 Skipping InstallPrivates.ps1 as doesn't exist..." >> $env:SystemDrive\packer\configure.log
+    }
+
 
     #--------------------------------------------------------------------------------------------
     # Initiate Phase3

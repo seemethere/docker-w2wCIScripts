@@ -4,25 +4,32 @@
 
 $ErrorActionPreference='Stop'
 
+
+
 try {
     echo "$(date) DownloadOSImages.ps1 starting" >> $env:SystemDrive\packer\configure.log
+    New-Item "C:\BaseImages" -ItemType Directory -ErrorAction SilentlyContinue
 
-    if ($env:LOCAL_CI_INSTALL -eq 1) {
-        echo "$(date) DownloadOSImages.ps1 Copying base images..." >> $env:SystemDrive\packer\configure.log
-        mkdir c:\BaseImages -ErrorAction SilentlyContinue
-        $bl=(Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion"  -Name BuildLabEx).BuildLabEx
-        $a=$bl.ToString().Split(".")
-        $Branch=$a[3]
-        $Build=$a[0]+"."+$a[1]+"."+$a[4]
-        $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
-        echo "$(date) DownloadOSImages.ps1 Base location=$Location..." >> $env:SystemDrive\packer\configure.log
-        copy $Location\cbaseospkg_nanoserver_en-us\CBaseOs_"$Branch"_"$Build"_amd64fre_NanoServer_en-us.wim c:\BaseImages\nanoserver.wim
-        copy $Location\cbaseospkg_serverdatacentercore_en-us\CBaseOs_"$Branch"_"$Build"_amd64fre_ServerDatacenterCore_en-us.wim c:\BaseImages\windowsservercore.wim
+    if (Test-Path c:\baseimages\$type.tar) {
+        echo "$(date) DownloadOSImages.ps1 c:\baseimages\$type.tar exists - nothing to do" >> $env:SystemDrive\packer\configure.log    
+        return
     }
-    echo "$(date) DownloadOSImages.ps1 installing nanoserver image..." >> $env:SystemDrive\packer\configure.log
-    Install-ContainerOSImage c:\BaseImages\nanoserver.wim -Force
-    echo "$(date) DownloadOSImages.ps1 installing windowsservercore image..." >> $env:SystemDrive\packer\configure.log
-    Install-ContainerOSImage c:\BaseImages\windowsservercore.wim -Force
+
+    # Copy from internal share
+    $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
+    if ($(Test-Path $Location) -eq $False) {
+        Throw "$Location inaccessible. If not on Microsoft corpnet, copy $type.tar manually to c:\baseimages"
+    }
+
+    # https://github.com/microsoft/wim2img (Microsoft Internal)
+    echo "$(date) DownloadOSImages.ps1 Installing containers module for image conversion" >> $env:SystemDrive\packer\configure.log    
+    Register-PackageSource -Name HyperVDev -Provider PowerShellGet -Location \\redmond\1Windows\TestContent\CORE\Base\HYP\HAT\packages -Trusted -Force | Out-Null
+    Install-Module -Name Containers.Images -Repository HyperVDev | Out-Null
+    Import-Module Containers.Images | Out-Null
+            
+    $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
+    echo "$(date) DownloadOSImages.ps1 Converting $SourceTar. This may take a few minutes...." >> $env:SystemDrive\packer\configure.log    
+    Export-DockerImage -SourceFilePath $SourceTar -DestinationTarPath c:\BaseImages\$type.tar
 }
 Catch [Exception] {
     echo "$(date) DownloadOSImages.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log

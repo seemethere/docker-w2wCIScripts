@@ -86,15 +86,24 @@ try {
     }
     
     #--------------------------------------------------------------------------------------------
-    # Download the ZDP and privates
-    echo "$(date) Phase1.ps1 Downloading patches..." >> $env:SystemDrive\packer\configure.log    
-    . $("$env:SystemDrive\packer\DownloadPatches.ps1")
+    # Download the ZDP and privates (if there are any)
+    if (Test-Path "$env:SystemDrive\packer\DownloadPatches.ps1") {
+        echo "$(date) Phase1.ps1 Downloading patches..." >> $env:SystemDrive\packer\configure.log    
+        . $("$env:SystemDrive\packer\DownloadPatches.ps1")
+    } else {
+        echo "$(date) Phase1.ps1 Skipping DownloadPatches.ps1 as doesn't exist..." >> $env:SystemDrive\packer\configure.log
+    }
+
 
 
     #--------------------------------------------------------------------------------------------
-    # Install the ZDP (TP5 only)
-    echo "$(date) Phase1.ps1 Installing ZDP..." >> $env:SystemDrive\packer\configure.log
-    . $("$env:SystemDrive\packer\InstallZDP.ps1")
+    # Install the ZDP (if it exists)
+    if (Test-Path "$env:SystemDrive\packer\InstallZDP.ps1") {
+        echo "$(date) Phase1.ps1 Installing ZDP..." >> $env:SystemDrive\packer\configure.log
+        . $("$env:SystemDrive\packer\InstallZDP.ps1")
+    } else {
+        echo "$(date) Phase1.ps1 Skipping InstallZDP.ps1 as doesn't exist..." >> $env:SystemDrive\packer\configure.log
+    }
 
 
     #--------------------------------------------------------------------------------------------
