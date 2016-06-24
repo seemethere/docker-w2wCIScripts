@@ -398,7 +398,7 @@ Function Get-ImageTar {
             
             $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
             Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
-            Export-DockerImage -SourceFilePath $SourceTar -DestinationTarPath c:\BaseImages\$type.tar
+            Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar
         } else {
             # Assume that we're on later TP5 builds (6B+) where we have a TAR publically available.
             Write-Host -ForegroundColor green "INFO: Assuming image tar is already locally copied"

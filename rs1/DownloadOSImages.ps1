@@ -34,7 +34,7 @@ try {
             
     $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
     echo "$(date) DownloadOSImages.ps1 Converting $SourceTar. This may take a few minutes...." >> $env:SystemDrive\packer\configure.log    
-    Export-DockerImage -SourceFilePath $SourceTar -DestinationTarPath c:\BaseImages\$type.tar
+    Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar
 }
 Catch [Exception] {
     echo "$(date) DownloadOSImages.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
