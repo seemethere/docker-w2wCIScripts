@@ -43,7 +43,7 @@ try {
 
     # TP5 6D version files
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallOSImages.ps1","c:\packer\InstallOSImages.ps1")
+    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/DownloadOSImages.ps1","c:\packer\InstallOSImages.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/tp56d/InstallZDP.ps1","c:\packer\InstallZDP.ps1")
     
