@@ -16,11 +16,11 @@ try {
     }
 
     # Copy from internal share
-    $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
     $bl=(Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion"  -Name BuildLabEx).BuildLabEx
     $a=$bl.ToString().Split(".")
     $Branch=$a[3]
     $Build=$a[0]+"."+$a[1]+"."+$a[4]
+    $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
 
     if ($(Test-Path $Location) -eq $False) {
         Throw "$Location inaccessible. If not on Microsoft corpnet, copy $type.tar manually to c:\baseimages"
