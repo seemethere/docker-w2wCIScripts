@@ -21,6 +21,7 @@ try {
     $Branch=$a[3]
     $Build=$a[0]+"."+$a[1]+"."+$a[4]
     $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
+    $type="windowsservercore"
     $BuildName="serverdatacentercore"  # Internal build name for windowsservercore
 
     if ($(Test-Path $Location) -eq $False) {
