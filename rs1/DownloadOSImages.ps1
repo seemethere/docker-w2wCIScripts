@@ -7,7 +7,7 @@ $ErrorActionPreference='Stop'
 
 
 try {
-    echo "$(date) DownloadOSImages.ps1 starting" >> $env:SystemDrive\packer\configure.log
+    echo "$(date) DownloadOSImages.ps1 starting." >> $env:SystemDrive\packer\configure.log
     New-Item "C:\BaseImages" -ItemType Directory -ErrorAction SilentlyContinue
 
     if (Test-Path c:\baseimages\$type.tar) {
