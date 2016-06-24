@@ -11,6 +11,9 @@ jenkins-tp5-[9][1-9]$,tp56d
 # Any other jenkins-tp5-n machine, assume production
 jenkins-tp5-\d+$,tp5prod
 
+# New system for RS1 - keep the same as for TP5 naming
+jenkins-rs1-\d+$,rs1
+
 # eg rs1-MMMMM-NN or rs1-MMMMM-N
 rs1-\d+-\d{1,2}$,rs1
 
