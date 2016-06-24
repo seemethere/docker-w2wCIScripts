@@ -29,8 +29,8 @@ try {
     # https://github.com/microsoft/wim2img (Microsoft Internal)
     echo "$(date) DownloadOSImages.ps1 Installing containers module for image conversion" >> $env:SystemDrive\packer\configure.log    
     Register-PackageSource -Name HyperVDev -Provider PowerShellGet -Location \\redmond\1Windows\TestContent\CORE\Base\HYP\HAT\packages -Trusted -Force | Out-Null
-    Install-Module -Name Containers.Images -Repository HyperVDev | Out-Null
-    Import-Module Containers.Images | Out-Null
+    Install-Module -Name Containers.Layers -Repository HyperVDev | Out-Null
+    Import-Module Containers.Layers | Out-Null
             
     $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
     echo "$(date) DownloadOSImages.ps1 Converting $SourceTar. This may take a few minutes...." >> $env:SystemDrive\packer\configure.log    
