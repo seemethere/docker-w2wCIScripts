@@ -597,7 +597,7 @@ if [ $ec -eq 0 ]; then
 	echo
 fi
 
-# Make sure windowsservercore image is loaded/tagged in the daemon under test (RS1 14363 onwards)
+# Make sure windowsservercore image is loaded/tagged in the daemon under test
 if [ $ec -eq 0 ]; then
 	#if [ $buildnumber -gt 14363 ]; then
 		if [ $ec -eq 0 ]; then
