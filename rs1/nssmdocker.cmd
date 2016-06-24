@@ -12,17 +12,17 @@ if /I NOT "%LOCAL_CI_INSTALL%" EQU "1" (
     set TMP=d:\temp
     mkdir d:\temp > nul 2>&1
 
-    if exist d:\nssmdaemon (goto :runproduction)
-    mkdir d:\nssmdaemon
+    if exist d:\control (goto :runproduction)
+    mkdir d:\control
 
     :runproduction
     copy %systemroot%\system32\dockerd.exe %systemroot%\system32\nssmdockerd.exe /Y
-    nssmdockerd --graph=d:\nssmdaemon --pidfile=d:\nssmdaemon\daemon.pid
+    nssmdockerd --graph=d:\control --pidfile=d:\control\daemon.pid
 ) ELSE (
-    if exist c:\nssmdaemon (goto :runlocal)
-    mkdir c:\nssmdaemon
+    if exist c:\control (goto :runlocal)
+    mkdir c:\control
 
     :runlocal
     copy %systemroot%\system32\dockerd.exe %systemroot%\system32\nssmdockerd.exe /Y
-    nssmdockerd --graph=c:\nssmdaemon --pidfile=c:\nssmdaemon\daemon.pid
+    nssmdockerd --graph=c:\control --pidfile=c:\control\daemon.pid
 )
