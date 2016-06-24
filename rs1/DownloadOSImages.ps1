@@ -21,6 +21,7 @@ try {
     $Branch=$a[3]
     $Build=$a[0]+"."+$a[1]+"."+$a[4]
     $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
+    $BuildName="serverdatacentercore"  # Internal build name for windowsservercore
 
     if ($(Test-Path $Location) -eq $False) {
         Throw "$Location inaccessible. If not on Microsoft corpnet, copy $type.tar manually to c:\baseimages"
@@ -32,7 +33,7 @@ try {
     Install-Module -Name Containers.Layers -Repository HyperVDev | Out-Null
     Import-Module Containers.Layers | Out-Null
             
-    $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
+    $SourceTar="$Location\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
     echo "$(date) DownloadOSImages.ps1 Converting $SourceTar. This may take a few minutes...." >> $env:SystemDrive\packer\configure.log    
     Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar
 }
