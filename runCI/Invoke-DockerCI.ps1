@@ -371,7 +371,6 @@ Function Get-Sources
 }
 
 # Get-ImageTar copies the tar from the build share if not already present under \baseimages.
-# Is a no-op prior to build 14353. 
 Function Get-ImageTar {
     Param([string]$Type,
           [string]$BuildName)

@@ -304,7 +304,7 @@ if [ $ec -eq 0 ]; then
 	fi
 fi
 
-# Get the name. We started prefixing microsoft/
+# Get the name. We started prefixing microsoft/ around 2016 TP5 6D
 if [ $ec -eq 0 ]; then
 	! imagename=$(docker images | grep windowsservercore | grep -v latest | awk '{print $1}')
 	if [ -z $imagename ]; then

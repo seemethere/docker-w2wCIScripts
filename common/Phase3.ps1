@@ -16,9 +16,9 @@ try {
     . $("$env:SystemDrive\packer\ConfigureControlDaemon.ps1")
 
     #--------------------------------------------------------------------------------------------
-    # Install the container OS images
-    echo "$(date) Phase3.ps1 Installing OS images..." >> $env:SystemDrive\packer\configure.log    
-    . $("$env:SystemDrive\packer\InstallOSImages.ps1")
+    # Download the container OS images
+    echo "$(date) Phase3.ps1 Downloading OS images..." >> $env:SystemDrive\packer\configure.log    
+    . $("$env:SystemDrive\packer\DownloadOSImages.ps1")
 
     #--------------------------------------------------------------------------------------------
     # Initiate Phase4. This runs as the Jenkins user interactively. This is particularly on account
