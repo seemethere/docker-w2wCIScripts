@@ -1,6 +1,7 @@
 # Jenkins CI script for Windows to Windows CI
 # By John Howard (@jhowardmsft) January 2016
-
+#
+# To run locally on a CI machine just drop into bash; cd /c/scripts; ./executeCI.sh
 
 # TP5 Debugging
 #DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
@@ -299,10 +300,18 @@ fi
 if [ $ec -eq 0 ]; then
 	! build=$(docker images | grep windowsservercore | grep -v latest | awk '{print $2}')
 	if [ -z $build ]; then
-		echo "ERROR: Could not find windowsservercore image"
-		ec=1
+		echo "INFO: Loading windowsservercore.tar. This may take some time..."
+		#docker load -i /c/baseimages/windowsservercore.tar
+		ec=$?
+echo "aaaa"
+		if [ $ec -ne 0 ]; then
+			echo "ERROR: Failed to load /c/baseimages/windowsservercore.tar"
+		fi
+echo "bbbb"
 	fi
 fi
+
+echo "cccc"
 
 # Get the name. We started prefixing microsoft/ around 2016 TP5 6D
 if [ $ec -eq 0 ]; then

@@ -10,6 +10,11 @@ try {
     echo "$(date) DownloadOSImages.ps1 starting." >> $env:SystemDrive\packer\configure.log
     New-Item "C:\BaseImages" -ItemType Directory -ErrorAction SilentlyContinue
 
+    if (Test-Path "c:\baseimages\windowsservercore.tar") {
+        echo "$(date) DownloadOSImages.ps1 c:\baseimages\windowsservercore.tar exists - nothing to do" >> $env:SystemDrive\packer\configure.log    
+        return
+    }
+
     # Copy from internal share
     $bl=(Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion"  -Name BuildLabEx).BuildLabEx
     $a=$bl.ToString().Split(".")
