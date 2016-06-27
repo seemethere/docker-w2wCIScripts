@@ -305,6 +305,8 @@ if [ $ec -eq 0 ]; then
 		ec=$?
 		if [ $ec -ne 0 ]; then
 			echo "ERROR: Failed to load /c/baseimages/windowsservercore.tar"
+		else
+			echo "INFO: docker load completed successfully"
 		fi
 	fi
 fi
@@ -316,6 +318,8 @@ if [ $ec -eq 0 ]; then
 	if [ -z $imagename ]; then
 		echo "ERROR: Could not find windowsservercore image"
 		ec=1
+	else
+		echo "INFO: Image name is $imagename"
 	fi
 fi
 
@@ -323,12 +327,14 @@ fi
 if [ $ec -eq 0 ]; then
 	! latestCount=$(docker images | grep windowsservercore | grep -v $build | wc -l)
 	if [ $latestCount -ne 1 ]; then
-		docker tag $imagename:$build windowsservercore:latest
+		docker tag "$imagename:$build" "windowsservercore:latest"
 		ec=$?
 		if [ $ec -eq 0 ]; then
 			echo "INFO: Tagged $imagename:$build as windowsservercore:latest"
 		else
 			echo "ERROR: Failed to tag $imagename:$build as windowsservercore:latest"
+			echo "DEBUG: Images"
+			docker images
 		fi
 	fi
 fi
