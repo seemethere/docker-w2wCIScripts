@@ -398,6 +398,12 @@ Function Get-ImageTar {
             
             $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
             Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
+
+            if (-not(Test-Path "C:\BaseImages"))
+            {
+                mkdir "C:\BaseImages"
+            }
+
             Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar
         } else {
             # Assume that we're on later TP5 builds (6B+) where we have a TAR publically available.
@@ -419,8 +425,7 @@ Function Load-ImageTar {
     try {
 #        if ($Build -gt 14363) {
             Write-Host -foregroundcolor green "INFO: Loading $type.tar into docker. This may take a few minutes..."
-            # Note we always load using TCP as it's significantly faster
-            docker -H=tcp://127.0.0.1:2375 load -i c:\BaseImages\$type.tar
+            docker load -i c:\BaseImages\$type.tar
 #        } 
     } catch {
         Throw $_
