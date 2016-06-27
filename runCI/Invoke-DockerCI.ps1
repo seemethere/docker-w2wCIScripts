@@ -417,16 +417,13 @@ Function Get-ImageTar {
 }
 
 # Load-ImageTar installs the image into docker. Doesn't tag it as latest.
-### Commented out # Is a no-op prior to build 14353. 
 # TODO: Extend for docker pull as well once available. 
 Function Load-ImageTar {
     Param([string]$Type)
     $ErrorActionPreference = 'Stop'
     try {
-#        if ($Build -gt 14363) {
-            Write-Host -foregroundcolor green "INFO: Loading $type.tar into docker. This may take a few minutes..."
-            docker load -i c:\BaseImages\$type.tar
-#        } 
+        Write-Host -foregroundcolor green "INFO: Loading $type.tar into docker. This may take a few minutes..."
+        docker load -i c:\BaseImages\$type.tar
     } catch {
         Throw $_
     }
