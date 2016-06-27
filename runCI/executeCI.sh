@@ -307,10 +307,17 @@ if [ $ec -eq 0 ]; then
 			echo "ERROR: Failed to load /c/baseimages/windowsservercore.tar"
 		else
 			echo "INFO: docker load completed successfully"
+			# Get the build now as we just loaded it
+			! build=$(docker images | grep windowsservercore | grep -v latest | awk '{print $2}')
+			if [ -z $build ]; then
+				ec=1
+				echo "ERROR: Could not find build even after loading it"
+			else
+				echo "INFO: Build is $build"
+			fi
 		fi
 	fi
 fi
-
 
 # Get the name. We started prefixing microsoft/ around 2016 TP5 6D
 if [ $ec -eq 0 ]; then
