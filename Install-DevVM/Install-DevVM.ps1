@@ -74,7 +74,7 @@ Try {
         if (($DebugPort -lt 50000) -or ($DebugPort -gt 50030)) {
             Throw "Debug port must be 50000-50030"
         }
-        $ip = (resolve-dnsname $DEV_MACHINE -type A).IPAddress
+        $ip = (resolve-dnsname $DEV_MACHINE -type A -NoHostsFile -LlmnrNetbiosOnly).IPAddress
         Write-Host "INFO: KD to $DEV_MACHINE ($ip`:$DebugPort) cle.ar.te.xt"
         bcdedit /dbgsettings NET HOSTIP`:$ip PORT`:$DebugPort KEY`:cle.ar.te.xt
         bcdedit /debug on
