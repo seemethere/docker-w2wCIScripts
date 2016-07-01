@@ -63,6 +63,7 @@ try {
 
     Write-Host "INFO: Creating the configuration object..."
     $ImageName="azure"+$BranchType+"v"+$ImageVersion
+    Write-Host "INFO: Based on image $ImageName"
     $vmc = New-AzureVMConfig -ImageName $ImageName -InstanceSize $size -Name $vmName -DiskLabel $vmName |
             Add-AzureEndpoint -Name 'SSH' -LocalPort 22 -PublicPort 22 -Protocol tcp |
             Set-AzureSubnet 'Subnet-1'
