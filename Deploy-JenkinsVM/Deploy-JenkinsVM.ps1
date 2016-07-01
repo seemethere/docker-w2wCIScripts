@@ -5,8 +5,8 @@ param(
     [Parameter(Mandatory=$false)][string]$storageAccount, # Storage account for the image and where VM is created eg tp5 or winrs1
     [Parameter(Mandatory=$false)][string]$size="D3", # Size of the VM
     [Parameter(Mandatory=$false)][string]$ImagePrefix, # Image matching string. Must start with this
-    [Parameter(Mandatory=$false)][string]$Password=$env:JENKINS_PASSWORD_W2W, 
-    [Parameter(Mandatory=$false)][string]$AzureSubscriptionID=$env:AZURE_SUBSCRIPTION_ID 
+    [Parameter(Mandatory=$false)][string]$Password=$env:JENKINS_PASSWORD_W2W 
+    ###[Parameter(Mandatory=$false)][string]$AzureSubscriptionID=$env:AZURE_SUBSCRIPTION_ID 
 )
 
 $vnetSiteName = 'Jenkins'             # Network to connect to
@@ -14,15 +14,15 @@ $defaultLocation = 'Central US'       # Hopefully obvious
 $size = "Standard_"+"$size"+"_v2"     # Size of the VM
 
 $adminUsername = 'jenkins'
-$defaultPublishSettings = '$env:HOMEPATH/.azure/engine-team@docker.com.publishsettings'
+###$defaultPublishSettings = '$env:HOMEPATH/.azure/engine-team@docker.com.publishsettings'
 
 if ([string]::IsNullOrWhiteSpace($Password)) {
      Throw "Password for the user 'jenkins' must be supplied, or provided in $env:JENKINS_PASSWORD_W2W"
 }
 
-if ([string]::IsNullOrWhiteSpace($AzureSubscriptionID)) {
-     Throw "The Azure Subscription ID must be supplied, or provided in $env:AZURE_SUBSCRIPTION_ID"
-}
+##if ([string]::IsNullOrWhiteSpace($AzureSubscriptionID)) {
+##     Throw "The Azure Subscription ID must be supplied, or provided in $env:AZURE_SUBSCRIPTION_ID"
+##}
 
 $ErrorActionPreference = 'Stop'
 
@@ -42,13 +42,13 @@ try {
     if ([string]::IsNullOrWhiteSpace($storageAccount)) { Throw("storageAccount parameter must be supplied - winrs1 or tp5") }
     if ([string]::IsNullOrWhiteSpace($imagePrefix)) { Throw("imagePrefix parameter must be supplied - jenkins-rs1 or jenkins-tp5") }
 
-    if (Test-Path $defaultPublishSettings) {
-        Write-Host "INFO: Importing Publish Settings File"
-        Import-AzurePublishSettingsFile $defaultPublishSettings
-    }
+###    if (Test-Path $defaultPublishSettings) {
+###        Write-Host "INFO: Importing Publish Settings File"
+###        Import-AzurePublishSettingsFile $defaultPublishSettings
+###    }
 
-    Write-Host "INFO: Configuring the Azure Subscription"
-    Set-AzureSubscription -SubscriptionId $AzureSubscriptionID -CurrentStorageAccountName $storageAccount
+#    Write-Host "INFO: Configuring the Azure Subscription"
+#    Set-AzureSubscription -SubscriptionId $AzureSubscriptionID -CurrentStorageAccountName $storageAccount
 
     Write-Host "INFO: Checking if VM exists"
     $vm = Get-AzureVM -ServiceName $vmName -Name $vmName -ErrorAction SilentlyContinue

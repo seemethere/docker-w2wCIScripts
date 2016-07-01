@@ -18,12 +18,21 @@ echo "$(date) Bootstrap.ps1 starting..." >> $env:SystemDrive\packer\configure.lo
 echo $(date) > "c:\users\public\desktop\Bootstrap Start.txt"
 
 try {
+
     # Delete the scheduled task. May not exist on local install
     $ConfirmPreference='none'
     $t = Get-ScheduledTask 'Bootstrap' -ErrorAction SilentlyContinue
     if ($t -ne $null) {
         echo "$(date) Bootstrap.ps1 deleting scheduled task.." >> $env:SystemDrive\packer\configure.log
         Unregister-ScheduledTask 'Bootstrap' -Confirm:$False -ErrorAction SilentlyContinue
+    }
+
+    # This is a semi-hack to avoid using packer and having two images in Azure which is just a time drain prepping/uploading etc.
+    # We assume production machines are called jenkins*. If not, we just get out after the task has been deleted.
+    if (-not ($env:COMPUTERNAME.ToLower() -like "jenkins*")) { 
+        echo "$(date) Bootstrap.ps1 exiting as computername doesn't start with jenkins.." >> $env:SystemDrive\packer\configure.log
+        echo $(date) > "c:\users\public\desktop\Bootstrap not jenkins.txt"
+        exit 0
     }
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
