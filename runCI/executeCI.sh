@@ -3,7 +3,6 @@
 #
 # To run locally on a CI machine just drop into bash; cd /c/scripts; ./executeCI.sh
 
-# TP5 Debugging
 #DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
 
 # -------------------------------------------------------------------------------------------
@@ -52,7 +51,7 @@
 set +e  # Keep going on errors
 set +x 
 
-SCRIPT_VER="30-Apr-2016 14:15 PDT" 
+SCRIPT_VER="30-Jun-2016 16:54 PDT" 
 
 # This function is copied from the cleanup script
 nuke_everything()
