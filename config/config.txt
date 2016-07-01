@@ -20,5 +20,5 @@ rs1-\d+-\d{1,2}$,rs1
 # eg rs2-MMMMM-NN
 rs2-\d+-\d{1,2}$,rs2
 
-# default to tp56d
-.*,tp56d
+# default to rs1
+.*,rs1
