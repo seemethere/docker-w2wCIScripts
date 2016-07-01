@@ -9,7 +9,8 @@
 # Don't put anything in here apart from things that are required for launching the post sysprep tasks.
 
 param(
-    [Parameter(Mandatory=$false)][string]$Branch
+    [Parameter(Mandatory=$false)][string]$Branch,
+    [Parameter(Mandatory=$false)][switch]$Doitanyway=$False
 )
 
 $ErrorActionPreference="stop"
@@ -28,11 +29,14 @@ try {
     }
 
     # This is a semi-hack to avoid using packer and having two images in Azure which is just a time drain prepping/uploading etc.
-    # We assume production machines are called jenkins*. If not, we just get out after the task has been deleted.
-    if (-not ($env:COMPUTERNAME.ToLower() -like "jenkins*")) { 
-        echo "$(date) Bootstrap.ps1 exiting as computername doesn't start with jenkins.." >> $env:SystemDrive\packer\configure.log
-        echo $(date) > "c:\users\public\desktop\Bootstrap not jenkins.txt"
-        exit 0
+    # We assume production machines are called jenkins*. If not, we just get out after the task has been deleted. Unless we are
+    # told to do it anyway
+    if ($Doitanyway -eq $False) {
+        if (-not ($env:COMPUTERNAME.ToLower() -like "jenkins*")) { 
+            echo "$(date) Bootstrap.ps1 exiting as computername doesn't start with jenkins.." >> $env:SystemDrive\packer\configure.log
+            echo $(date) > "c:\users\public\desktop\Bootstrap not jenkins.txt"
+            exit 0
+        }
     }
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {

@@ -157,19 +157,15 @@ Try {
     mkdir c:\packer -ErrorAction SilentlyContinue
     Copy-Item "..\common\Bootstrap.ps1" c:\packer\ -ErrorAction SilentlyContinue
     Unblock-File c:\packer\Bootstrap.ps1 
-    . "$env:SystemDrive\packer\Bootstrap.ps1" -Branch $Branch
+    . "$env:SystemDrive\packer\Bootstrap.ps1" -Branch $Branch -Doitanyway $True
 
     echo $(date) > "c:\users\public\desktop\$Branch.txt"
 
-    # TP5 Debugging
+    # DUT Debugging
     if ($env:DOCKER_DUT_DEBUG -eq 1) {
         echo $(date) > "c:\users\public\desktop\DOCKER_DUT_DEBUG"
     }
 
-    # TP5 Base image workaround 
-    if ($env:DOCKER_TP5_BASEIMAGE_WORKAROUND -eq 1) {
-        echo $(date) > "c:\users\public\desktop\DOCKER_TP5_BASEIMAGE_WORKAROUND"
-    }
 } Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_'")
     exit 1
