@@ -514,16 +514,16 @@ DASHH_DUT="npipe:////./pipe/$COMMITHASH"
 
 # Are we starting the daemon under test in debug mode?
 if [ $ec -eq 0 ]; then
-	DUT_DEBUG_FLAG=""
+	DUT_DEBUG_FLAG=" "
 	if [ ! -z "$DOCKER_DUT_DEBUG" ]; then
 		echo "INFO: Running the daemon under test in debug mode"
-		DUT_DEBUG_FLAG="-D"
+		DUT_DEBUG_FLAG=" -D "
 	fi
 fi
 
 # Are we starting the daemon under test with Hyper-V containers as the default isolation?
 if [ $ec -eq 0 ]; then
-	DUT_HYPERV_FLAG=""
+	DUT_HYPERV_FLAG=" "
 	if [ ! -z "$DOCKER_DUT_HYPERV" ]; then
 		echo "INFO: Running the daemon under test with Hyper-V containers as the default"
 		DUT_HYPERV_FLAG=" --exec-opt isolation=hyperv "
@@ -537,6 +537,8 @@ fi
 if [ $ec -eq 0 ]; then
 	echo "INFO: Starting a daemon under test at -H=$DASHH_DUT..."
     ! mkdir $TEMP/daemon >& /dev/null
+	echo "INFO: $TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT -H=tcp://0.0.0.0:2357 --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid"
+	
 	$TEMP/binary/dockerd-$COMMITHASH $DUT_DEBUG_FLAG $DUT_HYPERV_FLAG -H=$DASHH_DUT -H=tcp://0.0.0.0:2357 --graph=$TEMP/daemon --pidfile=$TEMP/docker.pid &> $TEMP/daemon.log	&
 	ec=$?
 	if [ 0 -ne $ec ]; then
@@ -843,7 +845,7 @@ overallrun_ec=$ec
 # Nuke everything again
 echo "INFO: Tidying up at end of run"
 ! cd /$SOURCES_DRIVE/$SOURCES_SUBDIR/
-! nuke_everything
+### JJH HACK HACK NOT NUKING ! nuke_everything
 ! cd /$SOURCES_DRIVE/$SOURCES_SUBDIR/
 
 duration=$SECONDS

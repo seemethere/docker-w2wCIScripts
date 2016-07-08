@@ -16,8 +16,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
-$env:DOCKER_DUT_DEBUG=0                      # TP5 Debugging
-$env:DOCKER_TP5_BASEIMAGE_WORKAROUND=0       # TP5 Base image workaround 
+$env:DOCKER_DUT_DEBUG=""                      # Daemon under test Debugging
 
 $DEV_MACHINE="jhoward-z420"
 $DEV_MACHINE_DRIVE="e"

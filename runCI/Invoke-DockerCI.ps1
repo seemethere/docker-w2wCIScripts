@@ -749,7 +749,6 @@ Try {
         Load-ImageTar "nanoserver"
     }
 
-docker images
     # TODO Use the one from the cloned sources once it's checked in to docker/docker master
     #      which will be somewhere under $Workspace/jenkins/w2w/...
     # Run the shell script!
