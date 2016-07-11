@@ -116,9 +116,9 @@ Try {
     Set-ExecutionPolicy bypass
     Write-Host "INFO: Unblocking the shortcut file"
     Unblock-File .\docker-docker-shortcut.ps1
-    # Commented out as hangs sometimes. No idea why.
-    #Write-Host "INFO: Running the shortcut file"
-    #powershell -command .\docker-docker-shortcut.ps1
+    ### Commented out as hangs sometimes. No idea why.
+    Write-Host "INFO: Running the shortcut file"
+    powershell -command .\docker-docker-shortcut.ps1
 
     Write-Host "INFO: Creating c:\liteide"
     mkdir c:\liteide -ErrorAction SilentlyContinue

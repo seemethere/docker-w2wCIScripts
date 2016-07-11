@@ -3,7 +3,7 @@
 #
 # To run locally on a CI machine just drop into bash; cd /c/scripts; ./executeCI.sh
 
-#DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
+DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
 
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
@@ -517,7 +517,7 @@ if [ $ec -eq 0 ]; then
 	DUT_DEBUG_FLAG=" "
 	if [ ! -z "$DOCKER_DUT_DEBUG" ]; then
 		echo "INFO: Running the daemon under test in debug mode"
-		DUT_DEBUG_FLAG=" -D "
+		DUT_DEBUG_FLAG="-D"
 	fi
 fi
 
