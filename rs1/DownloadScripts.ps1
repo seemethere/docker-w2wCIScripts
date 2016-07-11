@@ -40,6 +40,7 @@ try {
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/ConfigureControlDaemon.ps1","c:\packer\ConfigureControlDaemon.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/DownloadScripts.ps1","c:\packer\DownloadScripts.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/DownloadOSImages.ps1","c:\packer\DownloadOSImages.ps1")
+	$wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/InstallPrivates.ps1","c:\packer\InstallPrivates.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/nssmdocker.cmd","c:\docker\nssmdocker.cmd")
 }
 Catch [Exception] {
