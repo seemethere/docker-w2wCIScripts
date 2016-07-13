@@ -535,8 +535,9 @@ Try {
         if (-not $LastExitCode -eq 0) {
             Throw "ERROR: Failed to load c:\baseimages\windowsservercore.tar into daemon under test"
 	    }
+        Write-Host  -ForegroundColor Green "INFO: docker load of windowsservercore completed successfully"
     }
-    Write-Host  -ForegroundColor Green "INFO: docker load of windowsservercore completed successfully"
+    
 
 
   	# C: Get the build now as we just loaded it
