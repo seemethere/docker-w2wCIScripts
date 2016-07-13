@@ -80,14 +80,14 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="13-Jul-2016 09:59 PDT" 
+$SCRIPT_VER="13-Jul-2016 15:17 PDT (has hacks!)" 
 
-$env:SKIP_UNIT_TESTS="yes"
-$env:SKIP_VALIDATION_TESTS="yes"
+#$env:SKIP_UNIT_TESTS="yes"
+#$env:SKIP_VALIDATION_TESTS="yes"
 $env:SKIP_ZAP_DUT="yes"
-$env:SKIP_BINARY_BUILD=""
+#$env:SKIP_BINARY_BUILD=""
 $env:INTEGRATION_TEST_NAME="TestVolumesFromGetsProperMode"
-$env:SKIP_IMAGE_BUILD="yes"
+#$env:SKIP_IMAGE_BUILD="yes"
 
 
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
