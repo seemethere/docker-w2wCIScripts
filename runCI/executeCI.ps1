@@ -142,14 +142,15 @@ Function Nuke-Everything {
         }
 
     } catch {
-        Throw $_
+        # Don't throw any errors onwards Throw $_
     }
 }
 
 Try {
     Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
     Write-Host  -ForegroundColor Green "INFO: Script version $SCRIPT_VER"
-    set-PSDebug -Trace 0  # 1 to turn on
+    Set-PSDebug -Trace 0  # 1 to turn on
+    $ec=0
 
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
@@ -667,9 +668,11 @@ Try {
 }
 Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
-    exit 1
+    # Throw the error onwards to ensure Jenkins captures it.
+    Throw $_
 }
 Finally {
+    $ErrorActionPreference="SilentlyContinue"
     # Dump the daemon log if asked to 
     if ($daemonStarted -eq 1) {
         if ($dumpDaemonLog -eq 1) {
