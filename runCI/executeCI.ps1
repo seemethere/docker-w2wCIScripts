@@ -3,7 +3,7 @@
 
 $ErrorActionPreference = 'Stop'
 $StartTime=Get-Date
-$env:DOCKER_DUT_DEBUG=0 # Comment out to not be in debug mode
+#$env:DOCKER_DUT_DEBUG="yes" # Comment out to not be in debug mode
 
 # TODO : Cleanup script parity
 # TODO : Integration into Jenkins
@@ -126,7 +126,7 @@ Function Nuke-Everything {
 
         # Delete the directory using our dangerous utility unless told not to
         if (Test-Path "$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR") {
-            if ($env:SKIP_ZAP_DUT -eq $null) {
+            if ($env:SKIP_ZAP_DUT -eq "") {
                 Write-Host -ForegroundColor Green "INFO: Nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
                 docker-ci-zap "-folder=$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
             } else {
@@ -377,7 +377,7 @@ Try {
 	Write-Host  -ForegroundColor Green "INFO: Image build ended at $(Get-Date). Duration`:$Duration"
 
     # Build the binary in a container unless asked to skip it
-    if ($env:SKIP_BINARY_BUILD -eq $null) {
+    if ($env:SKIP_BINARY_BUILD -eq "") {
 	    Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binary at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
@@ -426,14 +426,14 @@ Try {
     $dutArgs += "--pidfile $env:TEMP\docker.pid"
 
     # Arguments: Are we starting the daemon under test in debug mode?
-	if (-not ("$env:DOCKER_DUT_DEBUG" -eq $null)) {
+	if (-not ("$env:DOCKER_DUT_DEBUG" -eq "")) {
 		Write-Host -ForegroundColor Green "INFO: Running the daemon under test in debug mode"
 		$dutArgs += "-D"
     }
 
 
     # Arguments: Are we starting the daemon under test with Hyper-V containers as the default isolation?
-    if (-not ("$env:DOCKER_DUT_HYPERV" -eq $null)) {
+    if (-not ("$env:DOCKER_DUT_HYPERV" -eq "")) {
 		Write-Host -ForegroundColor Green "INFO: Running the daemon under test with Hyper-V containers as the default"
 		$dutArgs += "--exec-opt isolation=hyperv"
 	}
