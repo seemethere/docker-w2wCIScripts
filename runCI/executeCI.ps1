@@ -149,12 +149,8 @@ Function Nuke-Everything {
 Try {
     Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
     Write-Host  -ForegroundColor Green "INFO: Script version $SCRIPT_VER"
-    Set-PSDebug -Trace 0  # 1 to turn on
-    $ec=0
+    Set-PSDebug -Trace 1  # 1 to turn on
 
-Write-Host "HACK - exit 0 test"
-exit 0
-	
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
 
