@@ -182,6 +182,7 @@ Try {
     # Make sure golint is installed
     if ((Get-Command "golint" -ErrorAction SilentlyContinue) -eq $null) {
         Throw "ERROR: golint is not installed or not found on path"
+        Throw "ERROR: golint is not installed or not found on path"
     }
 
     # Make sure docker-ci-zap is installed
