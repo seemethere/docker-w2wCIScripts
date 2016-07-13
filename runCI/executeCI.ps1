@@ -85,7 +85,7 @@ $SCRIPT_VER="13-Jul-2016 09:59 PDT"
 $env:SKIP_UNIT_TESTS="yes"
 $env:SKIP_VALIDATION_TESTS="yes"
 $env:SKIP_ZAP_DUT="yes"
-#$env:SKIP_BINARY_BUILD="yes"
+$env:SKIP_BINARY_BUILD="yes"
 $env:INTEGRATION_TEST_NAME="TestVolumesFromGetsProperMode"
 $env:SKIP_IMAGE_BUILD="yes"
 
@@ -656,8 +656,7 @@ Try {
             cd \go\src\github.com\docker\docker\integration-cli;         `
             echo `$cliArgs; `
             `$p=Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs  -PassThru; `
-            #echo `"Exiting `$p.ExitCode.ToString()`"; `
-            exit `$p.ExitCode `
+             exit `$p.ExitCode `
            "
         $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
         $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1" | Out-Host } )
