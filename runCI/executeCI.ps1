@@ -152,6 +152,9 @@ Try {
     Set-PSDebug -Trace 0  # 1 to turn on
     $ec=0
 
+Write-Host "HACK - exit 0 test"
+exit 0
+	
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
 
@@ -667,7 +670,7 @@ Try {
     exit 0
 }
 Catch [Exception] {
-    Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
+    Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)`n`n")
     # Throw the error onwards to ensure Jenkins captures it.
     $host.SetShouldExit(1)
 }
