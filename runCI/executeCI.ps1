@@ -129,6 +129,8 @@ Function Nuke-Everything {
             if ($env:SKIP_ZAP_DUT -eq $null) {
                 Write-Host -ForegroundColor Green "INFO: Nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
                 docker-ci-zap "-folder=$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
+            } else {
+                Write-Host -ForegroundColor Cyan "WARN: Skip nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
             }
         }
 
@@ -265,7 +267,7 @@ Try {
     $ErrorActionPreference = "SilentlyContinue"
     $imageName = $(docker images --format "{{.Repository}}:{{.Tag}}" | Select-String "windowsservercore" | select-String -NotMatch "latest").ToString().Split(":")[0]
     $ErrorActionPreference = "Stop"
-    if ($imageNmae -eq "") {
+    if ($imageName -eq "") {
 		Throw "ERROR: Could not find windowsservercore image"
     }
 	Write-Host  -ForegroundColor Green "INFO: Image name is $imageName"
@@ -375,7 +377,7 @@ Try {
 	Write-Host  -ForegroundColor Green "INFO: Image build ended at $(Get-Date). Duration`:$Duration"
 
     # Build the binary in a container unless asked to skip it
-    if ($env:SKIP_BINARY_BUILD -eq "") {
+    if ($env:SKIP_BINARY_BUILD -eq $null) {
 	    Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binary at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
@@ -424,14 +426,14 @@ Try {
     $dutArgs += "--pidfile $env:TEMP\docker.pid"
 
     # Arguments: Are we starting the daemon under test in debug mode?
-	if (-not ("$env:DOCKER_DUT_DEBUG" -eq "")) {
+	if (-not ("$env:DOCKER_DUT_DEBUG" -eq $null)) {
 		Write-Host -ForegroundColor Green "INFO: Running the daemon under test in debug mode"
 		$dutArgs += "-D"
     }
 
 
     # Arguments: Are we starting the daemon under test with Hyper-V containers as the default isolation?
-    if (-not ("$env:DOCKER_DUT_HYPERV" -eq "")) {
+    if (-not ("$env:DOCKER_DUT_HYPERV" -eq $null)) {
 		Write-Host -ForegroundColor Green "INFO: Running the daemon under test with Hyper-V containers as the default"
 		$dutArgs += "--exec-opt isolation=hyperv"
 	}
@@ -568,7 +570,7 @@ Try {
     }
 
     # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
-    if ($env:SKIP_VALIDATION_TESTS -eq "") {
+    if ($env:SKIP_VALIDATION_TESTS -eq $null) {
 
 		# Note sleep is necessary for Windows networking workaround (see dockerfile.Windows)
         # TODO: This should no longer be necessary (RS1+)
@@ -585,7 +587,7 @@ Try {
     }
 
     # Run the unit tests inside a container unless SKIP_UNIT_TESTS is defined
-    if ($env:SKIP_UNIT_TESTS -eq "") {
+    if ($env:SKIP_UNIT_TESTS -eq $null) {
 		Write-Host -ForegroundColor Cyan "INFO: Running unit tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit" | Out-Host } )
@@ -600,7 +602,7 @@ Try {
 
     # Add the busybox image. Needed for integration tests
     # Note - this superceeds .ensure-frozen-images-windows previously used in the shell-script version
-    if ($env:SKIP_INTEGRATION_TESTS -eq "") {
+    if ($env:SKIP_INTEGRATION_TESTS -eq $null) {
         $ErrorActionPreference = "SilentlyContinue"
         $bbCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String "busybox" | Measure-Object -line).Lines
         $ErrorActionPreference = "Stop"
@@ -619,7 +621,7 @@ Try {
     }
 
     # Run the integration tests unless SKIP_INTEGRATION_TESTS is defined
-    if ($env:SKIP_INTEGRATION_TESTS -eq "") {
+    if ($env:SKIP_INTEGRATION_TESTS -eq $null) {
 		Write-Host -ForegroundColor Cyan "INFO: Running integration tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
 
