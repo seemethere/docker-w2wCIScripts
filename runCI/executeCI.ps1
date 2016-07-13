@@ -243,10 +243,10 @@ Try {
 
     # Make sure windowsservercore image is installed
     $ErrorActionPreference = "SilentlyContinue"
-    $build = $(docker images --format "{{.Repository}}:{{.Tag}}" | Select-String "windowsservercore" | select-String -NotMatch "latest").ToString().Split(":")[1]
+    $build = $(docker images --format "{{.Repository}}:{{.Tag}}" | Select-String "windowsservercore" | select-String -NotMatch "latest")
     $ErrorActionPreference = "Stop"
 
-    if ($build -eq "") {
+    if ($build -eq $null) {
         Write-Host  -ForegroundColor Green "INFO: Loading windowsservercore.tar. This may take some time..."
         $ErrorActionPreference = "SilentlyContinue"
         docker load -i c:\baseimages\windowsservercore.tar
@@ -266,6 +266,11 @@ Try {
         }
         Write-Host  -ForegroundColor Green "INFO: Build is $build"
     }
+
+    # Guaranteed is installed now, so can do ToString() without hitting an exception
+    $ErrorActionPreference = "SilentlyContinue"
+    $build = $(docker images --format "{{.Repository}}:{{.Tag}}" | Select-String "windowsservercore" | select-String -NotMatch "latest").ToString().Split(":")[1]
+    $ErrorActionPreference = "Stop"
 
     # Get the name. We started prefixing microsoft/ around 2016 TP5 6D
     $ErrorActionPreference = "SilentlyContinue"
