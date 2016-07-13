@@ -80,6 +80,12 @@ $StartTime=Get-Date
 
 $SCRIPT_VER="13-Jul-2016 09:59 PDT" 
 
+#HACK - BTW do unit test and validation test failures get caught? What about build?
+$env:SKIP_UNIT_TESTS="yes"
+$env:SKIP_VALIDATION_TESTS="yes"
+$env:SKIP_ZAP_DUT="yes"
+
+
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
 Function Nuke-Everything {
     $ErrorActionPreference = 'SilentlyContinue'
