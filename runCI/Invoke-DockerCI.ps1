@@ -455,8 +455,10 @@ Function Load-ImageTar {
 Try {
     Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
     set-PSDebug -Trace 0  # 1 to turn on
-
     $controlDaemonStarted=$false
+
+    # Save environment TEMP 
+    $ORIGTEMP=$env:TEMP
 
     # Start in the root of the system drive
     cd "$env:SystemDrive\"
@@ -810,8 +812,9 @@ Finally {
 
     # Save the daemon under test log
     if ($controlDaemonStarted -eq $true) {
-        Write-Host -ForegroundColor green "INFO: Saving the control daemon log $ControlRoot\daemon\daemon.log to $env:Temp\dockercontroldaemon.log"
-        Copy-Item "$ControlRoot\daemon\daemon.log" "$env:Temp\dockercontroldaemon.log" -Force -ErrorAction SilentlyContinue
+        $ORIGTEMP=$env:TEMP
+        Write-Host -ForegroundColor green "INFO: Saving the control daemon log $ControlRoot\daemon\daemon.log to $ORIGTEMP\CIDControl.log"
+        Copy-Item "$ControlRoot\daemon\daemon.log" "$TEMPORIG\CIDControl.log" -Force -ErrorAction SilentlyContinue
     }
 
     Write-Host -ForegroundColor Yellow "INFO: End of wrapper script at $(date)"

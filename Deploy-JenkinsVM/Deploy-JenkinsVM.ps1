@@ -61,6 +61,9 @@ try {
         Write-Host "INFO: Service exists."
     }
 
+	
+    # Useful $sourceImages = Get-AzureVMImage | Where-Object { $_.ImageName -like "$imagePrefix*" } | Sort-Object -Descending CreatedTime
+	
     Write-Host "INFO: Creating the configuration object..."
     $ImageName="azure"+$BranchType+"v"+$ImageVersion
     Write-Host "INFO: Based on image $ImageName"
