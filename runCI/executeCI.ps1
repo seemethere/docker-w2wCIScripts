@@ -3,17 +3,21 @@
 
 $ErrorActionPreference = 'Stop'
 $StartTime=Get-Date
-$env:DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
+$env:DOCKER_DUT_DEBUG=0 # Comment out to not be in debug mode
 
-# TODO : Hack for only partial tests running
-# TODO : Nuke-Everything
 # TODO : Cleanup script parity
-# TODO : Check in
-# TODO : Invoke-DockerCI to invoke the right script!
 # TODO : Integration into Jenkins
 # TODO : Copy the control daemon log (in Invoke-DockerCI)
 # TODO : Make sure if this script errors, so does Invoke-DockerCI. Changed the return passing, so make sure of this!!!!
-# TODO : Add a -noclone option to Invoke-DockerCI
+
+# DONE TODO : Hack for only partial tests running
+# DONE TODO : Nuke-Everything
+# DONE TODO : Skip zap DUT
+# DONE TODO : Skip binary build
+# DONE TODO : Check in
+# DONE TODO : Invoke-DockerCI to invoke the right script!
+# DONE TODO : Add a -noclone option to Invoke-DockerCI
+# DONE TODO : Add a name match for set of integration tests to run
 
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
@@ -58,6 +62,13 @@ $env:DOCKER_DUT_DEBUG=1 # Comment out to not be in debug mode
 #	SKIP_INTEGRATION_TESTS	if defined skips the integration tests
 #
 #	DOCKER_DUT_HYPERV		if default daemon under test default isolation is hyperv
+#
+#   INTEGRATION_TEST_NAME   to only run partial tests eg "TestInfo*" will only run
+#                           any tests starting "TestInfo"
+#
+#   SKIP_BINARY_BUILD       if defined skips building the binary
+#
+#   SKIP_ZAP_DUT            if defined doesn't zap the daemon under test directory
 # -------------------------------------------------------------------------------------------
 
 
@@ -65,75 +76,71 @@ $SCRIPT_VER="11-Jul-2016 HH:MM PDT"
 
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
 Function Nuke-Everything {
-    $ErrorActionPreference = 'Stop'
+    $ErrorActionPreference = 'SilentlyContinue'
     try {
-        # BUGBUG JJH TODO
-        Write-Host -ForegroundColor green "INFO: Nuke-Everything()..."
+        Write-Host -ForegroundColor green "INFO: Nuke-Everything..."
+		$containerCount = ($(docker ps -aq | Measure-Object -line).Lines) 
+        if (-not $LastExitCode -eq 0) {
+			Throw "ERROR: Failed to get container count from control daemon while nuking"
+        }
+
+		Write-Host -ForegroundColor green "INFO: Container count on control daemon to delete is $containerCount"
+        if ($(docker ps -aq | Measure-Object -line).Lines -gt 0) {
+		    docker rm -f $(docker ps -aq)
+        }
+        $imageCount=($(docker images --format "{{.Repository}}:{{.ID}}" | `
+                        select-string -NotMatch "windowsservercore" | `
+                        select-string -NotMatch "nanoserver" | `
+                        select-string -NotMatch "docker" | `
+                        Measure-Object -line).Lines)
+        if ($imageCount -gt 0) {
+            Write-Host -Foregroundcolor green "INFO: Non-base image count on control daemon to delete is $imageCount"
+            docker rmi -f `
+                $(docker images --format "{{.Repository}}:{{.ID}}" | `
+                        select-string -NotMatch "windowsservercore" | `
+                        select-string -NotMatch "nanoserver" | `
+                        select-string -NotMatch "docker").ToString().Split(":")[1]
+        }
+
+        # Kill any spurious daemons. The '-' is IMPORTANT otherwise will kill the control daemon!
+        $pids=$(get-process | where-object {$_.ProcessName -like 'dockerd-*'}).id
+        foreach ($p in $pids) {
+            Write-Host "INFO: Killing daemon with PID $p"
+            Stop-Process -Id $p -Force -ErrorAction SilentlyContinue
+        }
+
+        Stop-Process -name "cc1" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "link" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "compile" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "ld" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "go" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "git" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "git-remote-https" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "integration-cli.test" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+
+        # Detach any VHDs
+        gwmi msvm_mountedstorageimage -namespace root/virtualization/v2 -ErrorAction SilentlyContinue | foreach-object {$_.DetachVirtualHardDisk() }
+
+        # Stop any compute processes
+        Get-ComputeProcess | Stop-ComputeProcess -Force
+
+        # Delete the directory using our dangerous utility unless told not to
+        if (Test-Path "$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR") {
+            if ($env:SKIP_ZAP_DUT -eq $null) {
+                Write-Host -ForegroundColor Green "INFO: Nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
+                docker-ci-zap "-folder=$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
+            }
+        }
+
     } catch {
         Throw $_
     }
 }
 
-
-# This function is copied from the cleanup script
-#nuke_everything()
-#{
-#	! containerCount=$(docker ps -aq | wc -l)
-#	if [ $containerCount -gt 0 ]; then
-#		echo "INFO: Container count on control daemon to delete is $containerCount"	
-#		! docker rm -f $(docker ps -aq)
-#	fi
-#
-#	! imageCount=$(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | wc -l)
-#	if [ $imageCount -gt 0 ]; then
-#		echo "INFO: Non-base image count on control daemon to delete is $imageCount"
-#		! docker rmi -f $(docker images | sed -n '1!p' | grep -v windowsservercore | grep -v nanoserver | grep -v docker | awk '{ print $3 }' )
-#	fi
-#
-#	# Kill any spurious daemons. The '-' in 'docker-' is IMPORTANT otherwise will kill the control daemon!
-#	IFS=$'\n'
-#
-#	for PID in $(tasklist | grep dockerd- | awk {'print $2'})
-#	do
-#		echo "INFO: Killing daemon with PID $PID"
-#		taskkill -f -t -pid $PID
-#	done
-#
-# Note: Last one is interesting. Found a case where the workspace could not be deleted
-#	# by Jenkins as the bundles directory couldn't be cleaned. Pretty strongly suspect
-#	# it is integration-cli-test as the command line run is something like
-#	# d:\ci\ci-commit\go-buildID\github.com\docker\docker\integration-cli\_test\integration-cli.test.exe
-#	#  -test.coverprofile=C:/gopath/src/github.com/docker/docker/bundles/VERSION/test-integration-cli/coverprofiles/docker-integration-cli -test.timeout=nnn
-#	! taskkill -F -IM cc1.exe -T 					>& /dev/null
-#	! taskkill -F -IM link.exe -T 					>& /dev/null
-#	! taskkill -F -IM compile.exe -T 				>& /dev/null
-#	! taskkill -F -IM ld.exe -T 					>& /dev/null
-#	! taskkill -F -IM go.exe -T 					>& /dev/null
-#	! taskkill -F -IM git.exe -T 					>& /dev/null
-#	! taskkill -F -IM git-remote-https.exe -T 		>& /dev/null
-#	! taskkill -F -IM integration-cli.test.exe -T	>& /dev/null
-#
-#	# Detach any VHDs
-#	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'gwmi msvm_mountedstorageimage -namespace root/virtualization/v2 -ErrorAction SilentlyContinue | foreach-object {$_.DetachVirtualHardDisk() }'
-#	
-#	# Stop any compute processes
-#	! powershell -NoProfile -ExecutionPolicy unrestricted -command 'Get-ComputeProcess | Stop-ComputeProcess -Force'
-#	
-#	# Use our really dangerous utility to force zap
-#	if [[ -e /$TESTRUN_DRIVE/$TESTRUN_SUBDIR ]]; then
-#		echo "INFO: Nuking /$TESTRUN_DRIVE/$TESTRUN_SUBDIR"
-#		docker-ci-zap "-folder=$TESTRUN_DRIVE:\\$TESTRUN_SUBDIR"
-#	fi
-#	
-#	echo "INFO: End of cleanup"
-#
-
-
 Try {
     Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
     Write-Host  -ForegroundColor Green "INFO: Script version $SCRIPT_VER"
     set-PSDebug -Trace 0  # 1 to turn on
-
 
     # Git version
 	Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
@@ -200,7 +207,7 @@ Try {
 
 
     # Create the TESTRUN_DRIVE\TESTRUN_SUBDIR if it does not already exist
-    New-Item -ItemType Directory -Force -Path "$env:TESTRUN_DRIVE`:\$TESTRUN_SUBDIR" -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Force -Path "$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR" -ErrorAction SilentlyContinue | Out-Null
 
 	Write-Host  -ForegroundColor Green "INFO: Configured sources under $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\..."
 	Write-Host  -ForegroundColor Green "INFO: Configured test run under $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR\..."
@@ -216,7 +223,7 @@ Try {
 
 
     # Make sure we start at the root of the sources
-	cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR/\src\github.com\docker\docker"
+	cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
     Write-Host  -ForegroundColor Green "INFO: Running in $(pwd)"
 
 
@@ -332,7 +339,7 @@ Try {
     New-Item -ItemType Directory "$env:TEMP\userprofile" -ErrorAction SilentlyContinue  | Out-Null
     New-Item -ItemType Directory "$env:TEMP\localappdata" -ErrorAction SilentlyContinue | Out-Null
     New-Item -ItemType Directory "$env:TEMP\binary" -ErrorAction SilentlyContinue | Out-Null
-	Write-Host INFO: Location for testing is $env:TEMP
+	Write-Host -ForegroundColor Green "INFO: Location for testing is $env:TEMP"
 
 
 
@@ -356,8 +363,7 @@ Try {
     }
 
     # Build the image
-    Write-Host  -ForegroundColor Green "INFO: Building the image from Dockerfile.windows at $(Get-Date)..."
-	Write-Host  -ForegroundColor Green "INFO: Docker version of control daemon"
+    Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the image from Dockerfile.windows at $(Get-Date)..."
 	Write-Host
     $ErrorActionPreference = "SilentlyContinue"
 	$Duration=$(Measure-Command { docker build -t docker -f Dockerfile.windows . | Out-Host })
@@ -368,39 +374,42 @@ Try {
 
 	Write-Host  -ForegroundColor Green "INFO: Image build ended at $(Get-Date). Duration`:$Duration"
 
-    # Build the binary in a container
-	Write-Host  -ForegroundColor Green "INFO: Building the test binary at $(Get-Date)..."
-    $ErrorActionPreference = "SilentlyContinue"
-    docker rm -f $COMMITHASH 2>&1 | Out-Null
-    $Duration=$(Measure-Command { 	docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
-    $ErrorActionPreference = "Stop"
-    if (-not($LastExitCode -eq 0)) {
-        Throw "ERROR: Failed to build binary"
+    # Build the binary in a container unless asked to skip it
+    if ($env:SKIP_BINARY_BUILD -eq "") {
+	    Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binary at $(Get-Date)..."
+        $ErrorActionPreference = "SilentlyContinue"
+        docker rm -f $COMMITHASH 2>&1 | Out-Null
+        $Duration=$(Measure-Command { 	docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
+        $ErrorActionPreference = "Stop"
+        if (-not($LastExitCode -eq 0)) {
+            Throw "ERROR: Failed to build binary"
+        }
+    	Write-Host  -ForegroundColor Green "INFO: Binaries build ended at $(Get-Date). Duration`:$Duration"
+
+        # Copy the binaries out of the container
+        $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
+        $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
+        $ErrorActionPreference = "SilentlyContinue"
+        docker cp "$contPath\binary-client\docker.exe" $env:TEMP\binary\
+        if (-not($LastExitCode -eq 0)) {
+            Throw "ERROR: Failed to docker cp the client binary (docker.exe) from $contPath\binary-client\ to $env:TEMP\binary"
+        }
+        docker cp "$contPath\binary-daemon\dockerd.exe" $env:TEMP\binary\
+        if (-not($LastExitCode -eq 0)) {
+            Throw "ERROR: Failed to docker cp the daemon binary (dockerd.exe) from $contPath\binary-daemon\ to $env:TEMP\binary"
+        }
+        $ErrorActionPreference = "Stop"
+
+        # Copy the built dockerd.exe to dockerd-$COMMITHASH.exe so that easily spotted in task manager.
+    	Write-Host -ForegroundColor Green "INFO: Copying the built daemon binary to $env:TEMP\binary\dockerd-$COMMITHASH.exe..."
+    	Copy-Item $env:TEMP\binary\dockerd.exe $env:TEMP\binary\dockerd-$COMMITHASH.exe -Force -ErrorAction SilentlyContinue
+
+        # Copy the built docker.exe to docker-$COMMITHASH.exe
+	    Write-Host -ForegroundColor Green "INFO: Copying the built client binary to $env:TEMP\binary\docker-$COMMITHASH.exe..."
+	    Copy-Item $env:TEMP\binary\docker.exe $env:TEMP\binary\docker-$COMMITHASH.exe -Force -ErrorAction SilentlyContinue
+    } else {
+        Write-Host -ForegroundColor Yellow "WARN: Skipping building the binaries"
     }
-	Write-Host  -ForegroundColor Green "INFO: Binaries build ended at $(Get-Date). Duration`:$Duration"
-
-    # Copy the binaries out of the container
-    $v=$(Get-Content "./VERSION" -raw).ToString().Replace("`n","").Trim()
-    $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
-    $ErrorActionPreference = "SilentlyContinue"
-    docker cp "$contPath\binary-client\docker.exe" $env:TEMP\binary\
-    if (-not($LastExitCode -eq 0)) {
-        Throw "ERROR: Failed to docker cp the client binary (docker.exe) from $contPath\binary-client\ to $env:TEMP\binary"
-    }
-    docker cp "$contPath\binary-daemon\dockerd.exe" $env:TEMP\binary\
-    if (-not($LastExitCode -eq 0)) {
-        Throw "ERROR: Failed to docker cp the daemon binary (dockerd.exe) from $contPath\binary-daemon\ to $env:TEMP\binary"
-    }
-    $ErrorActionPreference = "Stop"
-
-    # Copy the built dockerd.exe to dockerd-$COMMITHASH.exe so that easily spotted in task manager.
-	Write-Host -ForegroundColor Green "INFO: Copying the built daemon binary to $env:TEMP\binary\dockerd-$COMMITHASH.exe..."
-	Copy-Item $env:TEMP\binary\dockerd.exe $env:TEMP\binary\dockerd-$COMMITHASH.exe
-
-    # Copy the built docker.exe to docker-$COMMITHASH.exe
-	Write-Host -ForegroundColor Green "INFO: Copying the built client binary to $env:TEMP\binary\docker-$COMMITHASH.exe..."
-	Copy-Item $env:TEMP\binary\docker.exe $env:TEMP\binary\docker-$COMMITHASH.exe
-
     
     # Work out the the -H parameter for the daemon under test (DASHH_DUT) and client under test (DASHH_CUT)
     #$DASHH_DUT="npipe:////./pipe/$COMMITHASH" # Can't do remote named pipe
@@ -432,7 +441,7 @@ Try {
     # killing the control daemon. 
 	Write-Host -ForegroundColor Green "INFO: Starting a daemon under test..."
     Write-Host -ForegroundColor Green $dutArgs
-    New-Item -ItemType Directory $env:TEMP/daemon -ErrorAction SilentlyContinue  | Out-Null
+    New-Item -ItemType Directory $env:TEMP\daemon -ErrorAction SilentlyContinue  | Out-Null
 
 
     # Cannot fathom why, but always writes to stderr....
@@ -517,7 +526,7 @@ Try {
     # B: Not present at all, load it.
 	if ($dutWSCNonLatestCount -eq 0 ) {
 	    # Not present. Load it. Assume under c:\baseimages.
-        Write-Host -ForegroundColor Green "INFO: Loading windowsservercore.tar. This may take some time..."
+        Write-Host -ForegroundColor Cyan "`n`nINFO: Loading windowsservercore.tar at $(Get-Date). This may take some time..."
         $ErrorActionPreference = "SilentlyContinue"
         & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" load -i c:\baseimages\windowsservercore.tar
         $ErrorActionPreference = "Stop"
@@ -559,11 +568,11 @@ Try {
     }
 
     # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
-    if ($env:SKIP_VALIDATION_TESTS -ne "") {
+    if ($env:SKIP_VALIDATION_TESTS -eq "") {
 
 		# Note sleep is necessary for Windows networking workaround (see dockerfile.Windows)
         # TODO: This should no longer be necessary (RS1+)
-		Write-Host -ForegroundColor Green "INFO: Running validation tests at $(Get-Date)..."
+		Write-Host -ForegroundColor Cyan "INFO: Running validation tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh validate-dco validate-gofmt validate-pkg" | Out-Host } )
         $ErrorActionPreference = "Stop"
@@ -571,11 +580,13 @@ Try {
             Throw "ERROR: Validation tests failed"
         }
 	    Write-Host  -ForegroundColor Green "INFO: Validation tests ended at $(Get-Date). Duration`:$Duration"
+    } else {
+        Write-Host -ForegroundColor Yellow "WARN: Skipping validation tests"
     }
 
     # Run the unit tests inside a container unless SKIP_UNIT_TESTS is defined
-    if ($env:SKIP_UNIT_TESTS -ne "") {
-		Write-Host -ForegroundColor Green "INFO: Running unit tests at $(Get-Date)..."
+    if ($env:SKIP_UNIT_TESTS -eq "") {
+		Write-Host -ForegroundColor Cyan "INFO: Running unit tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit" | Out-Host } )
         $ErrorActionPreference = "Stop"
@@ -583,11 +594,13 @@ Try {
             Throw "ERROR: Unit tests failed"
         }
 	    Write-Host  -ForegroundColor Green "INFO: Unit tests ended at $(Get-Date). Duration`:$Duration"
+    } else {
+        Write-Host -ForegroundColor Yellow "WARN: Skipping unit tests"
     }
 
     # Add the busybox image. Needed for integration tests
     # Note - this superceeds .ensure-frozen-images-windows previously used in the shell-script version
-    if ($env:SKIP_INTEGRATION_TESTS -ne "") {
+    if ($env:SKIP_INTEGRATION_TESTS -eq "") {
         $ErrorActionPreference = "SilentlyContinue"
         $bbCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String "busybox" | Measure-Object -line).Lines
         $ErrorActionPreference = "Stop"
@@ -606,8 +619,8 @@ Try {
     }
 
     # Run the integration tests unless SKIP_INTEGRATION_TESTS is defined
-    if ($env:SKIP_INTEGRATION_TESTS -ne "") {
-		Write-Host -ForegroundColor Green "INFO: Running integration tests at $(Get-Date)..."
+    if ($env:SKIP_INTEGRATION_TESTS -eq "") {
+		Write-Host -ForegroundColor Cyan "INFO: Running integration tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
 
         # Jumping through hoop craziness. Don't ask. Parameter parsing, powershell, go, parameters starting "-check."... :(
@@ -617,8 +630,16 @@ Try {
             `$env:PATH='c:\target;'+`$env:PATH; `
             `$env:DOCKER_HOST='tcp://172.16.0.1:2357'; `
             `$cliArgs=@(); `
-            `$cliArgs+=`"test`"; `
-            #`$cliArgs+=`"-check.f TestInfo*`"; # for debugging to make it quicker `
+            `$cliArgs+=`"test`"; 
+           "
+
+        # Makes is quicker for debugging to be able to run only a subset of the integration tests
+        if ($env:INTEGRATION_TEST_NAME -ne $null) {
+            $c += " `$cliArgs+=`"-check.f $env:INTEGRATION_TEST_NAME`";"
+            Write-Host -ForegroundColor Yellow "WARN: Only running integration tests matching $env:INTEGRATION_TEST_NAME"
+        }
+
+        $c+=" `
             `$cliArgs+=`"-check.v`"; `
             `$cliArgs+=`"-check.timeout=240m`"; `
             `$cliArgs+=`"-test.timeout=360m`"; `
@@ -633,16 +654,19 @@ Try {
             Throw "ERROR: Integration tests failed"
         }
 	    Write-Host  -ForegroundColor Green "INFO: Integration tests ended at $(Get-Date). Duration`:$Duration"
+    }else {
+        Write-Host -ForegroundColor Yellow "WARN: Skipping integration tests"
     }
 
     # Stop the daemon under test
     if ($daemonStarted -eq 1) {
-    	if (Test-Path "$env:TEMP/docker.pid") {
+    	if (Test-Path "$env:TEMP\docker.pid") {
 	    	$p=Get-Content "$env:TEMP\docker.pid" -raw
 		    if ($p -ne $null) {
 			    Write-Host -ForegroundColor green "INFO: Stopping daemon under test"
 			    taskkill -f -t -pid $p
-			    sleep 10
+                Remove-Item "$env:TEMP\docker.pid" -force -ErrorAction SilentlyContinue
+			    sleep 5
 		    }
         }
     }
@@ -667,7 +691,7 @@ Finally {
     # Save the daemon under test log
     if ($daemonStarted -eq 1) {
 	    Write-Host -ForegroundColor Green "INFO: Saving the daemon under test log ($env:TEMP\dut.err) to $TEMPORIG\daemon.$COMMITHASH.log"
-        Copy-Item  "$env:TEMP\dut.err" "$TEMPORIG/lastdaemonundertest.log" -Force -ErrorAction SilentlyContinue
+        Copy-Item  "$env:TEMP\dut.err" "$TEMPORIG\lastdaemonundertest.log" -Force -ErrorAction SilentlyContinue
     }
 
     # Warning about Go Version
@@ -683,9 +707,9 @@ Finally {
     }
 
     Write-Host  -ForegroundColor Green "INFO: Tidying up at end of run"
-    cd "$env:SOURCESDRIVE\$SOURCES_SUBDIR" -ErrorAction SilentlyContinue
+    cd "$env:SOURCES_DRIVE\$env:SOURCES_SUBDIR" -ErrorAction SilentlyContinue
     Nuke-Everything
-    Write-Host -ForegroundColor Yellow "INFO: End of executeCI.ps1 at $(date)"
+    Write-Host -ForegroundColor Yellow "INFO: End of executeCI at $(date)"
 
     $Dur=New-TimeSpan -Start $StartTime -End $(Get-Date)
     Write-Host -ForegroundColor Yellow "INFO: Duration $Dur"

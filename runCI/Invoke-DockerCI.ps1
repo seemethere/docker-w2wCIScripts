@@ -119,6 +119,19 @@
     Whether to run the daemon under test configured to run containers as
     a Hyper-V container. By default it is not
 
+.PARAMETER SkipClone
+    Doesn't do the git clone and checkout and assumes that the Sources
+    already exist
+
+.PARAMETER IntegrationTestName
+   Name match for the set of integration tests to run. For example 'TestInfo*'
+
+.PARAMETER SkipBinaryBuild
+   The binary is not built. 
+
+.PARAMETER SkipZapDUT
+   Doesn't zap the daemon under test directory once done.
+
 .EXAMPLE
     Example To Be Completed #TODO
 
@@ -149,8 +162,15 @@ param(
     [Parameter(Mandatory=$false)][switch]$SkipUnitTests=$False,
     [Parameter(Mandatory=$false)][switch]$SkipIntegrationTests=$False,
     [Parameter(Mandatory=$false)][switch]$HyperVControl=$False,
-    [Parameter(Mandatory=$false)][switch]$HyperVDUT=$False
+    [Parameter(Mandatory=$false)][switch]$HyperVDUT=$False,
+    [Parameter(Mandatory=$false)][switch]$SkipClone=$False,
+    [Parameter(Mandatory=$false)][string]$IntegrationTestName,
+    [Parameter(Mandatory=$false)][switch]$SkipBinaryBuild=$False,
+    [Parameter(Mandatory=$false)][switch]$SkipZapDUT=$False
 )
+
+
+
 
 $ErrorActionPreference = 'Stop'
 $DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
@@ -171,6 +191,7 @@ Function Download-File([string] $source, [string] $file, [string] $target) {
         # net.webclient is WAY faster than Invoke-WebRequest
         $wc = New-Object net.webclient
         try {
+            Write-Host -ForegroundColor green "INFO: Downloading $source..."
             $wc.Downloadfile($source, $target)
         } 
         catch [System.Net.WebException]
@@ -480,7 +501,9 @@ Try {
             Write-Host -ForegroundColor green "INFO: Defaulted TestrunSubdir to $TestrunSubdir"
         }
     }
-
+    if (-not [string]::IsNullOrWhiteSpace($IntegrationTestName)) {
+        $env:INTEGRATION_TEST_NAME = $IntegrationTestName
+    }
     if ($DUTDebugMode) {
         $env:DOCKER_DUT_DEBUG = "Yes, debug daemon under test"
     }
@@ -493,10 +516,15 @@ Try {
     if ($SkipIntegrationTests) {
         $env:SKIP_INTEGRATION_TESTS = "Skip these"
     }
+    if ($SkipBinaryBuild) {
+        $env:SKIP_BINARY_BUILD = "Skip these"
+    }
     if ($HyperVDUT) {
         $env:DOCKER_DUT_HYPERV = "Yes"
     }
-
+    if ($SkipZapDUT) {
+        $env:SKIP_ZAP_DUT = "Yes"
+    }
 
     # Set some default values
     if ([string]::IsNullOrWhiteSpace($DockerBasePath)) {
@@ -543,7 +571,14 @@ Try {
     Write-Host " - Destroy Cache:     $DestroyCache"
     Write-Host " - Control binaries:  $DockerBasePath"
     Write-Host " - CI Script:         $CIScriptLocation"
-
+    Write-Host " - Skip clone:        $SkipClone"
+    Write-Host " - Skip binary build: $SkipBinaryBuild"
+    Write-Host " - Skip zap DUT dir:  $SkipZapDUT"
+    if ($SkipIntegrationTests -eq $false) {
+        if (-not ([string]::IsNullOrWhiteSpace($IntegrationTestName))) {
+            Write-Host " - CLI test match:    $IntegrationTestName"
+        }
+    }
     # Where we clone the docker sources
     $WorkspaceRoot="$($SourcesDrive):\$($SourcesSubdir)"
     $Workspace="$WorkspaceRoot\src\github.com\docker\docker"
@@ -629,7 +664,11 @@ Try {
     }
 
     # Clone the sources of the repo being tested
-    Get-Sources $Workspace $GitRemote $GitCheckout
+    if (-not $SkipClone) {
+        Get-Sources $Workspace $GitRemote $GitCheckout
+    } else {
+        Write-Host -ForegroundColor green "INFO: Skipping clone. Assuming sources are in $Workspace"
+    }
 
     # Get the version of GO from the dockerfile
     $GoVersionInDockerfile = Get-GoVersionFromDockerfile
@@ -752,7 +791,8 @@ Try {
     # TODO Use the one from the cloned sources once it's checked in to docker/docker master
     #      which will be somewhere under $Workspace/jenkins/w2w/...
     # Run the shell script!
-    Write-Host -ForegroundColor green "INFO: Starting the CI script..."
+    Write-Host -ForegroundColor cyan "INFO: Starting the CI script..."
+    Write-Host -ForegroundColor cyan "-------------------------------`n`n"
     & "$TestrunDrive`:\control\CIScript.ps1"
     if (-not ($? -eq $true)) {
         Throw "CI script failed, so quitting wrapper script"
