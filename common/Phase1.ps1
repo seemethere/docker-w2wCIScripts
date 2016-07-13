@@ -20,6 +20,12 @@ try {
     set-executionpolicy bypass -Force
 
     #--------------------------------------------------------------------------------------------
+    # Allow 2357 and 2375 through the firewall
+    echo "$(date) Phase1.ps1 Adding firewall exceptions for 2375 and 2357 (control and DUT)" >> $env:SystemDrive\packer\configure.log
+    Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=dockerdcontrol dir=in action=allow protocol=TCP localport=2375 profile=Any"
+    Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=dockerdut dir=in action=allow protocol=TCP localport=2357 profile=Any"
+
+    #--------------------------------------------------------------------------------------------
     # Add the containers features
     echo "$(date) Phase1.ps1 Adding containers feature..." >> $env:SystemDrive\packer\configure.log
     Add-WindowsFeature containers
