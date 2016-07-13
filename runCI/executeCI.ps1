@@ -644,9 +644,9 @@ Try {
             Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs `
            "
         $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
-        $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1" | Out-Host } )
+        $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1"; $ec=$LastExitCode | Out-Host } )
         $ErrorActionPreference = "Stop"
-        if (-not($LastExitCode -eq 0)) {
+        if (-not($ec -eq 0)) {
             Throw "ERROR: Integration tests failed"
         }
         Write-Host  -ForegroundColor Green "INFO: Integration tests ended at $(Get-Date). Duration`:$Duration"
