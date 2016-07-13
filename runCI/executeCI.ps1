@@ -354,7 +354,7 @@ Try {
     Write-Host  -ForegroundColor Green "INFO: Image build ended at $(Get-Date). Duration`:$Duration"
 
     # Build the binary in a container unless asked to skip it
-    if ($env:SKIP_BINARY_BUILD -ne "") {
+    if ($env:SKIP_BINARY_BUILD -eq $null) {
         Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binary at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
