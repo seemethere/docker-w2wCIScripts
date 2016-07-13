@@ -85,9 +85,8 @@ $SCRIPT_VER="13-Jul-2016 09:59 PDT"
 $env:SKIP_UNIT_TESTS="yes"
 $env:SKIP_VALIDATION_TESTS="yes"
 $env:SKIP_ZAP_DUT="yes"
-$env:SKIP_BINARY_BUILD="yes"
+#$env:SKIP_BINARY_BUILD="yes"
 $env:INTEGRATION_TEST_NAME="TestVolumesFromGetsProperMode"
-$env:SKIP_BINARY_BUILD="yes"
 $env:SKIP_IMAGE_BUILD="yes"
 
 
