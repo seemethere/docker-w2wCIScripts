@@ -157,7 +157,7 @@ $DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
 $GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
 
 # THIS IS TEMPORARY - WILL EVENTUALLY BE CHECKED INTO DOCKER SOURCES
-$CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.sh"
+$CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.ps1"
 
 # Download-File is a simple wrapper to get a file from somewhere (HTTP, SMB or local file path)
 # If file is supplied, the source is assumed to be a base path. Returns -1 if does not exist, 
@@ -708,7 +708,7 @@ Try {
     # TODO: This will eventually be in the docker sources. Step can be removed when that's done.
     # Download the CI script
     Write-Host -ForegroundColor green "INFO: CI script $CIScriptLocation"
-    $r=Download-File "$CIScriptLocation" "" "$ControlRoot\CIScript.sh"
+    $r=Download-File "$CIScriptLocation" "" "$ControlRoot\CIScript.ps1"
     # END TODO
 
     # Update GOPATH now everything is installed
@@ -753,7 +753,7 @@ Try {
     #      which will be somewhere under $Workspace/jenkins/w2w/...
     # Run the shell script!
     Write-Host -ForegroundColor green "INFO: Starting the CI script..."
-    sh "/$TestrunDrive/control/CIScript.sh"
+    & "$TestrunDrive`:\control\CIScript.ps1"
     if (-not ($? -eq $true)) {
         Throw "CI script failed, so quitting wrapper script"
     }
