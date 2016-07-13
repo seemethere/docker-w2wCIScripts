@@ -669,7 +669,8 @@ Try {
 Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
     # Throw the error onwards to ensure Jenkins captures it.
-    Throw $_
+    $host.SetShouldExit(1)
+    #Throw $_
 }
 Finally {
     $ErrorActionPreference="SilentlyContinue"
