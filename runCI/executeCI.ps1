@@ -6,8 +6,8 @@ $StartTime=Get-Date
 #$env:DOCKER_DUT_DEBUG="yes" # Comment out to not be in debug mode
 
 # TODO : Cleanup script parity
-# TODO : Integration into Jenkins
 # TODO : Make sure if this script errors, so does Invoke-DockerCI. Changed the return passing, so make sure of this!!!!
+# TODO : Make sure Jenkins job fails if this script fails.
 
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
@@ -59,7 +59,25 @@ $StartTime=Get-Date
 #
 #    SKIP_ZAP_DUT            if defined doesn't zap the daemon under test directory
 # -------------------------------------------------------------------------------------------
-
+#
+# Jenkins Integration. Add a Windows Powershell build step as follows:
+#
+#    Write-Host -ForegroundColor green "INFO: Jenkins build step starting"
+#    $CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.ps1"
+#    $CISCRIPT_LOCAL_LOCATION = "$env:TEMP\executeCI.ps1"
+#    Write-Host -ForegroundColor green "INFO: Removing cached execution script"
+#    Remove-Item $CISCRIPT_LOCAL_LOCATION -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+#    $wc = New-Object net.webclient
+#    try {
+#        Write-Host -ForegroundColor green "INFO: Downloading latest execution script..."
+#        $wc.Downloadfile($CISCRIPT_DEFAULT_LOCATION, $CISCRIPT_LOCAL_LOCATION)
+#    } 
+#    catch [System.Net.WebException]
+#    {
+#        Throw ("Failed to download: $_")
+#    }
+#    & $CISCRIPT_LOCAL_LOCATION
+# -------------------------------------------------------------------------------------------
 
 $SCRIPT_VER="13-Jul-2016 09:59 PDT" 
 
