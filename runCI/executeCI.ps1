@@ -7,7 +7,6 @@ $StartTime=Get-Date
 
 # TODO : Cleanup script parity
 # TODO : Integration into Jenkins
-# TODO : Copy the control daemon log (in Invoke-DockerCI)
 # TODO : Make sure if this script errors, so does Invoke-DockerCI. Changed the return passing, so make sure of this!!!!
 
 # -------------------------------------------------------------------------------------------
@@ -62,7 +61,7 @@ $StartTime=Get-Date
 # -------------------------------------------------------------------------------------------
 
 
-$SCRIPT_VER="11-Jul-2016 HH:MM PDT" 
+$SCRIPT_VER="13-Jul-2016 09:59 PDT" 
 
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
 Function Nuke-Everything {
