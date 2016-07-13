@@ -7,7 +7,6 @@ $StartTime=Get-Date
 
 # TODO : Cleanup script parity
 # TODO : Make sure if this script errors, so does Invoke-DockerCI. Changed the return passing, so make sure of this!!!!
-# TODO : Make sure Jenkins job fails if this script fails.
 
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
@@ -149,7 +148,7 @@ Function Nuke-Everything {
 Try {
     Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
     Write-Host  -ForegroundColor Green "INFO: Script version $SCRIPT_VER"
-    Set-PSDebug -Trace 1  # 1 to turn on
+    Set-PSDebug -Trace 0  # 1 to turn on
 
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
