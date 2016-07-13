@@ -670,10 +670,11 @@ Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
     # Throw the error onwards to ensure Jenkins captures it.
     $host.SetShouldExit(1)
-    #Throw $_
 }
 Finally {
     $ErrorActionPreference="SilentlyContinue"
+    Write-Host  -ForegroundColor Green "INFO: Tidying up at end of run"
+
     # Dump the daemon log if asked to 
     if ($daemonStarted -eq 1) {
         if ($dumpDaemonLog -eq 1) {
@@ -701,7 +702,6 @@ Finally {
         Write-Host
     }
 
-    Write-Host  -ForegroundColor Green "INFO: Tidying up at end of run"
     cd "$env:SOURCES_DRIVE\$env:SOURCES_SUBDIR" -ErrorAction SilentlyContinue
     Nuke-Everything
     Write-Host -ForegroundColor Yellow "INFO: End of executeCI at $(date)"
