@@ -132,6 +132,9 @@
 .PARAMETER SkipZapDUT
    Doesn't zap the daemon under test directory once done.
 
+.PARAMETER SkipImageBuild
+   The docker image is not built. 
+   
 .EXAMPLE
     Example To Be Completed #TODO
 
@@ -166,7 +169,8 @@ param(
     [Parameter(Mandatory=$false)][switch]$SkipClone=$False,
     [Parameter(Mandatory=$false)][string]$IntegrationTestName,
     [Parameter(Mandatory=$false)][switch]$SkipBinaryBuild=$False,
-    [Parameter(Mandatory=$false)][switch]$SkipZapDUT=$False
+    [Parameter(Mandatory=$false)][switch]$SkipZapDUT=$False,
+    [Parameter(Mandatory=$false)][switch]$SkipImageBuild=$False
 )
 
 
@@ -527,6 +531,9 @@ Try {
     if ($SkipZapDUT) {
         $env:SKIP_ZAP_DUT = "Yes"
     }
+    if ($SkipImageBuild) {
+        $env:SKIP_IMAGE_BUILD = "Yes"
+    }
 
     # Set some default values
     if ([string]::IsNullOrWhiteSpace($DockerBasePath)) {
@@ -576,6 +583,7 @@ Try {
     Write-Host " - Skip clone:        $SkipClone"
     Write-Host " - Skip binary build: $SkipBinaryBuild"
     Write-Host " - Skip zap DUT dir:  $SkipZapDUT"
+    Write-Host " - Skip image build:  $SkipImageBuild"
     if ($SkipIntegrationTests -eq $false) {
         if (-not ([string]::IsNullOrWhiteSpace($IntegrationTestName))) {
             Write-Host " - CLI test match:    $IntegrationTestName"

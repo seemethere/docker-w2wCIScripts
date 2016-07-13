@@ -57,6 +57,8 @@ $StartTime=Get-Date
 #    SKIP_BINARY_BUILD       if defined skips building the binary
 #
 #    SKIP_ZAP_DUT            if defined doesn't zap the daemon under test directory
+#
+#    SKIP_IMAGE_BUILD        if defined doesn't build the 'docker' image
 # -------------------------------------------------------------------------------------------
 #
 # Jenkins Integration. Add a Windows Powershell build step as follows:
@@ -80,10 +82,13 @@ $StartTime=Get-Date
 
 $SCRIPT_VER="13-Jul-2016 09:59 PDT" 
 
-#HACK - BTW do unit test and validation test failures get caught? What about build?
 $env:SKIP_UNIT_TESTS="yes"
 $env:SKIP_VALIDATION_TESTS="yes"
 $env:SKIP_ZAP_DUT="yes"
+$env:SKIP_BINARY_BUILD="yes"
+$env:INTEGRATION_TEST_NAME="TestVolumesFromGetsProperMode"
+$env:SKIP_BINARY_BUILD="yes"
+$env:SKIP_IMAGE_BUILD="yes"
 
 
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
@@ -138,7 +143,7 @@ Function Nuke-Everything {
 
         # Delete the directory using our dangerous utility unless told not to
         if (Test-Path "$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR") {
-            if ($env:SKIP_ZAP_DUT -ne "") {
+            if ($env:SKIP_ZAP_DUT -eq $null) {
                 Write-Host -ForegroundColor Green "INFO: Nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
                 docker-ci-zap "-folder=$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
             } else {
@@ -371,16 +376,19 @@ Try {
     }
 
     # Build the image
-    Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the image from Dockerfile.windows at $(Get-Date)..."
-    Write-Host
-    $ErrorActionPreference = "SilentlyContinue"
-    $Duration=$(Measure-Command { docker build -t docker -f Dockerfile.windows . | Out-Host })
-    $ErrorActionPreference = "Stop"
-    if (-not($LastExitCode -eq 0)) {
-        Throw "ERROR: Failed to build image from Dockerfile.windows"
+    if ($env:SKIP_IMAGE_BUILD -eq $null) {
+        Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the image from Dockerfile.windows at $(Get-Date)..."
+        Write-Host
+        $ErrorActionPreference = "SilentlyContinue"
+        $Duration=$(Measure-Command { docker build -t docker -f Dockerfile.windows . | Out-Host })
+        $ErrorActionPreference = "Stop"
+        if (-not($LastExitCode -eq 0)) {
+           Throw "ERROR: Failed to build image from Dockerfile.windows"
+        }
+        Write-Host  -ForegroundColor Green "INFO: Image build ended at $(Get-Date). Duration`:$Duration"
+    } else {
+        Write-Host -ForegroundColor Yellow "WARN: Skipping building the docker image"
     }
-
-    Write-Host  -ForegroundColor Green "INFO: Image build ended at $(Get-Date). Duration`:$Duration"
 
     # Build the binary in a container unless asked to skip it
     if ($env:SKIP_BINARY_BUILD -eq $null) {
@@ -612,7 +620,7 @@ Try {
         if ($bbCount -eq 0) {
             Write-Host -ForegroundColor Green "INFO: Building busybox"
             $ErrorActionPreference = "SilentlyContinue"
-            $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox https://raw.githubusercontent.com/jhowardmsft/busybox/master/Dockerfile)
+            $(& "$env:TEMP\binary\docker-;$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox https://raw.githubusercontent.com/jhowardmsft/busybox/master/Dockerfile)
             $ErrorActionPreference = "Stop"
             if (-not($LastExitCode -eq 0)) {
                 Throw "ERROR: Failed to build busybox image"
@@ -641,18 +649,21 @@ Try {
             Write-Host -ForegroundColor Yellow "WARN: Only running integration tests matching $env:INTEGRATION_TEST_NAME"
         }
 
+        # Note about passthru: This cmdlet generates a System.Diagnostics.Process object, if you specify the PassThru parameter. Otherwise, this cmdlet does not return any output.
         $c+=" `
             `$cliArgs+=`"-check.v`"; `
             `$cliArgs+=`"-check.timeout=240m`"; `
             `$cliArgs+=`"-test.timeout=360m`"; `
             cd \go\src\github.com\docker\docker\integration-cli;         `
             echo `$cliArgs; `
-            Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs `
+            `$p=Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs  -PassThru; `
+            #echo `"Exiting `$p.ExitCode.ToString()`"; `
+            exit `$p.ExitCode `
            "
         $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
-        $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1"; $ec=$LastExitCode | Out-Host } )
+        $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1" | Out-Host } )
         $ErrorActionPreference = "Stop"
-        if (-not($ec -eq 0)) {
+        if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Integration tests failed"
         }
         Write-Host  -ForegroundColor Green "INFO: Integration tests ended at $(Get-Date). Duration`:$Duration"
@@ -674,7 +685,7 @@ Try {
     }
 
     Write-Host -ForegroundColor Green "INFO: Completed successfully at $(Get-Date)."
-    exit 0
+#    exit 0
 }
 Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
