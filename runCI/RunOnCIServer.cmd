@@ -8,4 +8,4 @@ set SOURCES_SUBDIR=gopath
 set TESTRUN_DRIVE=d
 set TESTRUN_SUBDIR=CI
 
-sh ./executeCI.sh
+powershell .\executeCI.ps1

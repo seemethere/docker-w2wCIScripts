@@ -2,7 +2,7 @@
 # ConfigureCIEnvironment.ps1
 #-----------------------
 
-# Configure the variables used by the executeCI.sh and cleanupCI.sh scripts invoked by Jenkins
+# Configure the variables used by executeCI.ps1 invoked by Jenkins
 echo "$(date) ConfigureCIEnvironment started" >> $env:SystemDrive\packer\configure.log
 Write-Host "INFO: Executing ConfigureCIEnvironment.ps1"
 [Environment]::SetEnvironmentVariable("SOURCES_DRIVE", "c", "Machine")

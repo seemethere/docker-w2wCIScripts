@@ -20,8 +20,6 @@ try {
     echo "$(date) DownloadScripts.ps1 Doing downloads..." >> $env:SystemDrive\packer\configure.log
         
     # Downloads scripts for performing local runs.
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/cleanupCI.sh","$env:SystemDrive\scripts\cleanupCI.sh")
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.sh","$env:SystemDrive\scripts\executeCI.sh")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.ps1","$env:SystemDrive\scripts\executeCI.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/Invoke-DockerCI.ps1","$env:SystemDrive\scripts\Invoke-DockerCI.ps1")
     $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/RunOnCIServer.cmd","$env:SystemDrive\scripts\RunOnCIServer.cmd")
