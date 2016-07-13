@@ -667,7 +667,8 @@ Try {
     exit 0
 }
 Catch [Exception] {
-    Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)`n`n")
+    Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
+    Write-Host "`n`n"
     # Throw the error onwards to ensure Jenkins captures it.
     $host.SetShouldExit(1)
 }
