@@ -355,7 +355,7 @@ Try {
 
     # Build the binary in a container unless asked to skip it
     if ($env:SKIP_BINARY_BUILD -eq $null) {
-        Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binary at $(Get-Date)..."
+        Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binaries at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
         $Duration=$(Measure-Command {     docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
