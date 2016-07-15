@@ -5,9 +5,6 @@ $ErrorActionPreference = 'Stop'
 $StartTime=Get-Date
 #$env:DOCKER_DUT_DEBUG="yes" # Comment out to not be in debug mode
 
-# TODO : Cleanup script parity
-# TODO : Make sure if this script errors, so does Invoke-DockerCI. Changed the return passing, so make sure of this!!!!
-
 # -------------------------------------------------------------------------------------------
 # When executed, we rely on four variables being set in the environment:
 #
@@ -83,7 +80,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="15-Jul-2016 14:18 PDT" 
+$SCRIPT_VER="15-Jul-2016 14:45 PDT" 
 
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
@@ -640,7 +637,7 @@ Try {
 
         # Location of the daemon under test.
         $env:OrigDOCKER_HOST="$env:DOCKER_HOST"
-        if ($INTEGRATION_IN_CONTAINER -ne "") {
+        if ($INTEGRATION_IN_CONTAINER -ne $null) {
             $dutLocation="tcp://172.16.0.1:2357" # Talk back through the containers gateway address
             $sourceBaseLocation="c:\go"          # in c:\go\src\github.com\docker\docker in a container
             $pathUpdate="`$env:PATH='c:\target;'+`$env:PATH;"
@@ -682,7 +679,7 @@ Try {
         $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
 
 
-        if ($INTEGRATION_IN_CONTAINER -ne "") {
+        if ($INTEGRATION_IN_CONTAINER -ne $null) {
             Write-Host -ForegroundColor Green "INFO: Integration tests being run inside a container"
             $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1" | Out-Host } )
         } else  {
