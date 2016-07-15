@@ -41,24 +41,27 @@ $StartTime=Get-Date
 #
 # In addition, the following variables can control the run configuration:
 #
-#    DOCKER_DUT_DEBUG        if defined starts the daemon under test in debug mode.
+#    DOCKER_DUT_DEBUG         if defined starts the daemon under test in debug mode.
 #
-#    SKIP_VALIDATION_TESTS   if defined skips the validation tests
+#    SKIP_VALIDATION_TESTS    if defined skips the validation tests
 #
-#    SKIP_UNIT_TESTS         if defined skips the unit tests
+#    SKIP_UNIT_TESTS          if defined skips the unit tests
 #
-#    SKIP_INTEGRATION_TESTS  if defined skips the integration tests
+#    SKIP_INTEGRATION_TESTS   if defined skips the integration tests
 #
-#    DOCKER_DUT_HYPERV       if default daemon under test default isolation is hyperv
+#    DOCKER_DUT_HYPERV        if default daemon under test default isolation is hyperv
 #
-#    INTEGRATION_TEST_NAME   to only run partial tests eg "TestInfo*" will only run
-#                            any tests starting "TestInfo"
+#    INTEGRATION_TEST_NAME    to only run partial tests eg "TestInfo*" will only run
+#                             any tests starting "TestInfo"
 #
-#    SKIP_BINARY_BUILD       if defined skips building the binary
+#    SKIP_BINARY_BUILD        if defined skips building the binary
 #
-#    SKIP_ZAP_DUT            if defined doesn't zap the daemon under test directory
+#    SKIP_ZAP_DUT             if defined doesn't zap the daemon under test directory
 #
-#    SKIP_IMAGE_BUILD        if defined doesn't build the 'docker' image
+#    SKIP_IMAGE_BUILD         if defined doesn't build the 'docker' image
+#
+#    INTEGRATION_IN_CONTAINER if defined, runs the integration tests from inside a container.
+#                             As of July 2016, there are known issues with this. 
 # -------------------------------------------------------------------------------------------
 #
 # Jenkins Integration. Add a Windows Powershell build step as follows:
@@ -80,14 +83,15 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="13-Jul-2016 15:17 PDT (has hacks!)" 
+$SCRIPT_VER="15-Jul-2016 14:18 PDT" 
 
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
-$env:SKIP_ZAP_DUT="yes"
-#$env:SKIP_BINARY_BUILD=""
+#$env:SKIP_ZAP_DUT="yes"
+#$env:SKIP_BINARY_BUILD="yes"
 #$env:INTEGRATION_TEST_NAME="TestVolumesFromGetsProperMode"
 #$env:SKIP_IMAGE_BUILD="yes"
+#$env:INTEGRATION_IN_CONTAINER="yes"
 
 
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
@@ -159,6 +163,8 @@ Try {
     Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
     Write-Host  -ForegroundColor Green "INFO: Script version $SCRIPT_VER"
     Set-PSDebug -Trace 0  # 1 to turn on
+    $origPath="$env:PATH"            # so we can restore it at the end
+    $origDOCKER_HOST="$DOCKER_HOST"  # So we can restore it at the end
 
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
@@ -632,12 +638,27 @@ Try {
         Write-Host -ForegroundColor Cyan "INFO: Running integration tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
 
+        # Location of the daemon under test.
+        $env:OrigDOCKER_HOST="$env:DOCKER_HOST"
+        if ($INTEGRATION_IN_CONTAINER -ne "") {
+            $dutLocation="tcp://172.16.0.1:2357" # Talk back through the containers gateway address
+            $sourceBaseLocation="c:\go"          # in c:\go\src\github.com\docker\docker in a container
+            $pathUpdate="`$env:PATH='c:\target;'+`$env:PATH;"
+
+        } else {
+            $dutLocation="$DASHH_CUT"   # Talk back through localhost
+            $sourceBaseLocation="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
+            $pathUpdate="`$env:PATH='$env:TEMP\binary;'+`$env:PATH;"
+        }
+
         # Jumping through hoop craziness. Don't ask! Parameter parsing, powershell, go, parameters starting "-check."... :(
-        # Just dump it to a file and pass through in a volume with the binaries
+        # Just dump it to a file and pass through in a volume with the binaries when in a container, or run locally otherwise
         $c=" `
             `$ErrorActionPreference='Stop'; `
-            `$env:PATH='c:\target;'+`$env:PATH; `
-            `$env:DOCKER_HOST='tcp://172.16.0.1:2357'; `
+            `$origPath=`$env:PATH`;
+            $pathUpdate `
+            `$env:DOCKER_HOST='$dutLocation'; `
+            `
             `$cliArgs=@(); `
             `$cliArgs+=`"test`"; 
            "
@@ -653,13 +674,22 @@ Try {
             `$cliArgs+=`"-check.v`"; `
             `$cliArgs+=`"-check.timeout=240m`"; `
             `$cliArgs+=`"-test.timeout=360m`"; `
-            cd \go\src\github.com\docker\docker\integration-cli;         `
+            cd $sourceBaseLocation\src\github.com\docker\docker\integration-cli;         `
             echo `$cliArgs; `
             `$p=Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs  -PassThru; `
              exit `$p.ExitCode `
            "
         $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
-        $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1" | Out-Host } )
+
+
+        if ($INTEGRATION_IN_CONTAINER -ne "") {
+            Write-Host -ForegroundColor Green "INFO: Integration tests being run inside a container"
+            $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1" | Out-Host } )
+        } else  {
+            Write-Host -ForegroundColor Green "INFO: Integration tests being run from the host"
+            $Duration= $(Measure-Command {. "$env:TEMP\binary\runIntegrationCLI.ps1"})
+            $origPath="$env:PATH"  # We need to restore if running locally
+        }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Integration tests failed"
@@ -694,6 +724,13 @@ Catch [Exception] {
 Finally {
     $ErrorActionPreference="SilentlyContinue"
     Write-Host  -ForegroundColor Green "INFO: Tidying up at end of run"
+
+    # Restore the path
+    if ($origPath -ne $null) { $env:PATH=$origPath }
+
+    # Restore the DOCKER_HOST
+    if ($origDOCKER_HOST -ne $null) { $env:DOCKER_HOST=$origDOCKER_HOST }
+
 
     # Dump the daemon log if asked to 
     if ($daemonStarted -eq 1) {
