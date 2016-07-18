@@ -59,6 +59,8 @@ $StartTime=Get-Date
 #
 #    INTEGRATION_IN_CONTAINER if defined, runs the integration tests from inside a container.
 #                             As of July 2016, there are known issues with this. 
+#
+#    SKIP_ALL_CLEANUP         if defined, skips any cleanup at the start or end of the run
 # -------------------------------------------------------------------------------------------
 #
 # Jenkins Integration. Add a Windows Powershell build step as follows:
@@ -80,20 +82,26 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="15-Jul-2016 14:45 PDT" 
+$SCRIPT_VER="18-Jul-2016 10:04 PDT" 
 
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
 #$env:SKIP_ZAP_DUT="yes"
 #$env:SKIP_BINARY_BUILD="yes"
-#$env:INTEGRATION_TEST_NAME="TestVolumesFromGetsProperMode"
+#$env:INTEGRATION_TEST_NAME="TestGetVersion"
 #$env:SKIP_IMAGE_BUILD="yes"
+#$env:SKIP_ALL_CLEANUP="yes"
 #$env:INTEGRATION_IN_CONTAINER="yes"
 
 
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
 Function Nuke-Everything {
     $ErrorActionPreference = 'SilentlyContinue'
+    if ($env:SKIP_ALL_CLEANUP -ne $null) {
+		Write-Host -ForegroundColor green "WARN: Skipping all cleanup"
+		return
+	}	
+	
     try {
         Write-Host -ForegroundColor green "INFO: Nuke-Everything..."
         $containerCount = ($(docker ps -aq | Measure-Object -line).Lines) 
@@ -397,14 +405,14 @@ Try {
         Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binaries at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
-        $Duration=$(Measure-Command {     docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
+        $Duration=$(Measure-Command {docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to build binary"
         }
         Write-Host  -ForegroundColor Green "INFO: Binaries build ended at $(Get-Date). Duration`:$Duration"
 
-        # Copy the binaries out of the container
+        # Copy the binaries and the generated version_autogen.go out of the container
         $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
         $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
         $ErrorActionPreference = "SilentlyContinue"
@@ -416,6 +424,10 @@ Try {
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to docker cp the daemon binary (dockerd.exe) from $contPath\binary-daemon\ to $env:TEMP\binary"
         }
+        docker cp "$contPath\..\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+        if (-not($LastExitCode -eq 0)) {
+            Throw "ERROR: Failed to docker cp the generated version_autogen.go from $contPath\..\..\dockerversion to $env:SOURCES_DRIVE`:\SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+		}
         $ErrorActionPreference = "Stop"
 
         # Copy the built dockerd.exe to dockerd-$COMMITHASH.exe so that easily spotted in task manager.
@@ -671,6 +683,7 @@ Try {
             `$cliArgs+=`"-check.v`"; `
             `$cliArgs+=`"-check.timeout=240m`"; `
             `$cliArgs+=`"-test.timeout=360m`"; `
+			`$cliArgs+=`"-tags autogen`"; `
             cd $sourceBaseLocation\src\github.com\docker\docker\integration-cli;         `
             echo `$cliArgs; `
             `$p=Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs  -PassThru; `
