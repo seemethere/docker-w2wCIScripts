@@ -10,16 +10,18 @@ echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configu
 #$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
 $GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.2.windows.1/Git-2.7.2-64-bit.exe"
 $JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-8u92-windows-x64.exe"  # 4/24/2016
-$NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.1/npp.6.9.1.Installer.exe"
+$NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.2/npp.6.9.2.Installer.exe"
 $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
 $DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
+$JAR_LOCATION="http://jenkins.dockerproject.org/jnlpJars/slave.jar"
 
-echo "$(date)  Git:       $GIT_LOCATION"         >> $env:SystemDrive\packer\configure.log
-echo "$(date)  JDK:       $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log
-echo "$(date)  LiteIDE:   $LITEIDE_LOCATION"     >> $env:SystemDrive\packer\configure.log
-echo "$(date)  Notepad++: $NPP_LOCATION"         >> $env:SystemDrive\packer\configure.log
-echo "$(date)  SQLite:    $SQLITE_LOCATION"      >> $env:SystemDrive\packer\configure.log
-echo "$(date)  Docker:    $DOCKER_LOCATION"      >> $env:SystemDrive\packer\configure.log
+echo "$(date)  Git:           $GIT_LOCATION"         >> $env:SystemDrive\packer\configure.log
+echo "$(date)  JDK:           $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log
+echo "$(date)  LiteIDE:       $LITEIDE_LOCATION"     >> $env:SystemDrive\packer\configure.log
+echo "$(date)  Notepad++:     $NPP_LOCATION"         >> $env:SystemDrive\packer\configure.log
+echo "$(date)  SQLite:        $SQLITE_LOCATION"      >> $env:SystemDrive\packer\configure.log
+echo "$(date)  Docker:        $DOCKER_LOCATION"      >> $env:SystemDrive\packer\configure.log
+echo "$(date)  Jenkins JAR:   $JAR_LOCATION"         >> $env:SystemDrive\packer\configure.log
 
 # Stop on error
 $ErrorActionPreference="stop"
@@ -94,6 +96,29 @@ try {
         Start-Process -wait git -ArgumentList "clone https://github.com/docker/docker $env:SystemDrive\gopath\src\github.com\docker\docker"
     }
 
+    # Keep for reference. This is how you might download OpenSSH-Win64
+    # Download and extract OpenSSH-Win64  
+    #if ($env:LOCAL_CI_INSTALL -ne 1) {
+    #    echo "$(date) Phase1.ps1 downloading OpenSSH..." >> $env:SystemDrive\packer\configure.log
+    #    mkdir $env:SystemDrive\OpenSSH-Win64 -erroraction silentlycontinue 2>&1 | Out-Null
+    #    $wc=New-Object net.webclient;$wc.Downloadfile("https://github.com/PowerShell/Win32-OpenSSH/releases/download/5_30_2016/OpenSSH-Win64.zip","$env:Temp\OpenSSH-Win64.zip")
+    #    echo "$(date) Phase1.ps1 unzipping OpenSSH-Win64..." >> $env:SystemDrive\packer\configure.log
+    #    Expand-Archive $env:Temp\OpenSSH-Win64.zip "$env:SystemDrive\" -Force
+    #}
+
+    # Keep for reference. This is how you might setup OpenSSH-Win64. Unfortunately, while it connects, I just cannot
+    # get it to work with mingw and remove cygwin. I'd really rather the Jenkins SSH plugin were smart enough to
+    # know it's at a cmd prompt, not a cygwin shell prompt. The steps below would be for phase 4.
+    # cd c:\OpenSSH-Win64\
+    # .\Install-SSHD.ps1
+    # .\Install-SSHLSA.ps1
+    # .\ssh-keygen -A
+    # "PasswordAuthentication no`n" | Out-File -Append .\sshd_config -Encoding utf8
+    # mkdir $env:SystemDrive\users\$env:USERNAME\.ssh
+    # Copy-Item $env:SystemDrive\packer\authorized_keys $env:SystemDrive\users\$env:USERNAME\.ssh
+    # Set-Service sshd -StartupType Automatic
+    # Set-Service ssh-agent -StartupType Automatic
+    # net start sshd
 
     # Install utilities for zapping CI, signalling the daemon and for linting changes. These go to c:\gopath\bin
     echo "$(date) InstallMostThings.ps1 Downloading utilities..." >> $env:SystemDrive\packer\configure.log
@@ -152,6 +177,16 @@ try {
     echo "$(date) InstallMostThings.ps1 Compiling SQLite3.dll..." >> $env:SystemDrive\packer\configure.log
     Start-Process -wait gcc -ArgumentList "-shared sqlite3.c -o sqlite3.dll"
     copy sqlite3.dll $env:SystemRoot\system32
+
+    # Download slave.jar from Jenkins
+    # Keep for reference. Just in case can get off SSH due to other reasons.
+    #if ($env:LOCAL_CI_INSTALL -ne 1) {
+    #    Invoke-WebRequest http://jenkins.dockerproject.org/jnlpJars/slave.jar -OutFile slave.jar
+    #    echo "$(date) InstallMostThings.ps1 Downloading slave.jar from Jenkins..." >> $env:SystemDrive\packer\configure.log
+    #    $wc=New-Object net.webclient;
+    #    $wc.Downloadfile("$JAR_LOCATION","$env:Temp\slave.jar")
+    #}
+
 }
 Catch [Exception] {
     echo "$(date) InstallMostThings.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log
