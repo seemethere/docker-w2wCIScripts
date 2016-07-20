@@ -134,6 +134,18 @@
 
 .PARAMETER SkipImageBuild
    The docker image is not built. 
+
+.PARAMETER SkipAllCleanup
+   Doesn't do any cleanup at the end of the tests
+
+.Parameter WindowsBaseImage
+   The name of the default base image. If not set, defaults to windowsservercore.
+   This is the base image used by the integration tests, not the one used by the
+   "docker" image.
+
+.Parameter SkipControlDownload
+   Skips the download of docker.exe and dockerd.exe
+
    
 .EXAMPLE
     Example To Be Completed #TODO
@@ -170,13 +182,17 @@ param(
     [Parameter(Mandatory=$false)][string]$IntegrationTestName,
     [Parameter(Mandatory=$false)][switch]$SkipBinaryBuild=$False,
     [Parameter(Mandatory=$false)][switch]$SkipZapDUT=$False,
-    [Parameter(Mandatory=$false)][switch]$SkipImageBuild=$False
+    [Parameter(Mandatory=$false)][switch]$SkipImageBuild=$False,
+    [Parameter(Mandatory=$false)][switch]$SkipAllCleanup=$False,
+    [Parameter(Mandatory=$false)][string]$WindowsBaseImage="",
+    [Parameter(Mandatory=$false)][switch]$SkipControlDownload=$False
 )
 
 
 
 
 $ErrorActionPreference = 'Stop'
+$FinallyColour="Cyan"
 $DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
 $GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
 
@@ -287,7 +303,6 @@ Function Get-GoVersionFromDockerfile {
 # Kill-Processes kills any processes which might be locking files.
 Function Kill-Processes
 {
-    Write-Host -ForegroundColor green "INFO: Killing processes..."
     Get-Process -Name tail, docker, dockerd*, dockercontrol, dockerdcontrol, cc1, link, compile, ld, go, git, git-remote-https, integration-cli.test -ErrorAction SilentlyContinue | `
         Stop-Process -Force -ErrorAction SilentlyContinue | Wait-Process -ErrorAction SilentlyContinue
 }
@@ -403,7 +418,7 @@ Function Get-ImageTar {
     $ErrorActionPreference = 'Stop'
     try {
         if (Test-Path c:\baseimages\$type.tar) {
-            Write-Host -ForegroundColor green "INFO: c:\baseimages\$type.tar exists - nothing to do"
+            Write-Host -ForegroundColor green "INFO: c:\baseimages\$type.tar already exists - no need to grab the .tar file"
             return
         }
 
@@ -447,7 +462,7 @@ Function Load-ImageTar {
     Param([string]$Type)
     $ErrorActionPreference = 'Stop'
     try {
-        Write-Host -foregroundcolor green "INFO: Loading $type.tar into docker. This may take a few minutes..."
+        Write-Host -foregroundcolor green "INFO: Loading $type.tar into the control daemon. This may take a few minutes..."
         docker load -i c:\BaseImages\$type.tar
     } catch {
         Throw $_
@@ -457,7 +472,7 @@ Function Load-ImageTar {
 
 # Start of the main script. In a try block to catch any exception
 Try {
-    Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
+    Write-Host -ForegroundColor Cyan "INFO: Invoke-DockerCI.ps1 starting at $(date)`n"
     set-PSDebug -Trace 0  # 1 to turn on
     $controlDaemonStarted=$false
 
@@ -514,16 +529,16 @@ Try {
         $env:DOCKER_DUT_DEBUG = "Yes, debug daemon under test"
     }
     if ($SkipValidationTests) {
-        $env:SKIP_VALIDATION_TESTS = "Skip these"
+        $env:SKIP_VALIDATION_TESTS = "Yes"
     }
     if ($SkipUnitTests) {
-        $env:SKIP_UNIT_TESTS = "Skip these"
+        $env:SKIP_UNIT_TESTS = "Yes"
     }
     if ($SkipIntegrationTests) {
-        $env:SKIP_INTEGRATION_TESTS = "Skip these"
+        $env:SKIP_INTEGRATION_TESTS = "Yes"
     }
     if ($SkipBinaryBuild) {
-        $env:SKIP_BINARY_BUILD = "Skip these"
+        $env:SKIP_BINARY_BUILD = "Yes"
     }
     if ($HyperVDUT) {
         $env:DOCKER_DUT_HYPERV = "Yes"
@@ -534,7 +549,9 @@ Try {
     if ($SkipImageBuild) {
         $env:SKIP_IMAGE_BUILD = "Yes"
     }
-
+    if ($SkipAllCleanup) {
+        $env:SKIP_ALL_CLEANUP = "Yes"
+    }
     # Set some default values
     if ([string]::IsNullOrWhiteSpace($DockerBasePath)) {
         # Default to master.dockerproject.org
@@ -557,14 +574,14 @@ Try {
     $Build=$a[0]+"."+$a[1]+"."+$a[4]
     Write-Host -ForegroundColor green "INFO: Branch:$Branch Build:$Build"
 
-    Write-Host -ForegroundColor green "INFO: Configuration:"
+    Write-Host -ForegroundColor green "INFO: Configuration:`n"
     Write-Host -ForegroundColor yellow "Paths"
     Write-Host " - Sources:           $SourcesDrive`:\$SourcesSubdir"
     Write-Host " - Test run:          $TestrunDrive`:\$TestrunSubdir"
     Write-Host " - Control daemon:    $ControlRoot"
     Write-Host  -ForegroundColor yellow "Git"
-    if (-not [string]::IsNullOrWhiteSpace($GitRemote)) { Write-Host "  - Remote:            $GitRemote" }
-    if (-not [string]::IsNullOrWhiteSpace($GitCheckout)) { Write-Host "  - Checkout:          $GitCheckout" }
+    if (-not [string]::IsNullOrWhiteSpace($GitRemote)) { Write-Host " - Remote:            $GitRemote" }
+    if (-not [string]::IsNullOrWhiteSpace($GitCheckout)) { Write-Host " - Checkout:          $GitCheckout" }
     Write-Host " - Installer:         $GitLocation"
     Write-Host  -ForegroundColor yellow "Debug"
     Write-Host " - Daemon under test: $DUTDebugMode"
@@ -584,11 +601,19 @@ Try {
     Write-Host " - Skip binary build: $SkipBinaryBuild"
     Write-Host " - Skip zap DUT dir:  $SkipZapDUT"
     Write-Host " - Skip image build:  $SkipImageBuild"
+    Write-Host " - Skip all cleanup:  $SkipAllCleanup"
+    Write-Host " - Skip download:     $SkipControlDownload"
     if ($SkipIntegrationTests -eq $false) {
         if (-not ([string]::IsNullOrWhiteSpace($IntegrationTestName))) {
             Write-Host " - CLI test match:    $IntegrationTestName"
         }
     }
+    if (-not ([string]::IsNullOrWhiteSpace($WindowsBaseImage))) {
+        Write-Host " - Base image:        $WindowsBaseImage"
+        $env:WINDOWS_BASE_IMAGE=$WindowsBaseImage # Pass through to executeCI.ps1
+    }
+    Write-Host "`n"
+
     # Where we clone the docker sources
     $WorkspaceRoot="$($SourcesDrive):\$($SourcesSubdir)"
     $Workspace="$WorkspaceRoot\src\github.com\docker\docker"
@@ -614,26 +639,31 @@ Try {
     # Detach any VHDs just in case there are lingerers
     Dismount-MountedVHDs
 
-    # Download docker.exe for the control daemon in single binary mode. In dual
-    # binary mode, downloads docker.exe for the control client, dockerd.exe for
-    # the control daemon
-    Write-Host -ForegroundColor green "INFO: Control docker base path $DockerBasePath"
-    Remove-Item "$env:Temp\docker.exe" -Erroraction SilentlyContinue
-    Remove-Item "$env:Temp\dockercontrol.exe" -Erroraction SilentlyContinue
-    Remove-Item "$env:Temp\dockerd.exe" -Erroraction SilentlyContinue
-    Remove-Item "$env:Temp\dockerdcontrol.exe" -Erroraction SilentlyContinue
 
-    # Download docker.exe client binary. 
-    if (0 -ne (Download-File "$DockerBasePath" "docker.exe" "$env:Temp\docker.exe")) {
-        Throw "Download docker failed"
-    }
-    Copy-Item "$env:Temp\docker.exe" "$env:Temp\dockercontrol.exe"
+    if (-not $SkipControlDownload) {
+        # Download docker.exe for the control daemon in single binary mode. In dual
+        # binary mode, downloads docker.exe for the control client, dockerd.exe for
+        # the control daemon
+        Write-Host -ForegroundColor green "INFO: Control docker base path $DockerBasePath"
+        Remove-Item "$env:Temp\docker.exe" -Erroraction SilentlyContinue
+        Remove-Item "$env:Temp\dockercontrol.exe" -Erroraction SilentlyContinue
+        Remove-Item "$env:Temp\dockerd.exe" -Erroraction SilentlyContinue
+        Remove-Item "$env:Temp\dockerdcontrol.exe" -Erroraction SilentlyContinue
 
-    # Download dockerd.exe daemon binary. 
-    if (0 -ne (Download-file "$DockerBasePath" "dockerd.exe" "$env:Temp\dockerd.exe")) {
-        Throw "Download dockerd.exe failed"
+        # Download docker.exe client binary. 
+        if (0 -ne (Download-File "$DockerBasePath" "docker.exe" "$env:Temp\docker.exe")) {
+            Throw "Download docker failed"
+        }
+        Copy-Item "$env:Temp\docker.exe" "$env:Temp\dockercontrol.exe"
+
+        # Download dockerd.exe daemon binary. 
+        if (0 -ne (Download-file "$DockerBasePath" "dockerd.exe" "$env:Temp\dockerd.exe")) {
+            Throw "Download dockerd.exe failed"
+        }
+        Copy-Item "$env:Temp\dockerd.exe" "$env:Temp\dockerdcontrol.exe"
+    } else {
+        Write-Host -ForegroundColor Magenta "WARN: Skipping control docker*.exe downloads"
     }
-    Copy-Item "$env:Temp\dockerd.exe" "$env:Temp\dockerdcontrol.exe"
 
     # Install gcc if not already installed. This will also install windres
     if (-not (Test-CommandExists gcc)) {
@@ -779,21 +809,39 @@ Try {
     $control=start-process "cmd" -ArgumentList "/s /c $daemon > $ControlRoot\daemon\daemon.log 2>&1" -WindowStyle Minimized
     $tail = start-process "tail" -ArgumentList "-f $ControlRoot\daemon\daemon.log" -ErrorAction SilentlyContinue
 
-    # Give it a few seconds to come up
-    Start-Sleep -s 5  # BUGBUG Doing a curl to it to get OK would be better up to 60 seconds.
+    # Verify we can get the control daemon to respond
+    $tries=20
+    Write-Host -ForegroundColor Green "INFO: Waiting for the control daemon to start..."
+    while ($true) {
+        $ErrorActionPreference = "SilentlyContinue"
+        & "$env:TEMP\dockercontrol" version 2>&1 | Out-Null
+        $ErrorActionPreference = "Stop"
+        if ($LastExitCode -eq 0) {
+            break
+        }
+
+        $tries--
+        if ($tries -le 0) {
+            Throw "ERROR: Failed to get a response from the control daemon"
+        }
+        Write-Host -NoNewline "."
+        sleep 1
+    }
+    Write-Host -ForegroundColor Green "INFO: Control daemon started and replied!"
+
     $controlDaemonStarted=$true
 
     # Get the tar image for windowsservercore if not on disk. 
     if ($(docker images | select -skip 1 | select-string "windowsservercore" | Measure-Object -line).Lines -lt 1) {
         $installWSC=$true
-        Write-Host -ForegroundColor green "INFO: windowsservercore is not installed as a docker image"
+        Write-Host -ForegroundColor green "INFO: windowsservercore is not installed as an image in the control daemon"
         Get-ImageTar "windowsservercore" "serverdatacentercore"
         Load-ImageTar "windowsservercore"
     }
     
     # Get the tar image for nanoserver if not on disk
     if ($(docker images | select -skip 1 | select-string "nanoserver" | Measure-Object -line).Lines -lt 1) {
-        Write-Host -ForegroundColor green "INFO: nanoserver is not installed as a docker image"
+        Write-Host -ForegroundColor green "INFO: nanoserver is not installed as an image in the control daemon"
         Get-ImageTar "nanoserver" "nanoserver"
         Load-ImageTar "nanoserver"
     }
@@ -801,29 +849,33 @@ Try {
     # TODO Use the one from the cloned sources once it's checked in to docker/docker master
     #      which will be somewhere under $Workspace/jenkins/w2w/...
     # Run the shell script!
-    Write-Host -ForegroundColor cyan "INFO: Starting the CI script..."
-    Write-Host -ForegroundColor cyan "-------------------------------`n`n"
+    Write-Host -ForegroundColor cyan "INFO: Starting $TestrunDrive`:\control\CIScript.ps1"
     & "$TestrunDrive`:\control\CIScript.ps1"
-    if (-not ($? -eq $true)) {
-        Throw "CI script failed, so quitting wrapper script"
+    if ($LastExitCode -ne 0) {
+        Throw "CI script failed, so quitting Invoke-DockerCI with error"
     }
 
-    Write-Host -ForegroundColor green "INFO: Success!!!"
+    Write-Host -ForegroundColor green "INFO: $TestrunDrive`:\control\CIScript.ps1 succeeded!!!"
     exit 0
 }
 Catch [Exception] {
-    Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_'")
+    Write-Host -ForegroundColor Red "`n---------------------------------------------------------------------------"
+    Write-Host -ForegroundColor Red ("ERROR: Overall CI run has failed with error:`n '$_'")
+    Write-Host -ForegroundColor Red "---------------------------------------------------------------------------`n"
+    $FinallyColour="Red"
     exit 1
 }
 Finally {
     Kill-Processes
+    $env:TEMP=$ORIGTEMP
 
     # Save the daemon under test log
     if ($controlDaemonStarted -eq $true) {
-        $ORIGTEMP=$env:TEMP
-        Write-Host -ForegroundColor green "INFO: Saving the control daemon log $ControlRoot\daemon\daemon.log to $ORIGTEMP\CIDControl.log"
-        Copy-Item "$ControlRoot\daemon\daemon.log" "$TEMPORIG\CIDControl.log" -Force -ErrorAction SilentlyContinue
+        if (Test-Path "$ControlRoot\daemon\daemon.log") {
+            Write-Host -ForegroundColor green "INFO: Saving the control daemon log $ControlRoot\daemon\daemon.log to $ORIGTEMP\CIDControl.log"
+            Copy-Item "$ControlRoot\daemon\daemon.log" "$ORIGTEMP\CIDControl.log" -Force -ErrorAction SilentlyContinue
+        }
     }
 
-    Write-Host -ForegroundColor Yellow "INFO: End of wrapper script at $(date)"
+    Write-Host -ForegroundColor $FinallyColour "`nINFO: Invoke-DockerCI.ps1 exiting at $(date)"
 }

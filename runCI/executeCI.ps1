@@ -61,6 +61,10 @@ $StartTime=Get-Date
 #                             As of July 2016, there are known issues with this. 
 #
 #    SKIP_ALL_CLEANUP         if defined, skips any cleanup at the start or end of the run
+#
+#    WINDOWS_BASE_IMAGE       if defined, uses that as the base image. Note that the
+#                             docker integration tests are also coded to use the same
+#                             environment variable, and if no set, defaults to windowsservercore
 # -------------------------------------------------------------------------------------------
 #
 # Jenkins Integration. Add a Windows Powershell build step as follows:
@@ -82,7 +86,9 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="18-Jul-2016 10:04 PDT" 
+$SCRIPT_VER="20-Jul-2016 13:26 PDT" 
+$FinallyColour="Cyan"
+
 
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
@@ -92,13 +98,13 @@ $SCRIPT_VER="18-Jul-2016 10:04 PDT"
 #$env:SKIP_IMAGE_BUILD="yes"
 #$env:SKIP_ALL_CLEANUP="yes"
 #$env:INTEGRATION_IN_CONTAINER="yes"
-
+#$env:WINDOWS_BASE_IMAGE="nanoserver"
 
 # Dismount-MountedVHDs unmounts any VHDs which may be still mounted from a previous run
 Function Nuke-Everything {
     $ErrorActionPreference = 'SilentlyContinue'
     if ($env:SKIP_ALL_CLEANUP -ne $null) {
-		Write-Host -ForegroundColor green "WARN: Skipping all cleanup"
+		Write-Host -ForegroundColor Magenta "WARN: Skipping all cleanup"
 		return
 	}	
 	
@@ -155,7 +161,7 @@ Function Nuke-Everything {
                 Write-Host -ForegroundColor Green "INFO: Nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
                 docker-ci-zap "-folder=$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
             } else {
-                Write-Host -ForegroundColor Cyan "WARN: Skip nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
+                Write-Host -ForegroundColor Magenta "WARN: Skip nuking $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR"
             }
         }
 
@@ -165,7 +171,7 @@ Function Nuke-Everything {
 }
 
 Try {
-    Write-Host -ForegroundColor Yellow "INFO: Started at $(date)..."
+    Write-Host -ForegroundColor Cyan "`nINFO: executeCI.ps1 starting at $(date)`n"
     Write-Host  -ForegroundColor Green "INFO: Script version $SCRIPT_VER"
     Set-PSDebug -Trace 0  # 1 to turn on
     $origPath="$env:PATH"            # so we can restore it at the end
@@ -239,12 +245,12 @@ Try {
     # Create the TESTRUN_DRIVE\TESTRUN_SUBDIR if it does not already exist
     New-Item -ItemType Directory -Force -Path "$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR" -ErrorAction SilentlyContinue | Out-Null
 
-    Write-Host  -ForegroundColor Green "INFO: Configured sources under $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\..."
-    Write-Host  -ForegroundColor Green "INFO: Configured test run under $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR\..."
+    Write-Host  -ForegroundColor Green "INFO: Sources under $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\..."
+    Write-Host  -ForegroundColor Green "INFO: Test run under $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR\..."
 
     # Set the GOPATH to the root and the vendor directory
     $env:GOPATH="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\vendor;$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
-    Write-Host -ForegroundColor Green "INFO: GOPATH set to $env:GOPATH"
+    Write-Host -ForegroundColor Green "INFO: GOPATH=$env:GOPATH"
 
     # Check the intended source location is a directory
     if (-not (Test-Path -PathType Container "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker" -ErrorAction SilentlyContinue)) {
@@ -259,9 +265,9 @@ Try {
     if (-not (Test-Path -PathType Leaf -Path ".\Dockerfile.windows")) {
         Throw "$(pwd) does not container Dockerfile.Windows!"
     }
-    Write-Host  -ForegroundColor Green "INFO: Github docker/docker repository was found"
+    Write-Host  -ForegroundColor Green "INFO: docker/docker repository was found"
 
-    # Make sure windowsservercore image is installed
+    # Make sure windowsservercore image is installed in the control daemon
     $ErrorActionPreference = "SilentlyContinue"
     $build = $(docker images --format "{{.Repository}}:{{.Tag}}" | Select-String "windowsservercore" | select-String -NotMatch "latest")
     $ErrorActionPreference = "Stop"
@@ -397,7 +403,7 @@ Try {
         }
         Write-Host  -ForegroundColor Green "INFO: Image build ended at $(Get-Date). Duration`:$Duration"
     } else {
-        Write-Host -ForegroundColor Yellow "WARN: Skipping building the docker image"
+        Write-Host -ForegroundColor Magenta "WARN: Skipping building the docker image"
     }
 
     # Build the binary in a container unless asked to skip it
@@ -438,7 +444,7 @@ Try {
         Write-Host -ForegroundColor Green "INFO: Copying the built client binary to $env:TEMP\binary\docker-$COMMITHASH.exe..."
         Copy-Item $env:TEMP\binary\docker.exe $env:TEMP\binary\docker-$COMMITHASH.exe -Force -ErrorAction SilentlyContinue
     } else {
-        Write-Host -ForegroundColor Yellow "WARN: Skipping building the binaries"
+        Write-Host -ForegroundColor Magenta "WARN: Skipping building the binaries"
     }
     
     # Work out the the -H parameter for the daemon under test (DASHH_DUT) and client under test (DASHH_CUT)
@@ -538,33 +544,39 @@ Try {
     }
     Write-Host
 
+    # Default to windowsservercore for the base image used for the tests. The "docker" image
+    # and the control daemon use windowsservercore regardless. This is *JUST* for the tests.
+    if ($env:WINDOWS_BASE_IMAGE -eq $Null) {
+        $env:WINDOWS_BASE_IMAGE="windowsservercore"
+    }
+    Write-Host -ForegroundColor Green "INFO: Base image for tests is $env:WINDOWS_BASE_IMAGE"
 
-    # Make sure windowsservercore image is loaded/tagged in the daemon under test
+    # Make sure image is loaded/tagged in the daemon under test
 
-    # A: Find out how many windowsservercore images are present which are not tagged 'latest'
+    # A: Find out how many images are present which are not tagged 'latest'
     $ErrorActionPreference = "SilentlyContinue"
-    $dutWSCNonLatestCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String "windowsservercore" | Select-String -NotMatch "latest" | Measure-Object -line).Lines
+    $dutBaseImageNonLatestCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String $env:WINDOWS_BASE_IMAGE | Select-String -NotMatch "latest" | Measure-Object -line).Lines
     $ErrorActionPreference = "Stop"
     if (-not $LastExitCode -eq 0) {
-        Throw "ERROR: Failed to get count of windowsservercore images not tagged latest in daemon under test"
+        Throw "ERROR: Failed to get count of $env:WINDOWS_BASE_IMAGE images not tagged latest in daemon under test"
     }
 
     # B: Not present at all, load it.
-    if ($dutWSCNonLatestCount -eq 0 ) {
+    if ($dutBaseImageNonLatestCount -eq 0 ) {
         # Not present. Load it. Assume under c:\baseimages.
-        Write-Host -ForegroundColor Cyan "`n`nINFO: Loading windowsservercore.tar at $(Get-Date). This may take some time..."
+        Write-Host -ForegroundColor Cyan "`n`nINFO: Loading $env:WINDOWS_BASE_IMAGE.tar at $(Get-Date). This may take some time..."
         $ErrorActionPreference = "SilentlyContinue"
-        & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" load -i c:\baseimages\windowsservercore.tar
+        & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" load -i "c:\baseimages\$env:WINDOWS_BASE_IMAGE.tar"
         $ErrorActionPreference = "Stop"
         if (-not $LastExitCode -eq 0) {
-            Throw "ERROR: Failed to load c:\baseimages\windowsservercore.tar into daemon under test"
+            Throw "ERROR: Failed to load c:\baseimages\$env:WINDOWS_BASE_IMAGE.tar into daemon under test"
         }
-        Write-Host  -ForegroundColor Green "INFO: docker load of windowsservercore completed successfully"
+        Write-Host  -ForegroundColor Green "INFO: docker load of $env:WINDOWS_BASE_IMAGE completed successfully"
     }
 
     # C: Get the build now as we just loaded it
     $ErrorActionPreference = "SilentlyContinue"
-    $dutWSCBuild= $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images --format "{{.Repository}}:{{.Tag}}" | Select-String "windowsservercore" | select-String -NotMatch "latest").ToString().Split(":")[1]
+    $dutBaseImageBuild= $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images --format "{{.Repository}}:{{.Tag}}" | Select-String $env:WINDOWS_BASE_IMAGE | select-String -NotMatch "latest").ToString().Split(":")[1]
     $ErrorActionPreference = "Stop"
     if (-not $LastExitCode -eq 0) {
         Throw "ERROR: Could not find build even after loading it"
@@ -573,29 +585,27 @@ Try {
 
     # D: Get the latest count
     $ErrorActionPreference = "SilentlyContinue"
-    $dutWSCLatestCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String "windowsservercore" | Select-String "latest" | Measure-Object -line).Lines
+    $dutBaseImageLatestCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String $env:WINDOWS_BASE_IMAGE | Select-String "latest" | Measure-Object -line).Lines
     $ErrorActionPreference = "Stop"
     if (-not $LastExitCode -eq 0) {
-        Throw "ERROR: Failed to get count of windowsservercore images tagged latest in daemon under test"
+        Throw "ERROR: Failed to get count of $env:WINDOWS_BASE_IMAGE images tagged latest in daemon under test"
     }
 
+
     # E: Tag the image as latest if necessary
-    if ($dutWSCLatestCount -eq 0) {
-        # We use $imagename as around 2016 TP5 6D we started having the microsoft/ prefix
+    if ($dutBaseImageLatestCount -eq 0) {
+        # Possible bugbug - recalculate $imagename as per control daemon as around 2016 TP5 6D we started having the microsoft/ prefix
         $ErrorActionPreference = "SilentlyContinue"
-        $dutWSCLatestCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" tag "$imagename`:$dutWSCBuild" "windowsservercore:latest")
+        $dutBaseImageLatestCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" tag "$env:WINDOWS_BASE_IMAGE`:$dutBaseImageBuild" "$env:WINDOWS_BASE_IMAGE`:latest")
         $ErrorActionPreference = "Stop"
         if (-not $LastExitCode -eq 0) {
-            Throw "ERROR: Failed to tag $imagename`:$dutWSCBuild as latest"
+            Throw "ERROR: Failed to tag $env:WINDOWS_BASE_IMAGE`:$dutBaseImageBuild as latest"
         }
-        Write-Host -ForegroundColor Green "INFO: Tagged $imagename`:$dutWSCBuild with latest"
+        Write-Host -ForegroundColor Green "INFO: Tagged $env:WINDOWS_BASE_IMAGE`:$dutBaseImageBuild with latest"
     }
 
     # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
     if ($env:SKIP_VALIDATION_TESTS -eq $null) {
-
-        # Note sleep is necessary for Windows networking workaround (see dockerfile.Windows)
-        # TODO: This should no longer be necessary (RS1+)
         Write-Host -ForegroundColor Cyan "INFO: Running validation tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh validate-dco validate-gofmt validate-pkg" | Out-Host } )
@@ -605,7 +615,7 @@ Try {
         }
         Write-Host  -ForegroundColor Green "INFO: Validation tests ended at $(Get-Date). Duration`:$Duration"
     } else {
-        Write-Host -ForegroundColor Yellow "WARN: Skipping validation tests"
+        Write-Host -ForegroundColor Magenta "WARN: Skipping validation tests"
     }
 
     # Run the unit tests inside a container unless SKIP_UNIT_TESTS is defined
@@ -619,27 +629,48 @@ Try {
         }
         Write-Host  -ForegroundColor Green "INFO: Unit tests ended at $(Get-Date). Duration`:$Duration"
     } else {
-        Write-Host -ForegroundColor Yellow "WARN: Skipping unit tests"
+        Write-Host -ForegroundColor Magenta "WARN: Skipping unit tests"
     }
 
     # Add the busybox image. Needed for integration tests
     # Note - this superceeds .ensure-frozen-images-windows previously used in the shell-script version
     if ($env:SKIP_INTEGRATION_TESTS -eq $null) {
         $ErrorActionPreference = "SilentlyContinue"
-        $bbCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String "busybox" | Measure-Object -line).Lines
-        $ErrorActionPreference = "Stop"
-        if (-not($LastExitCode -eq 0)) {
-            Throw "ERROR: Could not determine if busybox image is present"
-        }
-        if ($bbCount -eq 0) {
+        # Build it regardless while switching between nanoserver and windowsservercore
+        #$bbCount = $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images | Select-String "busybox" | Measure-Object -line).Lines
+        #$ErrorActionPreference = "Stop"
+        #if (-not($LastExitCode -eq 0)) {
+        #    Throw "ERROR: Could not determine if busybox image is present"
+        #}
+        #if ($bbCount -eq 0) {
             Write-Host -ForegroundColor Green "INFO: Building busybox"
             $ErrorActionPreference = "SilentlyContinue"
-            $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox https://raw.githubusercontent.com/jhowardmsft/busybox/master/Dockerfile)
+
+            # This is a temporary hack for nanoserver
+            if ($env:WINDOWS_BASE_IMAGE -ne "windowsservercore") {
+                Write-Host -ForegroundColor Red "HACK HACK HACK - Building 64-bit nanoserver busybox image"
+                cd e:\docker\build\busybox64
+                $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox . | Out-Host)
+            } else {
+                $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox https://raw.githubusercontent.com/jhowardmsft/busybox/master/Dockerfile | Out-Host)
+            }
             $ErrorActionPreference = "Stop"
             if (-not($LastExitCode -eq 0)) {
                 Throw "ERROR: Failed to build busybox image"
             }
+        #}
+
+
+        Write-Host -ForegroundColor Green "INFO: Docker images of the daemon under test"
+        Write-Host 
+        $ErrorActionPreference = "SilentlyContinue"
+        & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images
+        $ErrorActionPreference = "Stop"
+        if ($LastExitCode -ne 0) {
+            Throw "ERROR: The daemon under test does not appear to be running."
+            $DumpDaemonLog=1
         }
+        Write-Host
     }
 
     # Run the integration tests unless SKIP_INTEGRATION_TESTS is defined
@@ -675,7 +706,7 @@ Try {
         # Makes is quicker for debugging to be able to run only a subset of the integration tests
         if ($env:INTEGRATION_TEST_NAME -ne $null) {
             $c += " `$cliArgs+=`"-check.f $env:INTEGRATION_TEST_NAME`";"
-            Write-Host -ForegroundColor Yellow "WARN: Only running integration tests matching $env:INTEGRATION_TEST_NAME"
+            Write-Host -ForegroundColor Magenta "WARN: Only running integration tests matching $env:INTEGRATION_TEST_NAME"
         }
 
         # Note about passthru: This cmdlet generates a System.Diagnostics.Process object, if you specify the PassThru parameter. Otherwise, this cmdlet does not return any output.
@@ -706,7 +737,7 @@ Try {
         }
         Write-Host  -ForegroundColor Green "INFO: Integration tests ended at $(Get-Date). Duration`:$Duration"
     }else {
-        Write-Host -ForegroundColor Yellow "WARN: Skipping integration tests"
+        Write-Host -ForegroundColor Magenta "WARN: Skipping integration tests"
     }
 
     # Stop the daemon under test
@@ -717,19 +748,21 @@ Try {
                 Write-Host -ForegroundColor green "INFO: Stopping daemon under test"
                 taskkill -f -t -pid $p
                 Remove-Item "$env:TEMP\docker.pid" -force -ErrorAction SilentlyContinue
-                sleep 5
+                #sleep 5
             }
         }
     }
 
-    Write-Host -ForegroundColor Green "INFO: Completed successfully at $(Get-Date)."
-#    exit 0
+    Write-Host -ForegroundColor Green "INFO: executeCI.ps1 Completed successfully at $(Get-Date)."
+    $host.SetShouldExit(0)
 }
 Catch [Exception] {
+    $FinallyColour="Red"
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
     Write-Host "`n`n"
     # Throw the error onwards to ensure Jenkins captures it.
     $host.SetShouldExit(1)
+    Throw $_
 }
 Finally {
     $ErrorActionPreference="SilentlyContinue"
@@ -753,7 +786,7 @@ Finally {
 
     # Save the daemon under test log
     if ($daemonStarted -eq 1) {
-        Write-Host -ForegroundColor Green "INFO: Saving the daemon under test log ($env:TEMP\dut.err) to $TEMPORIG\CIDUT.log"
+        Write-Host -ForegroundColor Green "INFO: Saving daemon under test log ($env:TEMP\dut.err) to $TEMPORIG\CIDUT.log"
         Copy-Item  "$env:TEMP\dut.err" "$TEMPORIG\CIDUT.log" -Force -ErrorAction SilentlyContinue
     }
 
@@ -771,8 +804,6 @@ Finally {
 
     cd "$env:SOURCES_DRIVE\$env:SOURCES_SUBDIR" -ErrorAction SilentlyContinue
     Nuke-Everything
-    Write-Host -ForegroundColor Yellow "INFO: End of executeCI at $(date)"
-
     $Dur=New-TimeSpan -Start $StartTime -End $(Get-Date)
-    Write-Host -ForegroundColor Yellow "INFO: Duration $Dur"
+    Write-Host -ForegroundColor $FinallyColour "`nINFO: executeCI.ps1 exiting at $(date). Duration $dur`n"
 }
