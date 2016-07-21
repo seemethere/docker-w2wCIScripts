@@ -732,7 +732,7 @@ Try {
         }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
-            Throw "ERROR: Integration tests failed"
+            Throw "ERROR: Integration tests failed at $(Get-Date). Duration`:$Duration"
         }
         Write-Host  -ForegroundColor Green "INFO: Integration tests ended at $(Get-Date). Duration`:$Duration"
     }else {
