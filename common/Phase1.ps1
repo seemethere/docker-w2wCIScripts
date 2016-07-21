@@ -31,6 +31,11 @@ try {
     Add-WindowsFeature containers
 
     #--------------------------------------------------------------------------------------------
+    # Add Hyper-V to support Hyper-V containers. If the machine is a Hyper-V VM, nested virtualization
+    # will need to be added to the VM from the root through Set-VMProcessor <vmname> -ExposeVirtualizationExtensions $true
+    dism /online /enable-feature /featurename:Microsoft-Hyper-V /NoRestart
+
+    #--------------------------------------------------------------------------------------------
     # Re-download the script that downloads our files in case we want to refresh them
     echo "$(date) Phase1.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     $ErrorActionPreference='SilentlyContinue'
