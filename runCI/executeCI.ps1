@@ -649,8 +649,7 @@ Try {
             # This is a temporary hack for nanoserver
             if ($env:WINDOWS_BASE_IMAGE -ne "windowsservercore") {
                 Write-Host -ForegroundColor Red "HACK HACK HACK - Building 64-bit nanoserver busybox image"
-                cd e:\docker\build\busybox64
-                $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox . | Out-Host)
+                $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox https://raw.githubusercontent.com/jhowardmsft/busybox64/master/Dockerfile | Out-Host)
             } else {
                 $(& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" build -t busybox https://raw.githubusercontent.com/jhowardmsft/busybox/master/Dockerfile | Out-Host)
             }
