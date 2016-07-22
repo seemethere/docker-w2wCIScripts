@@ -78,7 +78,7 @@ function Copy-File {
 
 Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
-    set-PSDebug -Trace 1  # 1 to turn on
+    set-PSDebug -Trace 0  # 1 to turn on
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
         $Branch=""
@@ -135,7 +135,7 @@ Try {
         bcdedit /debug on
     }
 
-    if (-not Test-Nano) {
+    if (-not (Test-Nano)) {
         if ($null -eq $(Get-Command code -erroraction silentlycontinue)) {
             # VSCode (useful for markdown editing). But really annoying as I can't find a way to
             # not make it launch after setup completes, so blocks. Workaround isn't nice but works
@@ -165,21 +165,21 @@ Try {
     Write-Host "INFO: Net using to $DEV_MACHINE"
     net use "$DEV_MACHINE_DRIVE`:" "\\$DEV_MACHINE\$DEV_MACHINE_DRIVE`$"
 
-    if (-not Test-Nano) {
+    if (-not (Test-Nano)) {
         Write-Host "INFO: Disabling real time monitoring"
         set-mppreference -disablerealtimemonitoring $true
     }
     Write-Host "INFO: Setting execution policy"
     Set-ExecutionPolicy bypass
 
-    if (-not Test-Nano) {
+    if (-not (Test-Nano)) {
         Write-Host "INFO: Unblocking the shortcut file"
         Unblock-File .\docker-docker-shortcut.ps1
         Write-Host "INFO: Running the shortcut file"
         powershell -command .\docker-docker-shortcut.ps1
     }
 
-    if (-not Test-Nano) {
+    if (-not (Test-Nano)) {
         Write-Host "INFO: Creating c:\liteide"
         mkdir c:\liteide -ErrorAction SilentlyContinue
         Write-Host "INFO: Copying liteide..."
@@ -191,7 +191,7 @@ Try {
     Write-Host "INFO: Removing dockerd.exe if it exists"
     Remove-Item c:\windows\system32\dockerd.exe -ErrorAction SilentlyContinue
 
-    if (-not Test-Nano) {
+    if (-not (Test-Nano)) {
         Write-Host "INFO: Enabling remote desktop in registry"
         set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
         set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 0
@@ -224,7 +224,9 @@ Try {
     Unblock-File c:\packer\Bootstrap.ps1 
     . "$env:SystemDrive\packer\Bootstrap.ps1" -Branch $Branch -Doitanyway
 
-    echo $(date) > "c:\users\public\desktop\$Branch.txt"
+    if (-not (Test-Nano)) {
+        echo $(date) > "c:\users\public\desktop\$Branch.txt"
+    }
 
 } Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_'")

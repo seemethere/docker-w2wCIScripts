@@ -9,8 +9,65 @@ param(
 
 $ErrorActionPreference="stop"
 
+function Test-Nano() {  
+    $EditionId = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name 'EditionID').EditionId  
+    return (($EditionId -eq "ServerStandardNano") -or   
+            ($EditionId -eq "ServerDataCenterNano") -or   
+            ($EditionId -eq "NanoServer") -or   
+            ($EditionId -eq "ServerTuva"))  
+}  
+
+function Copy-File {  
+    [CmdletBinding()]  
+    param(  
+        [string] $SourcePath,  
+        [string] $DestinationPath  
+    )  
+
+    if ($SourcePath -eq $DestinationPath) { return }  
+
+    if (Test-Path $SourcePath) { 
+        Copy-Item -Path $SourcePath -Destination $DestinationPath 
+    } elseif (($SourcePath -as [System.URI]).AbsoluteURI -ne $null) {  
+        if (Test-Nano) {
+            $handler = New-Object System.Net.Http.HttpClientHandler  
+            $client = New-Object System.Net.Http.HttpClient($handler)  
+            $client.Timeout = New-Object System.TimeSpan(0, 30, 0)  
+            $cancelTokenSource = [System.Threading.CancellationTokenSource]::new()   
+            $responseMsg = $client.GetAsync([System.Uri]::new($SourcePath), $cancelTokenSource.Token)  
+            $responseMsg.Wait()  
+
+            if (!$responseMsg.IsCanceled) {  
+                $response = $responseMsg.Result  
+                if ($response.IsSuccessStatusCode) {  
+                    $downloadedFileStream = [System.IO.FileStream]::new($DestinationPath, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write)  
+                    $copyStreamOp = $response.Content.CopyToAsync($downloadedFileStream)  
+                    $copyStreamOp.Wait()  
+                    $downloadedFileStream.Close()  
+                    if ($copyStreamOp.Exception -ne $null) {  
+                        throw $copyStreamOp.Exception  
+                    }        
+                }  
+            }    
+        }  
+        elseif ($PSVersionTable.PSVersion.Major -ge 5) {
+            # We disable progress display because it kills performance for large downloads (at least on 64-bit PowerShell)  
+            $ProgressPreference = 'SilentlyContinue'  
+            wget -Uri $SourcePath -OutFile $DestinationPath -UseBasicParsing  
+            $ProgressPreference = 'Continue'  
+        } else {  
+            $webClient = New-Object System.Net.WebClient  
+            $webClient.DownloadFile($SourcePath, $DestinationPath)  
+        }   
+    } else {  
+        throw "Cannot copy from $SourcePath"  
+    }  
+}  
+
 echo "$(date) Phase0.ps1 starting..." >> $env:SystemDrive\packer\configure.log
-echo $(date) > "c:\users\public\desktop\Phase0 Start.txt"
+if (-not (Test-Nano)) {
+    echo $(date) > "c:\users\public\desktop\Phase0 Start.txt"
+}
 
 try {
     # Delete the scheduled task if it exists
@@ -46,7 +103,7 @@ try {
 
         # Download the script that downloads our files
         echo "$(date) Phase0.ps1 Downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
-        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$Branch/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
+        Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$Branch/DownloadScripts.ps1" -DestinationPath "$env:SystemDrive\packer\DownloadScripts.ps1"
 
         # Invoke the downloads
         echo "$(date) Phase0.ps1 Invoking DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
@@ -65,5 +122,7 @@ Catch [Exception] {
 }
 Finally {
     echo "$(date) Phase0.ps1 completed..." >> $env:SystemDrive\packer\configure.log
-    echo $(date) > "c:\users\public\desktop\Phase0 End.txt"
+    if (-not (Test-Nano)) {
+        echo $(date) > "c:\users\public\desktop\Phase0 End.txt"
+    }
 }  

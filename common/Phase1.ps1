@@ -4,11 +4,69 @@
 
 $ErrorActionPreference='Stop'
 
+function Test-Nano() {  
+    $EditionId = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name 'EditionID').EditionId  
+    return (($EditionId -eq "ServerStandardNano") -or   
+            ($EditionId -eq "ServerDataCenterNano") -or   
+            ($EditionId -eq "NanoServer") -or   
+            ($EditionId -eq "ServerTuva"))  
+}  
+
+function Copy-File {  
+    [CmdletBinding()]  
+    param(  
+        [string] $SourcePath,  
+        [string] $DestinationPath  
+    )  
+
+    if ($SourcePath -eq $DestinationPath) { return }  
+
+    if (Test-Path $SourcePath) { 
+        Copy-Item -Path $SourcePath -Destination $DestinationPath 
+    } elseif (($SourcePath -as [System.URI]).AbsoluteURI -ne $null) {  
+        if (Test-Nano) {
+            $handler = New-Object System.Net.Http.HttpClientHandler  
+            $client = New-Object System.Net.Http.HttpClient($handler)  
+            $client.Timeout = New-Object System.TimeSpan(0, 30, 0)  
+            $cancelTokenSource = [System.Threading.CancellationTokenSource]::new()   
+            $responseMsg = $client.GetAsync([System.Uri]::new($SourcePath), $cancelTokenSource.Token)  
+            $responseMsg.Wait()  
+
+            if (!$responseMsg.IsCanceled) {  
+                $response = $responseMsg.Result  
+                if ($response.IsSuccessStatusCode) {  
+                    $downloadedFileStream = [System.IO.FileStream]::new($DestinationPath, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write)  
+                    $copyStreamOp = $response.Content.CopyToAsync($downloadedFileStream)  
+                    $copyStreamOp.Wait()  
+                    $downloadedFileStream.Close()  
+                    if ($copyStreamOp.Exception -ne $null) {  
+                        throw $copyStreamOp.Exception  
+                    }        
+                }  
+            }    
+        }  
+        elseif ($PSVersionTable.PSVersion.Major -ge 5) {
+            # We disable progress display because it kills performance for large downloads (at least on 64-bit PowerShell)  
+            $ProgressPreference = 'SilentlyContinue'  
+            wget -Uri $SourcePath -OutFile $DestinationPath -UseBasicParsing  
+            $ProgressPreference = 'Continue'  
+        } else {  
+            $webClient = New-Object System.Net.WebClient  
+            $webClient.DownloadFile($SourcePath, $DestinationPath)  
+        }   
+    } else {  
+        throw "Cannot copy from $SourcePath"  
+    }  
+}  
+
 echo "$(date) Phase1.ps1 started" >> $env:SystemDrive\packer\configure.log
 
 try {
     echo "$(date) Phase1.ps1 starting" >> $env:SystemDrive\packer\configure.log    
-    echo $(date) > "c:\users\public\desktop\Phase1 Start.txt"
+    if (-not (Test-Nano)) {
+        echo $(date) > "c:\users\public\desktop\Phase1 Start.txt"
+    }
+
     #--------------------------------------------------------------------------------------------
     # Turn off antimalware
     echo "$(date) Phase1.ps1 Disabling realtime monitoring..." >> $env:SystemDrive\packer\configure.log
@@ -39,7 +97,7 @@ try {
     # Re-download the script that downloads our files in case we want to refresh them
     echo "$(date) Phase1.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     $ErrorActionPreference='SilentlyContinue'
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$env:Branch/DownloadScripts.ps1","$env:SystemDrive\packer\DownloadScripts.ps1")
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$env:Branch/DownloadScripts.ps1" -DestinationPath "$env:SystemDrive\packer\DownloadScripts.ps1"
     $ErrorActionPreference='SilentlyContinue'
 
 
@@ -83,7 +141,7 @@ try {
         # Download and install Cygwin for SSH capability  # BUGBUG Hope to get rid of using this....
         echo "$(date) Phase1.ps1 downloading cygwin..." >> $env:SystemDrive\packer\configure.log
         mkdir $env:SystemDrive\cygwin -erroraction silentlycontinue 2>&1 | Out-Null
-        $wc=New-Object net.webclient;$wc.Downloadfile("https://cygwin.com/setup-x86_64.exe","$env:SystemDrive\cygwin\cygwinsetup.exe")
+        Copy-File -SourcePath "https://cygwin.com/setup-x86_64.exe" -DestinationPath "$env:SystemDrive\cygwin\cygwinsetup.exe"
         echo "$(date) Phase1.ps1 installing cygwin..." >> $env:SystemDrive\packer\configure.log
         Start-Process -wait $env:SystemDrive\cygwin\cygwinsetup.exe -ArgumentList "-q -R $env:SystemDrive\cygwin --packages openssh openssl -l $env:SystemDrive\cygwin\packages -s http://mirrors.sonic.net/cygwin/ 2>&1 | Out-Null"
     }
@@ -134,7 +192,9 @@ try {
 }
 Catch [Exception] {
     echo "$(date) Phase1.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
-    echo $(date) > "c:\users\public\desktop\ERROR Phase1.txt"
+    if (-not (Test-Nano)) {
+        echo $(date) > "c:\users\public\desktop\ERROR Phase1.txt"
+    }
     exit 1
 }
 Finally {
@@ -146,7 +206,9 @@ Finally {
 
     # Reboot
     echo "$(date) Phase1.ps1 rebooting..." >> $env:SystemDrive\packer\configure.log
-    echo $(date) > "c:\users\public\desktop\Phase1 End.txt"
+    if (-not (Test-Nano)) {
+        echo $(date) > "c:\users\public\desktop\Phase1 End.txt"
+    }
     shutdown /t 0 /r /f /c "Phase1"
     echo "$(date) Phase1.ps1 complete successfully at $(date)" >> $env:SystemDrive\packer\configure.log
 }    
