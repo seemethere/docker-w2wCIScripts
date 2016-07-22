@@ -8,14 +8,20 @@
 echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configure.log
 # 2.8 seems to have issues with path after installing. Need to sort this still. BUGBUG @jhowardmsft Ditto in dockerfile.Windows
 #$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
-$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.2.windows.1/Git-2.7.2-64-bit.exe"
+$FULL_GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.2.windows.1/Git-2.7.2-64-bit.exe"
+$NANO_GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.7.2.windows.1/PortableGit-2.7.2-64-bit.7z.exe"
+
 $JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-8u92-windows-x64.exe"  # 4/24/2016
 $NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.2/npp.6.9.2.Installer.exe"
 $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
 $DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
 $JAR_LOCATION="http://jenkins.dockerproject.org/jnlpJars/slave.jar"
 
-echo "$(date)  Git:           $GIT_LOCATION"         >> $env:SystemDrive\packer\configure.log
+if (-not (Test-Nano)) {
+    echo "$(date)  Git:           $FULL_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
+else {
+    echo "$(date)  Git:           $NANO_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
+}
 echo "$(date)  JDK:           $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log
 echo "$(date)  LiteIDE:       $LITEIDE_LOCATION"     >> $env:SystemDrive\packer\configure.log
 echo "$(date)  Notepad++:     $NPP_LOCATION"         >> $env:SystemDrive\packer\configure.log
@@ -130,7 +136,11 @@ try {
 
     # Download and install git
     echo "$(date) InstallMostThings.ps1 Downloading git..." >> $env:SystemDrive\packer\configure.log
-    Copy-File -SourcePath "$GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
+    if (-not (Test-Nano)) {
+        Copy-File -SourcePath "$FULL_GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
+    } else {
+        Copy-File -SourcePath "$NANO_GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
+    }
     echo "$(date) InstallMostThings.ps1 Installing git..." >> $env:SystemDrive\packer\configure.log
     Start-Process $env:Temp\gitsetup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=$env:SystemDrive\git" -Wait
 
