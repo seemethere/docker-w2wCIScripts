@@ -110,9 +110,15 @@ try {
 
     # Download and install golang, plus set GOROOT and GOPATH for machine and current session.
     echo "$(date) InstallMostThings.ps1 Downloading go..." >> $env:SystemDrive\packer\configure.log
-    Copy-File -SourcePath "https://storage.googleapis.com/golang/go$GO_VERSION.windows-amd64.msi" -DestinationPath "$env:Temp\go.msi"
-    echo "$(date) InstallMostThings.ps1 Installing go..." >> $env:SystemDrive\packer\configure.log
-    Start-Process msiexec -ArgumentList "-i $env:Temp\go.msi -quiet" -Wait
+    if (-not (Test-Nano)) {
+        Copy-File -SourcePath "https://storage.googleapis.com/golang/go$GO_VERSION.windows-amd64.msi" -DestinationPath "$env:Temp\go.msi"
+        echo "$(date) InstallMostThings.ps1 Installing go..." >> $env:SystemDrive\packer\configure.log
+        Start-Process msiexec -ArgumentList "-i $env:Temp\go.msi -quiet" -Wait
+    } else {
+        Copy-File -SourcePath "https://storage.googleapis.com/golang/go$GO_VERSION.windows-amd64.zip" -DestinationPath "$env:Temp\go.zip"
+        echo "$(date) InstallMostThings.ps1 Extracting go..." >> $env:SystemDrive\packer\configure.log
+        Expand-Archive $env:Temp\go.zip $env:SystemDrive\ -Force
+    }
     echo "$(date) InstallMostThings.ps1 Updating GOROOT and GOPATH..." >> $env:SystemDrive\packer\configure.log
     $env:GOROOT="$env:SystemDrive\go"
     $env:GOPATH="$env:SystemDrive\gopath"
