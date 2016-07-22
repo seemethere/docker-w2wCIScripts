@@ -63,7 +63,6 @@ function Copy-File {
 echo "$(date) DownloadScripts.ps1 Starting..." >> $env:SystemDrive\packer\configure.log
 
 try {
-
     # Create the scripts directory
     echo "$(date) DownloadScripts.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
     mkdir c:\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null
@@ -84,7 +83,7 @@ try {
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureCIEnvironment.ps1" -DestinationPath "c:\packer\ConfigureCIEnvironment.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureSSH.ps1" -DestinationPath "c:\packer\ConfigureSSH.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/ConfigureSSH.sh" -DestinationPath "c:\packer\ConfigureSSH.sh"
-    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/InstallMostThings.ps1`" -DestinationPath "c:\packer\InstallMostThings.ps1"
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/InstallMostThings.ps1" -DestinationPath "c:\packer\InstallMostThings.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase1.ps1" -DestinationPath "c:\packer\Phase1.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase2.ps1" -DestinationPath "c:\packer\Phase2.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase3.ps1" -DestinationPath "c:\packer\Phase3.ps1"
