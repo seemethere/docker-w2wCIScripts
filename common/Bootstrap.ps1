@@ -147,7 +147,7 @@ try {
 
     # Get Phase0.ps1
     echo "$(date) Bootstrap.ps1 Downloading Phase0.ps1..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase0.ps1","$env:SystemDrive\packer\Phase0.ps1")
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase0.ps1" -DestinationPath "$env:SystemDrive\packer\Phase0.ps1"
 
     # Execute Phase0 passing the branch as a parameter
     echo "$(date) Bootstrap.ps1 Executing Phase0.ps1..." >> $env:SystemDrive\packer\configure.log
