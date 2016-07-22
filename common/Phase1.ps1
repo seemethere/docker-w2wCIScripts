@@ -67,10 +67,12 @@ try {
         echo $(date) > "c:\users\public\desktop\Phase1 Start.txt"
     }
 
-    #--------------------------------------------------------------------------------------------
-    # Turn off antimalware
-    echo "$(date) Phase1.ps1 Disabling realtime monitoring..." >> $env:SystemDrive\packer\configure.log
-    set-mppreference -disablerealtimemonitoring $true
+    if (-not (Test-Nano)) {
+        #--------------------------------------------------------------------------------------------
+        # Turn off antimalware
+        echo "$(date) Phase1.ps1 Disabling realtime monitoring..." >> $env:SystemDrive\packer\configure.log
+        set-mppreference -disablerealtimemonitoring $true
+    }
 
     #--------------------------------------------------------------------------------------------
     # Turn off the powershell execution policy
@@ -83,15 +85,19 @@ try {
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=dockerdcontrol dir=in action=allow protocol=TCP localport=2375 profile=Any"
     Start-Process -wait -NoNewWindow netsh -ArgumentList "advfirewall firewall add rule name=dockerdut dir=in action=allow protocol=TCP localport=2357 profile=Any"
 
-    #--------------------------------------------------------------------------------------------
-    # Add the containers features
-    echo "$(date) Phase1.ps1 Adding containers feature..." >> $env:SystemDrive\packer\configure.log
-    Add-WindowsFeature containers
+    if (-not (Test-Nano)) {
+        #--------------------------------------------------------------------------------------------
+        # Add the containers features
+        echo "$(date) Phase1.ps1 Adding containers feature..." >> $env:SystemDrive\packer\configure.log
+        Add-WindowsFeature containers
+    }
 
-    #--------------------------------------------------------------------------------------------
-    # Add Hyper-V to support Hyper-V containers. If the machine is a Hyper-V VM, nested virtualization
-    # will need to be added to the VM from the root through Set-VMProcessor <vmname> -ExposeVirtualizationExtensions $true
-    dism /online /enable-feature /featurename:Microsoft-Hyper-V /NoRestart
+    if (-not (Test-Nano)) {
+        #--------------------------------------------------------------------------------------------
+        # Add Hyper-V to support Hyper-V containers. If the machine is a Hyper-V VM, nested virtualization
+        # will need to be added to the VM from the root through Set-VMProcessor <vmname> -ExposeVirtualizationExtensions $true
+        dism /online /enable-feature /featurename:Microsoft-Hyper-V /NoRestart
+    }
 
     #--------------------------------------------------------------------------------------------
     # Re-download the script that downloads our files in case we want to refresh them
