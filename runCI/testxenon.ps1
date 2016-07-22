@@ -10,7 +10,8 @@ e:\docker\ci\w2w\runCI\Invoke-DockerCI.ps1 `
 -skipclone `
 -skipimagebuild `
 -skipbinarybuild `
-#-IntegrationTestName "TestBuildAddLocalFileWithCache"
+#-IntegrationTestName "TestEvents*" `
+-SkipCOntrolDownload
 
 #-SkipClone -SkipBinaryBuild -SkipImageBuild
 #-SkipIntegrationTests 

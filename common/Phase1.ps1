@@ -93,10 +93,10 @@ try {
         echo "$(date) Phase1.ps1 configuring temp to D..." >> $env:SystemDrive\packer\configure.log
         $env:Temp="d:\temp"
         $env:Tmp=$env:Temp
-        [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "Machine")
-        [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "Machine")
-        [Environment]::SetEnvironmentVariable("TEMP", "$env:Temp", "User")
-        [Environment]::SetEnvironmentVariable("TMP", "$env:Temp", "User")
+        setx "TEMP" "$env:TEMP" /M 
+        setx "TMP" "$env:TEMP" /M 
+        setx "TEMP" "$env:TEMP"
+        setx "TMP" "$env:TEMP"
         mkdir $env:Temp -erroraction silentlycontinue 2>&1 | Out-Null
     }
     

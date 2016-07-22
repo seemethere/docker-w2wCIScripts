@@ -72,7 +72,8 @@ try {
     }
 
     # Store the branch
-    [Environment]::SetEnvironmentVariable("Branch",$Branch,"Machine")
+    setx "Branch" "$Branch" /M
+    $env:Branch=$Branch
 
     # Create the scripts and packer directories
     echo "$(date) Bootstrap.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log

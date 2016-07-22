@@ -31,8 +31,7 @@ try {
     # Set PATH for machine and current session
     echo "$(date) InstallMostThings.ps1 Updating path" >> $env:SystemDrive\packer\configure.log
     $env:Path="$env:SystemDrive\Program Files (x86)\Notepad++;$env:Path;$env:SystemDrive\gcc\bin;$env:SystemDrive\go\bin;$env:SystemDrive\pstools;$env:SystemDrive\gopath\bin;$env:SystemDrive\liteide\bin;$env:SystemDrive\pstools;$env:SystemDrive\jdk\bin;$env:SystemDrive\git\cmd;$env:SystemDrive\git\bin;$env:SystemDrive\git\usr\bin"
-    [Environment]::SetEnvironmentVariable("Path",$env:Path, "Machine")
-
+    setx "PATH" "$env:PATH" /M
 
     # Work out the version of GO from dockerfile.Windows currently on master
     echo "$(date) InstallMostThings.ps1 Working out GO version..." >> $env:SystemDrive\packer\configure.log
@@ -60,13 +59,13 @@ try {
     echo "$(date) InstallMostThings.ps1 Installing go..." >> $env:SystemDrive\packer\configure.log
     Start-Process msiexec -ArgumentList "-i $env:Temp\go.msi -quiet" -Wait
     echo "$(date) InstallMostThings.ps1 Updating GOROOT and GOPATH..." >> $env:SystemDrive\packer\configure.log
-    [Environment]::SetEnvironmentVariable("GOROOT", "$env:SystemDrive\go", "Machine")
     $env:GOROOT="$env:SystemDrive\go"
-    # Don't persist this for local development machines
-    if ($env:LOCAL_CI_INSTALL -ne 1) {
-        [Environment]::SetEnvironmentVariable("GOPATH", "$env:SystemDrive\gopath", "Machine")
-    }
     $env:GOPATH="$env:SystemDrive\gopath"
+    setx "GOROOT" "$env:GOROOT" /M  # persist
+    # Don't persist this for local development machines as Install-DevVM has already set it for building docker and the vendor directory
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        setx "GOPATH" "$env:GOPATH" /M  # persist
+    }
 
     # Download and install git
     echo "$(date) InstallMostThings.ps1 Downloading git..." >> $env:SystemDrive\packer\configure.log

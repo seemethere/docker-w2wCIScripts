@@ -16,13 +16,12 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
-$env:DOCKER_DUT_DEBUG=""                      # Daemon under test Debugging
-
 $DEV_MACHINE="jhoward-z420"
 $DEV_MACHINE_DRIVE="e"
 
 Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
+    set-PSDebug -Trace 1  # 1 to turn on
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
         $Branch=""
@@ -78,10 +77,7 @@ Try {
         bcdedit /dbgsettings NET HOSTIP`:$ip PORT`:$DebugPort KEY`:cle.ar.te.xt
         bcdedit /debug on
     }
-
-    [Environment]::SetEnvironmentVariable("DOCKER_DUT_DEBUG","$env:DOCKER_DUT_DEBUG", "Machine")
-    [Environment]::SetEnvironmentVariable("DOCKER_TP5_BASEIMAGE_WORKAROUND","$env:DOCKER_TP5_BASEIMAGE_WORKAROUND", "Machine")
-    
+  
     if ($null -eq $(Get-Command code -erroraction silentlycontinue)) {
         # VSCode (useful for markdown editing). But really annoying as I can't find a way to
         # not make it launch after setup completes, so blocks. Workaround isn't nice but works
@@ -143,15 +139,17 @@ Try {
     Copy-Item sfpcopy.exe c:\windows\system32 -ErrorAction SilentlyContinue
     Copy-Item windiff.exe c:\windows\system32 -ErrorAction SilentlyContinue
 
-    Write-Host "INFO: Setting environment variables"
-    #[Environment]::SetEnvironmentVariable("GOARCH","amd64", "Machine")
-    #[Environment]::SetEnvironmentVariable("GOOS","windows", "Machine")
-    #[Environment]::SetEnvironmentVariable("GOEXE",".exe", "Machine")
-    [Environment]::SetEnvironmentVariable("GOPATH",$DEV_MACHINE_DRIVE+":\go\src\github.com\docker\docker\vendor;"+$DEV_MACHINE_DRIVE+":\go", "Machine")
-    [Environment]::SetEnvironmentVariable("Path","$env:Path;c:\gopath\bin;"+$DEV_MACHINE_DRIVE+":\docker\utils", "Machine")
-    [Environment]::SetEnvironmentVariable("LOCAL_CI_INSTALL","1","Machine")
-    [Environment]::SetEnvironmentVariable("Branch",$Branch,"Machine")
+    Write-Host "INFO: Setting environment variables"  
+    $env:GOPATH=$DEV_MACHINE_DRIVE+":\go\src\github.com\docker\docker\vendor;"+$DEV_MACHINE_DRIVE+":\go"
+    $env:Path="$env:Path;c:\gopath\bin;"+$DEV_MACHINE_DRIVE+":\docker\utils"
     $env:LOCAL_CI_INSTALL="1"
+    $env:Branch="$Branch"
+
+    # Persist them. Note this way for coreCLR compatibility.
+    setx GOPATH $env:GOPATH /M
+    setx PATH $env:Path /M
+    setx LOCAL_CI_INSTALL $env:LOCAL_CI_INSTALL /M
+    setx BRANCH $env:BRANCH /M
 
     mkdir c:\packer -ErrorAction SilentlyContinue
     Copy-Item "..\common\Bootstrap.ps1" c:\packer\ -ErrorAction SilentlyContinue
@@ -159,11 +157,6 @@ Try {
     . "$env:SystemDrive\packer\Bootstrap.ps1" -Branch $Branch -Doitanyway
 
     echo $(date) > "c:\users\public\desktop\$Branch.txt"
-
-    # DUT Debugging
-    if ($env:DOCKER_DUT_DEBUG -eq 1) {
-        echo $(date) > "c:\users\public\desktop\DOCKER_DUT_DEBUG"
-    }
 
 } Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_'")

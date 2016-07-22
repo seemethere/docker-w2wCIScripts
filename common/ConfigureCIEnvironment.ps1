@@ -5,12 +5,18 @@
 # Configure the variables used by executeCI.ps1 invoked by Jenkins
 echo "$(date) ConfigureCIEnvironment started" >> $env:SystemDrive\packer\configure.log
 Write-Host "INFO: Executing ConfigureCIEnvironment.ps1"
-[Environment]::SetEnvironmentVariable("SOURCES_DRIVE", "c", "Machine")
-[Environment]::SetEnvironmentVariable("SOURCES_SUBDIR", "gopath", "Machine")
+$env:SOURCE_DRIVE="c"
+$env:SOURCES_SUBDIR="gopath"
+setx "SOURCES_DRIVE" "$env:SOURCES_DRIVE" /M
+setx "SOURCES_SUBDIR" "$env:SOURCES_SUBDIR" /M
+
+
 if ($env:LOCAL_CI_INSTALL -eq 1) {
-    [Environment]::SetEnvironmentVariable("TESTRUN_DRIVE", "c", "Machine")
+    $env:TESTRUN_DRIVE="c"
 } else {
-    [Environment]::SetEnvironmentVariable("TESTRUN_DRIVE", "d", "Machine")
+    $env:TESTRUN_DRIVE="d"
 }
-[Environment]::SetEnvironmentVariable("TESTRUN_SUBDIR", "CI", "Machine")
+$env:TESTRUN_SUBDIR="CI"
+setx "TESTRUN_DRIVE" "$env:TESTRUN_DRIVE" /M
+setx "TESTRUN_SUBDIR" "$env:TESTRUN_SUBDIR" /M
 echo "$(date) ConfigureCIEnvironment completed" >> $env:SystemDrive\packer\configure.log
