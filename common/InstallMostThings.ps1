@@ -17,18 +17,6 @@ $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
 $DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
 $JAR_LOCATION="http://jenkins.dockerproject.org/jnlpJars/slave.jar"
 
-if (-not (Test-Nano)) {
-    echo "$(date)  Git:           $FULL_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
-} else { 
-    echo "$(date)  Git:           $NANO_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
-}
-echo "$(date)  JDK:           $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log
-echo "$(date)  LiteIDE:       $LITEIDE_LOCATION"     >> $env:SystemDrive\packer\configure.log
-echo "$(date)  Notepad++:     $NPP_LOCATION"         >> $env:SystemDrive\packer\configure.log
-echo "$(date)  SQLite:        $SQLITE_LOCATION"      >> $env:SystemDrive\packer\configure.log
-echo "$(date)  Docker:        $DOCKER_LOCATION"      >> $env:SystemDrive\packer\configure.log
-echo "$(date)  Jenkins JAR:   $JAR_LOCATION"         >> $env:SystemDrive\packer\configure.log
-
 # Stop on error
 $ErrorActionPreference="stop"
 
@@ -86,6 +74,18 @@ function Copy-File {
         throw "Cannot copy from $SourcePath"  
     }  
 }  
+
+if (-not (Test-Nano)) {
+    echo "$(date)  Git:           $FULL_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
+} else { 
+    echo "$(date)  Git:           $NANO_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
+}
+echo "$(date)  JDK:           $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log
+echo "$(date)  LiteIDE:       $LITEIDE_LOCATION"     >> $env:SystemDrive\packer\configure.log
+echo "$(date)  Notepad++:     $NPP_LOCATION"         >> $env:SystemDrive\packer\configure.log
+echo "$(date)  SQLite:        $SQLITE_LOCATION"      >> $env:SystemDrive\packer\configure.log
+echo "$(date)  Docker:        $DOCKER_LOCATION"      >> $env:SystemDrive\packer\configure.log
+echo "$(date)  Jenkins JAR:   $JAR_LOCATION"         >> $env:SystemDrive\packer\configure.log
 
 try {
 
