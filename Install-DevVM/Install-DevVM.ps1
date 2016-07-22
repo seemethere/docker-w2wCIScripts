@@ -134,25 +134,27 @@ Try {
         bcdedit /dbgsettings NET HOSTIP`:$ip PORT`:$DebugPort KEY`:cle.ar.te.xt
         bcdedit /debug on
     }
-  
-    if ($null -eq $(Get-Command code -erroraction silentlycontinue)) {
-        # VSCode (useful for markdown editing). But really annoying as I can't find a way to
-        # not make it launch after setup completes, so blocks. Workaround isn't nice but works
-        $ErrorActionPreference = 'Stop'
-        if (-not (Test-Path $env:Temp\vscodeinstaller.exe)) {
-            Write-Host "INFO: Downloading VSCode installer"
-            Copy-File -SourcePath "https://go.microsoft.com/fwlink/?LinkID=623230" -DestinationPath "$env:Temp\vscodeinstaller.exe"
-        }
-        Write-Host "INFO: Installing VSCode"
-        $j = Start-Job -ScriptBlock {Start-Process -wait "$env:Temp\vscodeinstaller.exe" -ArgumentList "/silent /dir:c:\vscode"}
-        Write-Host "INFO: Waiting for installer to complete"
-        Start-Sleep 60
-        Write-Host "INFO: Force stopping vscode, iexplore and edge (annoying workaround...)"
-        Get-Process *code* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
-        Get-Process *iexplore* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
-        Get-Process *MicrosoftEdge* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
-        Write-Host "INFO: Waiting on job"
-        wait-Job $j.id | Out-Null
+
+    if (-not Test-Nano) {
+        if ($null -eq $(Get-Command code -erroraction silentlycontinue)) {
+            # VSCode (useful for markdown editing). But really annoying as I can't find a way to
+            # not make it launch after setup completes, so blocks. Workaround isn't nice but works
+            $ErrorActionPreference = 'Stop'
+            if (-not (Test-Path $env:Temp\vscodeinstaller.exe)) {
+                Write-Host "INFO: Downloading VSCode installer"
+                Copy-File -SourcePath "https://go.microsoft.com/fwlink/?LinkID=623230" -DestinationPath "$env:Temp\vscodeinstaller.exe"
+            }
+            Write-Host "INFO: Installing VSCode"
+            $j = Start-Job -ScriptBlock {Start-Process -wait "$env:Temp\vscodeinstaller.exe" -ArgumentList "/silent /dir:c:\vscode"}
+            Write-Host "INFO: Waiting for installer to complete"
+            Start-Sleep 60
+            Write-Host "INFO: Force stopping vscode, iexplore and edge (annoying workaround...)"
+            Get-Process *code* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
+            Get-Process *iexplore* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
+            Get-Process *MicrosoftEdge* -ErrorAction SilentlyContinue | Stop-Process -ErrorAction SilentlyContinue
+            Write-Host "INFO: Waiting on job"
+            wait-Job $j.id | Out-Null
+         }
     }
 
     Write-Host "INFO: Configuring automatic logon"
@@ -163,30 +165,39 @@ Try {
     Write-Host "INFO: Net using to $DEV_MACHINE"
     net use "$DEV_MACHINE_DRIVE`:" "\\$DEV_MACHINE\$DEV_MACHINE_DRIVE`$"
 
-    Write-Host "INFO: Disabling real time monitoring"
-    set-mppreference -disablerealtimemonitoring $true
+    if (-not Test-Nano) {
+        Write-Host "INFO: Disabling real time monitoring"
+        set-mppreference -disablerealtimemonitoring $true
+    }
     Write-Host "INFO: Setting execution policy"
     Set-ExecutionPolicy bypass
-    Write-Host "INFO: Unblocking the shortcut file"
-    Unblock-File .\docker-docker-shortcut.ps1
-    ### Commented out as hangs sometimes. No idea why.
-    Write-Host "INFO: Running the shortcut file"
-    powershell -command .\docker-docker-shortcut.ps1
 
-    Write-Host "INFO: Creating c:\liteide"
-    mkdir c:\liteide -ErrorAction SilentlyContinue
-    Write-Host "INFO: Copying liteide..."
-    xcopy \\redmond\osg\Teams\CORE\BASE\HYP\Team\jhoward\Docker\Install\liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
+    if (-not Test-Nano) {
+        Write-Host "INFO: Unblocking the shortcut file"
+        Unblock-File .\docker-docker-shortcut.ps1
+        Write-Host "INFO: Running the shortcut file"
+        powershell -command .\docker-docker-shortcut.ps1
+    }
+
+    if (-not Test-Nano) {
+        Write-Host "INFO: Creating c:\liteide"
+        mkdir c:\liteide -ErrorAction SilentlyContinue
+        Write-Host "INFO: Copying liteide..."
+        xcopy \\redmond\osg\Teams\CORE\BASE\HYP\Team\jhoward\Docker\Install\liteide\liteidex28.windows-qt4\liteide\* c:\liteide /s /Y
+    }
+
     Write-Host "INFO: Removing docker.exe if it exists"
     Remove-Item c:\windows\system32\docker.exe -ErrorAction SilentlyContinue
     Write-Host "INFO: Removing dockerd.exe if it exists"
     Remove-Item c:\windows\system32\dockerd.exe -ErrorAction SilentlyContinue
 
-    Write-Host "INFO: Enabling remote desktop in registry"
-    set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
-    set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 0
-    Write-Host "INFO: Enabling remote desktop in firewall"
-    enable-netfirewallrule -displaygroup 'Remote Desktop'
+    if (-not Test-Nano) {
+        Write-Host "INFO: Enabling remote desktop in registry"
+        set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+        set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 0
+        Write-Host "INFO: Enabling remote desktop in firewall"
+        enable-netfirewallrule -displaygroup 'Remote Desktop'
+    }
 
     Write-Host "INFO: Turning off the firewall"
     NetSh Advfirewall set allprofiles state off
