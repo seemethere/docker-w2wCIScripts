@@ -19,7 +19,7 @@ $JAR_LOCATION="http://jenkins.dockerproject.org/jnlpJars/slave.jar"
 
 if (-not (Test-Nano)) {
     echo "$(date)  Git:           $FULL_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
-} else {
+} else { 
     echo "$(date)  Git:           $NANO_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
 }
 echo "$(date)  JDK:           $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log
