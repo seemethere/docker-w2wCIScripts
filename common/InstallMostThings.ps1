@@ -26,6 +26,61 @@ echo "$(date)  Jenkins JAR:   $JAR_LOCATION"         >> $env:SystemDrive\packer\
 # Stop on error
 $ErrorActionPreference="stop"
 
+function Test-Nano() {  
+    $EditionId = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name 'EditionID').EditionId  
+    return (($EditionId -eq "ServerStandardNano") -or   
+            ($EditionId -eq "ServerDataCenterNano") -or   
+            ($EditionId -eq "NanoServer") -or   
+            ($EditionId -eq "ServerTuva"))  
+}  
+
+function Copy-File {  
+    [CmdletBinding()]  
+    param(  
+        [string] $SourcePath,  
+        [string] $DestinationPath  
+    )  
+
+    if ($SourcePath -eq $DestinationPath) { return }  
+
+    if (Test-Path $SourcePath) { 
+        Copy-Item -Path $SourcePath -Destination $DestinationPath 
+    } elseif (($SourcePath -as [System.URI]).AbsoluteURI -ne $null) {  
+        if (Test-Nano) {
+            $handler = New-Object System.Net.Http.HttpClientHandler  
+            $client = New-Object System.Net.Http.HttpClient($handler)  
+            $client.Timeout = New-Object System.TimeSpan(0, 30, 0)  
+            $cancelTokenSource = [System.Threading.CancellationTokenSource]::new()   
+            $responseMsg = $client.GetAsync([System.Uri]::new($SourcePath), $cancelTokenSource.Token)  
+            $responseMsg.Wait()  
+
+            if (!$responseMsg.IsCanceled) {  
+                $response = $responseMsg.Result  
+                if ($response.IsSuccessStatusCode) {  
+                    $downloadedFileStream = [System.IO.FileStream]::new($DestinationPath, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write)  
+                    $copyStreamOp = $response.Content.CopyToAsync($downloadedFileStream)  
+                    $copyStreamOp.Wait()  
+                    $downloadedFileStream.Close()  
+                    if ($copyStreamOp.Exception -ne $null) {  
+                        throw $copyStreamOp.Exception  
+                    }        
+                }  
+            }    
+        }  
+        elseif ($PSVersionTable.PSVersion.Major -ge 5) {}  
+            # We disable progress display because it kills performance for large downloads (at least on 64-bit PowerShell)  
+            $ProgressPreference = 'SilentlyContinue'  
+            wget -Uri $SourcePath -OutFile $DestinationPath -UseBasicParsing  
+            $ProgressPreference = 'Continue'  
+        } else {  
+            $webClient = New-Object System.Net.WebClient  
+            $webClient.DownloadFile($SourcePath, $DestinationPath)  
+        }   
+    } else {  
+        throw "Cannot copy from $SourcePath"  
+    }  
+}  
+
 try {
 
     # Set PATH for machine and current session
@@ -180,6 +235,7 @@ try {
     # Download slave.jar from Jenkins
     # Keep for reference. Just in case can get off SSH due to other reasons.
     #if ($env:LOCAL_CI_INSTALL -ne 1) {
+    #    Use Copy-Item for nanoserver compatibility...
     #    Invoke-WebRequest http://jenkins.dockerproject.org/jnlpJars/slave.jar -OutFile slave.jar
     #    echo "$(date) InstallMostThings.ps1 Downloading slave.jar from Jenkins..." >> $env:SystemDrive\packer\configure.log
     #    $wc=New-Object net.webclient;

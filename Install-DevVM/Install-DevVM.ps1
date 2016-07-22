@@ -19,6 +19,63 @@ $ErrorActionPreference = 'Stop'
 $DEV_MACHINE="jhoward-z420"
 $DEV_MACHINE_DRIVE="e"
 
+function Test-Nano() {  
+    $EditionId = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name 'EditionID').EditionId  
+    return (($EditionId -eq "ServerStandardNano") -or   
+            ($EditionId -eq "ServerDataCenterNano") -or   
+            ($EditionId -eq "NanoServer") -or   
+            ($EditionId -eq "ServerTuva"))  
+}  
+
+function Copy-File {  
+    [CmdletBinding()]  
+    param(  
+        [string] $SourcePath,  
+        [string] $DestinationPath  
+    )  
+
+    if ($SourcePath -eq $DestinationPath) { return }  
+
+    if (Test-Path $SourcePath) { 
+        Copy-Item -Path $SourcePath -Destination $DestinationPath 
+    } elseif (($SourcePath -as [System.URI]).AbsoluteURI -ne $null) {  
+        if (Test-Nano) {
+            $handler = New-Object System.Net.Http.HttpClientHandler  
+            $client = New-Object System.Net.Http.HttpClient($handler)  
+            $client.Timeout = New-Object System.TimeSpan(0, 30, 0)  
+            $cancelTokenSource = [System.Threading.CancellationTokenSource]::new()   
+            $responseMsg = $client.GetAsync([System.Uri]::new($SourcePath), $cancelTokenSource.Token)  
+            $responseMsg.Wait()  
+
+            if (!$responseMsg.IsCanceled) {  
+                $response = $responseMsg.Result  
+                if ($response.IsSuccessStatusCode) {  
+                    $downloadedFileStream = [System.IO.FileStream]::new($DestinationPath, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write)  
+                    $copyStreamOp = $response.Content.CopyToAsync($downloadedFileStream)  
+                    $copyStreamOp.Wait()  
+                    $downloadedFileStream.Close()  
+                    if ($copyStreamOp.Exception -ne $null) {  
+                        throw $copyStreamOp.Exception  
+                    }        
+                }  
+            }    
+        }  
+        elseif ($PSVersionTable.PSVersion.Major -ge 5) {}  
+            # We disable progress display because it kills performance for large downloads (at least on 64-bit PowerShell)  
+            $ProgressPreference = 'SilentlyContinue'  
+            wget -Uri $SourcePath -OutFile $DestinationPath -UseBasicParsing  
+            $ProgressPreference = 'Continue'  
+        } else {  
+            $webClient = New-Object System.Net.WebClient  
+            $webClient.DownloadFile($SourcePath, $DestinationPath)  
+        }   
+    } else {  
+        throw "Cannot copy from $SourcePath"  
+    }  
+}  
+
+
+
 Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
     set-PSDebug -Trace 1  # 1 to turn on
@@ -84,7 +141,7 @@ Try {
         $ErrorActionPreference = 'Stop'
         if (-not (Test-Path $env:Temp\vscodeinstaller.exe)) {
             Write-Host "INFO: Downloading VSCode installer"
-            Invoke-WebRequest "https://go.microsoft.com/fwlink/?LinkID=623230" -OutFile "$env:Temp\vscodeinstaller.exe"
+            Copy-File -SourcePath "https://go.microsoft.com/fwlink/?LinkID=623230" -DestinationPath "$env:Temp\vscodeinstaller.exe"
         }
         Write-Host "INFO: Installing VSCode"
         $j = Start-Job -ScriptBlock {Start-Process -wait "$env:Temp\vscodeinstaller.exe" -ArgumentList "/silent /dir:c:\vscode"}
