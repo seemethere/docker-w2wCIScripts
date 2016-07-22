@@ -67,7 +67,7 @@ function Copy-File {
                 }  
             }    
         }  
-        elseif ($PSVersionTable.PSVersion.Major -ge 5) {}  
+        elseif ($PSVersionTable.PSVersion.Major -ge 5) { 
             # We disable progress display because it kills performance for large downloads (at least on 64-bit PowerShell)  
             $ProgressPreference = 'SilentlyContinue'  
             wget -Uri $SourcePath -OutFile $DestinationPath -UseBasicParsing  
