@@ -90,7 +90,7 @@ try {
 
     # Work out the version of GO from dockerfile.Windows currently on master
     echo "$(date) InstallMostThings.ps1 Working out GO version..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/docker/docker/master/Dockerfile.windows","$env:Temp\dockerfile.Windows")
+    Copy-File -SourcePath "https://raw.githubusercontent.com/docker/docker/master/Dockerfile.windows" -DestinationPath "$env:Temp\dockerfile.Windows"
     $pattern=select-string $env:Temp\dockerfile.windows -pattern "GO_VERSION="
     if ($pattern.Count -lt 1) {
         Throw "Could not find GO_VERSION= in dockerfile.Windows!"
@@ -110,7 +110,7 @@ try {
 
     # Download and install golang, plus set GOROOT and GOPATH for machine and current session.
     echo "$(date) InstallMostThings.ps1 Downloading go..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://storage.googleapis.com/golang/go$GO_VERSION.windows-amd64.msi","$env:Temp\go.msi")
+    Copy-File -SourcePath "https://storage.googleapis.com/golang/go$GO_VERSION.windows-amd64.msi" -DestinationPath "$env:Temp\go.msi"
     echo "$(date) InstallMostThings.ps1 Installing go..." >> $env:SystemDrive\packer\configure.log
     Start-Process msiexec -ArgumentList "-i $env:Temp\go.msi -quiet" -Wait
     echo "$(date) InstallMostThings.ps1 Updating GOROOT and GOPATH..." >> $env:SystemDrive\packer\configure.log
@@ -124,18 +124,18 @@ try {
 
     # Download and install git
     echo "$(date) InstallMostThings.ps1 Downloading git..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("$GIT_LOCATION","$env:Temp\gitsetup.exe")
+    Copy-File -SourcePath "$GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
     echo "$(date) InstallMostThings.ps1 Installing git..." >> $env:SystemDrive\packer\configure.log
     Start-Process $env:Temp\gitsetup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=$env:SystemDrive\git" -Wait
 
 
     # Download and install GCC
     echo "$(date) InstallMostThings.ps1 Downloading compiler 1 of 3..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/gcc.zip","$env:Temp\gcc.zip")
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/gcc.zip" -DestinationPath "$env:Temp\gcc.zip"
     echo "$(date) InstallMostThings.ps1 Downloading compiler 2 of 3..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/runtime.zip","$env:Temp\runtime.zip")
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/runtime.zip" -DestinationPath "$env:Temp\runtime.zip"
     echo "$(date) InstallMostThings.ps1 Downloading compiler 3 of 3..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/binutils.zip","$env:Temp\binutils.zip")
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/binutils.zip" -DestinationPath "$env:Temp\binutils.zip"
     echo "$(date) InstallMostThings.ps1 Extracting compiler 1 of 3..." >> $env:SystemDrive\packer\configure.log
     Expand-Archive $env:Temp\gcc.zip $env:SystemDrive\gcc -Force
     echo "$(date) InstallMostThings.ps1 Extracting compiler 2 of 3..." >> $env:SystemDrive\packer\configure.log
@@ -183,21 +183,23 @@ try {
 
     # Download docker client
     echo "$(date) InstallMostThings.ps1 Downloading docker.exe..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/docker.exe","$env:SystemRoot\System32\docker.exe")
+    Copy-File -SourcePath "$DOCKER_LOCATION/docker.exe" -DestinationPath "$env:SystemRoot\System32\docker.exe"
 
     # Download docker daemon
     echo "$(date) InstallMostThings.ps1 Downloading dockerd.exe..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("$DOCKER_LOCATION/dockerd.exe","$env:SystemRoot\System32\dockerd.exe")
+    Copy-File -SourcePath "$DOCKER_LOCATION/dockerd.exe" -DestinationPath "$env:SystemRoot\System32\dockerd.exe"
 
-    # Download and install Notepad++
-    echo "$(date) InstallMostThings.ps1 Downloading Notepad++..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile($NPP_LOCATION,"$env:Temp\nppinstaller.exe")
-    echo "$(date) InstallMostThings.ps1 Installing Notepad++..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -wait $env:Temp\nppinstaller.exe -ArgumentList "/S"
+    if (-not (Test-Nano)) {
+        # Download and install Notepad++
+        echo "$(date) InstallMostThings.ps1 Downloading Notepad++..." >> $env:SystemDrive\packer\configure.log
+        $wc=New-Object net.webclient;$wc.Downloadfile($NPP_LOCATION,"$env:Temp\nppinstaller.exe")
+        echo "$(date) InstallMostThings.ps1 Installing Notepad++..." >> $env:SystemDrive\packer\configure.log
+        Start-Process -wait $env:Temp\nppinstaller.exe -ArgumentList "/S"
+    }
 
     # Download and install PSTools
     echo "$(date) InstallMostThings.ps1 Downloading PSTools..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile("https://download.sysinternals.com/files/PSTools.zip","$env:Temp\pstools.zip")
+    Copy-File -SourcePath "https://download.sysinternals.com/files/PSTools.zip" -DestinationPath "$env:Temp\pstools.zip"
     echo "$(date) InstallMostThings.ps1 Installing PSTools..." >> $env:SystemDrive\packer\configure.log
     Expand-Archive $env:Temp\pstools.zip c:\pstools
 
@@ -206,24 +208,29 @@ try {
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipVersionCheck /t REG_DWORD /d 2 /f | Out-Null
     REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipSkuCheck /t REG_DWORD /d 2 /f | Out-Null
 
-    # Stop Server Manager from opening at logon
-    echo "$(date) InstallMostThings.ps1 Turning off server manager at logon..." >> $env:SystemDrive\packer\configure.log
-    REG ADD "HKLM\SOFTWARE\Microsoft\ServerManager" /v DoNotOpenServerManagerAtLogon /t REG_DWORD /d 1 /f | Out-Null
+    if (-not (Test-Nano)) {
+        # Stop Server Manager from opening at logon
+        echo "$(date) InstallMostThings.ps1 Turning off server manager at logon..." >> $env:SystemDrive\packer\configure.log
+        REG ADD "HKLM\SOFTWARE\Microsoft\ServerManager" /v DoNotOpenServerManagerAtLogon /t REG_DWORD /d 1 /f | Out-Null
+    }
 
-    if ($env:LOCAL_CI_INSTALL -ne 1) {
-        # Download and install Java Development Kit 
-        # http://stackoverflow.com/questions/10268583/downloading-java-jdk-on-linux-via-wget-is-shown-license-page-instead
-        echo "$(date) InstallMostThings.ps1 Downloading JDK..." >> $env:SystemDrive\packer\configure.log
-        $wc=New-Object net.webclient;
-        $wc.Headers.Set("Cookie","oraclelicense=accept-securebackup-cookie")
-        $wc.Downloadfile("$JDK_LOCATION","$env:Temp\jdkinstaller.exe")
-        echo "$(date) InstallMostThings.ps1 Installing JDK..." >> $env:SystemDrive\packer\configure.log
-        Start-Process -Wait "$env:Temp\jdkinstaller.exe" -ArgumentList "/s /INSTALLDIRPUBJRE=$env:SystemDrive\jdk"
+    # BUGBUG This could be problematic with Copy-File
+    if (-not (Test-Nano)) {
+        if ($env:LOCAL_CI_INSTALL -ne 1) {
+            # Download and install Java Development Kit 
+            # http://stackoverflow.com/questions/10268583/downloading-java-jdk-on-linux-via-wget-is-shown-license-page-instead
+            echo "$(date) InstallMostThings.ps1 Downloading JDK..." >> $env:SystemDrive\packer\configure.log
+            $wc=New-Object net.webclient;
+            $wc.Headers.Set("Cookie","oraclelicense=accept-securebackup-cookie")
+            $wc.Downloadfile("$JDK_LOCATION","$env:Temp\jdkinstaller.exe")
+            echo "$(date) InstallMostThings.ps1 Installing JDK..." >> $env:SystemDrive\packer\configure.log
+            Start-Process -Wait "$env:Temp\jdkinstaller.exe" -ArgumentList "/s /INSTALLDIRPUBJRE=$env:SystemDrive\jdk"
+        }
     }
 
     # Download and compile sqlite3.dll from amalgamation sources in case of a dynamically linked docker binary
     echo "$(date) InstallMostThings.ps1 Downloading SQLite sources..." >> $env:SystemDrive\packer\configure.log
-    $wc=New-Object net.webclient;$wc.Downloadfile($SQLITE_LOCATION,"$env:Temp\sqlite.zip")
+    Copy-File -SourcePath "$SQLITE_LOCATION" -DestinationPath "$env:Temp\sqlite.zip"
     echo "$(date) InstallMostThings.ps1 Extracting SQLite sources..." >> $env:SystemDrive\packer\configure.log
     Expand-Archive $env:Temp\sqlite.zip $env:SystemDrive\sqlite
     cd $env:SystemDrive\sqlite
