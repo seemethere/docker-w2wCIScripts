@@ -5,7 +5,7 @@
 # Configure the variables used by executeCI.ps1 invoked by Jenkins
 echo "$(date) ConfigureCIEnvironment started" >> $env:SystemDrive\packer\configure.log
 Write-Host "INFO: Executing ConfigureCIEnvironment.ps1"
-$env:SOURCE_DRIVE="c"
+$env:SOURCES_DRIVE="c"
 $env:SOURCES_SUBDIR="gopath"
 setx "SOURCES_DRIVE" "$env:SOURCES_DRIVE" /M
 setx "SOURCES_SUBDIR" "$env:SOURCES_SUBDIR" /M

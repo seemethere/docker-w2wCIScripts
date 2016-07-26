@@ -134,15 +134,21 @@ try {
         setx "GOPATH" "$env:GOPATH" /M  # persist
     }
 
+    # Download 7z to extract GIT on nanoserver
+    #if (Test-Nano) {
+    #    echo "$(date) InstallMostThings.ps1 Downloading 7z (nano only)..." >> $env:SystemDrive\packer\configure.log
+    #    Copy-File -SourcePath "http://www.7-zip.org/a/7z1602-x64.exe" -DestinationPath "$env:Temp\7zsetup.exe"
+    #}
+
     # Download and install git
     echo "$(date) InstallMostThings.ps1 Downloading git..." >> $env:SystemDrive\packer\configure.log
     if (-not (Test-Nano)) {
         Copy-File -SourcePath "$FULL_GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
+        echo "$(date) InstallMostThings.ps1 Installing git..." >> $env:SystemDrive\packer\configure.log
+        Start-Process $env:Temp\gitsetup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=$env:SystemDrive\git" -Wait
     } else {
         Copy-File -SourcePath "$NANO_GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
     }
-    echo "$(date) InstallMostThings.ps1 Installing git..." >> $env:SystemDrive\packer\configure.log
-    Start-Process $env:Temp\gitsetup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=$env:SystemDrive\git" -Wait
 
 
     # Download and install GCC

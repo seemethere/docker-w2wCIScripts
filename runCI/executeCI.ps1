@@ -739,6 +739,20 @@ Try {
         Write-Host -ForegroundColor Magenta "WARN: Skipping integration tests"
     }
 
+	# Docker info now to get counts (after or if jjh/containercounts is merged)
+	if ($daemonStarted -eq 1) {
+		Write-Host -ForegroundColor Green "INFO: Docker info of the daemon under test at end of run"
+		Write-Host 
+		$ErrorActionPreference = "SilentlyContinue"
+		& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" info
+		$ErrorActionPreference = "Stop"
+		if ($LastExitCode -ne 0) {
+			Throw "ERROR: The daemon under test does not appear to be running."
+			$DumpDaemonLog=1
+		}
+		Write-Host
+	}
+	
     # Stop the daemon under test
     if ($daemonStarted -eq 1) {
         if (Test-Path "$env:TEMP\docker.pid") {
