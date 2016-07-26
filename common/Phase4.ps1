@@ -38,18 +38,26 @@ Finally {
     $ErrorActionPreference='SilentlyContinue'
     echo "$(date) Phase4.ps1 turning off auto admin logon" >> $env:SystemDrive\packer\configure.log
     if ($env:LOCAL_CI_INSTALL -ne 1) {
-        Remove-ItemProperty  -Name "AutoAdminLogon" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
-        Remove-ItemProperty  -Name "DefaultUserName" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
-        Remove-ItemProperty  -Name "DefaultPassword" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force | Out-Null
+        echo "$(date) Phase4.ps1 Removing AutoAdminLogon key" >> $env:SystemDrive\packer\configure.log
+        Remove-ItemProperty  -Name "AutoAdminLogon" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
+        echo "$(date) Phase4.ps1 Removing DefaultUserName key" >> $env:SystemDrive\packer\configure.log
+        Remove-ItemProperty  -Name "DefaultUserName" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
+        echo "$(date) Phase4.ps1 Removing DefaultPassword key" >> $env:SystemDrive\packer\configure.log
+        Remove-ItemProperty  -Name "DefaultPassword" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
     }
     
     # Tidy up
+    echo "$(date) Phase4.ps1 Calculating user" >> $env:SystemDrive\packer\configure.log
     $user="administrator"
     if ($env:LOCAL_CI_INSTALL -ne 1) {
+        echo "$(date) Phase4.ps1 user is 'jenkins'" >> $env:SystemDrive\packer\configure.log
         $user="jenkins"
     }
+    echo "$(date) Phase4.ps1 Removing Phase4.lnk" >> $env:SystemDrive\packer\configure.log
     Remove-Item "C:\Users\$user\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
+    echo "$(date) Phase4.ps1 Removing password.txt" >> $env:SystemDrive\packer\configure.log
     Remove-Item c:\packer\password.txt -Force -ErrorAction SilentlyContinue
+    echo "$(date) Phase4.ps1 Removing ConfigureSSH.log" >> $env:SystemDrive\packer\configure.log
     Remove-Item c:\packer\ConfigureSSH.log -Force -ErrorAction SilentlyContinue
 
     echo "$(date) Phase4.ps1 is rebooting" >> $env:SystemDrive\packer\configure.log
