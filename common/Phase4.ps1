@@ -9,6 +9,14 @@ try {
     echo "$(date) Phase4.ps1 starting" >> $env:SystemDrive\packer\configure.log
     echo $(date) > "c:\users\public\desktop\Phase4 Start.txt"
 
+    if ($env:LOCAL_CI_INSTALL -eq 1) {
+        echo "$(date) Phase4.ps1 quitting on local CI" >> $env:SystemDrive\packer\configure.log
+        exit 0
+    }
+
+    echo "$(date) Phase4.ps1 Removing Phase4.lnk" >> $env:SystemDrive\packer\configure.log
+    Remove-Item "C:\Users\jenkins\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
+
     # Add the registry keys to stop reporting as it skew stats
     echo "$(date) Phase4 Adding SQM keys" >> $env:SystemDrive\packer\configure.log
     if (-not (Test-Path "HKCU:Software\Microsoft\SQMClient")) {
@@ -17,11 +25,6 @@ try {
     New-ItemProperty -Path "HKCU:Software\Microsoft\SQMClient" -Name "isTest" -Value 1 -PropertyType DWORD -Force -ErrorAction SilentlyContinue | Out-Null
     New-ItemProperty -Path "HKCU:Software\Microsoft\SQMClient" -Name "MSFTInternal" -Value 1 -PropertyType DWORD -Force -ErrorAction SilentlyContinue | Out-Null
     echo "$(date) Phase4 SQM Keys added" >> $env:SystemDrive\packer\configure.log
-
-    if ($env:LOCAL_CI_INSTALL -eq 1) {
-        echo "$(date) Phase4.ps1 quitting on local CI" >> $env:SystemDrive\packer\configure.log
-        exit 0
-    }
 
     # Configure cygwin ssh daemon
     echo "$(date) Phase4.ps1 killing sshd if running..." >> $env:SystemDrive\packer\configure.log
@@ -55,14 +58,6 @@ Finally {
 #    }
     
     # Tidy up
-    echo "$(date) Phase4.ps1 Calculating user" >> $env:SystemDrive\packer\configure.log
-    $user="administrator"
-    if ($env:LOCAL_CI_INSTALL -ne 1) {
-        echo "$(date) Phase4.ps1 user is 'jenkins'" >> $env:SystemDrive\packer\configure.log
-        $user="jenkins"
-    }
-    echo "$(date) Phase4.ps1 Removing Phase4.lnk" >> $env:SystemDrive\packer\configure.log
-    Remove-Item "C:\Users\$user\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk" -Force -ErrorAction SilentlyContinue
     echo "$(date) Phase4.ps1 Removing password.txt" >> $env:SystemDrive\packer\configure.log
     Remove-Item c:\packer\password.txt -Force -ErrorAction SilentlyContinue
     echo "$(date) Phase4.ps1 Removing ConfigureSSH.log" >> $env:SystemDrive\packer\configure.log
