@@ -9,7 +9,6 @@ echo "$(date) ConfigureControlDaemon.ps1 (TP5 variety - NSSM) started" >> $env:S
 
 try {
     # Create directory for storing the nssm configuration
-    mkdir $env:SystemDrive\docker -ErrorAction SilentlyContinue 2>&1 | Out-Null
     
     # Install NSSM by extracting archive and placing in system32
     echo "$(date) ConfigureControlDaemon.ps1 downloading NSSM..." >> $env:SystemDrive\packer\configure.log
@@ -21,14 +20,16 @@ try {
 
     # Configure the docker NSSM service
     echo "$(date) ConfigureControlDaemon.ps1 configuring NSSM..." >> $env:SystemDrive\packer\configure.log
-    Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\docker\nssmdocker.cmd < nul"
+    Start-Process -Wait "nssm" -ArgumentList "install docker $($env:SystemRoot)\System32\cmd.exe /s /c $env:SystemDrive\packer\nssmdocker.cmd < nul"
     Start-Process -Wait "nssm" -ArgumentList "set docker DisplayName Docker Daemon"
     Start-Process -Wait "nssm" -ArgumentList "set docker Description Docker control daemon for CI testing"
     Start-Process -Wait "nssm" -ArgumentList "set docker AppStopMethodConsole 30000"
     if ($env:LOCAL_CI_INSTALL -ne 1) {
+        mkdir "d:\nssmdaemon" -ErrorAction SilentlyContinue 2>&1 | Out-Null
         Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr d:\nssmdaemon\nssmdaemon.log"
         Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout d:\nssmdaemon\nssmdaemon.log"
     } else {
+        mkdir "c:\nssmdaemon" -ErrorAction SilentlyContinue 2>&1 | Out-Null
         Start-Process -Wait "nssm" -ArgumentList "set docker AppStderr c:\nssmdaemon\nssmdaemon.log"
         Start-Process -Wait "nssm" -ArgumentList "set docker AppStdout c:\nssmdaemon\nssmdaemon.log"
     }
