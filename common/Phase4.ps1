@@ -38,12 +38,17 @@ Finally {
     $ErrorActionPreference='SilentlyContinue'
     echo "$(date) Phase4.ps1 turning off auto admin logon" >> $env:SystemDrive\packer\configure.log
     if ($env:LOCAL_CI_INSTALL -ne 1) {
-        echo "$(date) Phase4.ps1 Removing AutoAdminLogon key" >> $env:SystemDrive\packer\configure.log
-        Remove-ItemProperty  -Name "AutoAdminLogon" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
-        echo "$(date) Phase4.ps1 Removing DefaultUserName key" >> $env:SystemDrive\packer\configure.log
-        Remove-ItemProperty  -Name "DefaultUserName" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
-        echo "$(date) Phase4.ps1 Removing DefaultPassword key" >> $env:SystemDrive\packer\configure.log
-        Remove-ItemProperty  -Name "DefaultPassword" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
+        # Putting this in try-catch as it's weird. I see this failing on production servers for no explainable reason.
+        try {
+            echo "$(date) Phase4.ps1 Removing AutoAdminLogon key" >> $env:SystemDrive\packer\configure.log
+            Remove-ItemProperty  -Name "AutoAdminLogon" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
+            echo "$(date) Phase4.ps1 Removing DefaultUserName key" >> $env:SystemDrive\packer\configure.log
+            Remove-ItemProperty  -Name "DefaultUserName" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
+            echo "$(date) Phase4.ps1 Removing DefaultPassword key" >> $env:SystemDrive\packer\configure.log
+            Remove-ItemProperty  -Name "DefaultPassword" -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" -ErrorAction SilentlyContinue -Force
+        } catch [Exception] {
+            echo "$(date) Phase4.ps1 Exception in finally autoadmin '$_'. Continuing" >> $env:SystemDrive\packer\configure.log
+        }
     }
     
     # Tidy up
