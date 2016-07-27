@@ -6,7 +6,7 @@ e:\docker\ci\w2w\runCI\Invoke-DockerCI.ps1 `
 -WindowsBaseImage nanoserver `
 -CIScriptLocation E:\docker\ci\w2w\runci\executeCI.ps1 `
 -GitRemote https://github.com/microsoft/docker `
--GitCheckout "jjh/containercounts" `
+-GitCheckout "jjh/rmhangxenonstartfail" `
 -DUTDebugMode 
 
 #-skipimagebuild `

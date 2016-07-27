@@ -39,7 +39,7 @@ try {
     $ShortcutFile = "C:\Users\$user\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\Phase4.lnk"
     $WScriptShell = New-Object -ComObject WScript.Shell
     $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
-    $Shortcut.Arguments ="-command c:\packer\Phase4.ps1"
+    $Shortcut.Arguments ="-NoProfile -Noninteractive -command c:\packer\Phase4.ps1"
     $Shortcut.TargetPath = $TargetFile
     $Shortcut.Save()
 }
