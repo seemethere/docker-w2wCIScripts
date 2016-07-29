@@ -88,6 +88,7 @@ try {
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase2.ps1" -DestinationPath "c:\packer\Phase2.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase3.ps1" -DestinationPath "c:\packer\Phase3.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase4.ps1" -DestinationPath "c:\packer\Phase4.ps1"
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase5.ps1" -DestinationPath "c:\packer\Phase5.ps1"
 
 
     # OS Version specific files (alphabetical order)

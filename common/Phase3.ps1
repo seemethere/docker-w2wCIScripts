@@ -42,6 +42,18 @@ try {
     $Shortcut.Arguments ="-NoProfile -Noninteractive -command c:\packer\Phase4.ps1"
     $Shortcut.TargetPath = $TargetFile
     $Shortcut.Save()
+
+    #--------------------------------------------------------------------------------------------
+    # Initiate Phase5. We do the cleanup of phase4 in phase5 as I hit an issue where PS seems to 
+    # just die in the cleanup of phase 4. More an experiment, but may become permanent...
+    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase5.ps1"
+    $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+    if ($env:LOCAL_CI_INSTALL -ne 1) {
+        $pass = Get-Content c:\packer\password.txt -raw
+        Register-ScheduledTask -TaskName "Phase5" -Action $action -Trigger $trigger -User jenkins -Password $pass -RunLevel Highest
+    } else {
+        Register-ScheduledTask -TaskName "Phase5" -Action $action -Trigger $trigger -User "administrator" -Password "p@ssw0rd" -RunLevel Highest
+    }
 }
 Catch [Exception] {
     echo "$(date) Phase3.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
