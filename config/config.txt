@@ -3,22 +3,22 @@
 # Gets more specific as it goes down. Include a default at the end (.*)
 
 # Production jenkins-tp5-1 through jenkins-tp5-9
-jenkins-tp5-[1-9]$,tp5prod
+# jenkins-tp5-[1-9]$,tp5prod
 
 # Staging jenkins-tp5-91 through jenkins-tp5-99
-jenkins-tp5-[9][1-9]$,tp56d
+# jenkins-tp5-[9][1-9]$,tp56d
 
 # Any other jenkins-tp5-n machine, assume production
-jenkins-tp5-\d+$,tp5prod
+# jenkins-tp5-\d+$,tp5prod
 
-# New system for RS1 - keep the same as for TP5 naming
-jenkins-rs1-\d+$,rs1
+# RS1 - Bumped to 14393.82 8/10/2016 (8/5 build)
+jenkins-rs1-\d+$,rs1-82
 
 # eg rs1-MMMMM-NN or rs1-MMMMM-N
-rs1-\d+-\d{1,2}$,rs1
+rs1-\d+-\d{1,2}$,rs1-82
 
 # eg rs2-MMMMM-NN
 rs2-\d+-\d{1,2}$,rs2
 
 # default to rs1
-.*,rs1
+.*,rs1-82
