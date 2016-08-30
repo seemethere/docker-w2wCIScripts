@@ -806,6 +806,7 @@ Try {
         $daemon=$daemon+" -D"
     }
     Write-Host -ForegroundColor green "INFO: Starting a control daemon..."
+    $controlDaemonStarted=$true
     $control=start-process "cmd" -ArgumentList "/s /c $daemon > $ControlRoot\daemon\daemon.log 2>&1" -WindowStyle Minimized
     $tail = start-process "tail" -ArgumentList "-f $ControlRoot\daemon\daemon.log" -ErrorAction SilentlyContinue
 
@@ -828,8 +829,6 @@ Try {
         sleep 1
     }
     Write-Host -ForegroundColor Green "INFO: Control daemon started and replied!"
-
-    $controlDaemonStarted=$true
 
     # Get the tar image for windowsservercore if not on disk. 
     if ($(docker images | select -skip 1 | select-string "windowsservercore" | Measure-Object -line).Lines -lt 1) {
