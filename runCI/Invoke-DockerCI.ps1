@@ -195,6 +195,7 @@ $ErrorActionPreference = 'Stop'
 $FinallyColour="Cyan"
 $DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
 $GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
+$ConfigJSONBackedUp=$False
 
 # THIS IS TEMPORARY - WILL EVENTUALLY BE CHECKED INTO DOCKER SOURCES
 $CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.ps1"
@@ -636,9 +637,17 @@ Try {
     # Terminate processes which might be running
     Kill-Processes
 
+    # In the RITP under T3T, we may not be in a clean state, and C:\ProgramData\docker\config\daemon.json may exist.
+    # See OS#8699803. So now we've killed the processes, if the file exists, then rename it so that
+    # it doesn't conflict, and we'll put it back to how it was at the end.
+    if (Test-Path "$env:ProgramData\docker\config\daemon.json") {
+        Write-Host -ForegroundColor green "INFO: $env:ProgramData\docker\config\daemon.json exists. Renaming temporarily to a .CIbackup file"
+        Rename-Item "$env:ProgramData\docker\config\daemon.json" "$env:ProgramData\docker\config\daemon.CIBackup" -ErrorAction SilentlyContinue
+        $ConfigJSONBackedUp=$True
+    }
+
     # Detach any VHDs just in case there are lingerers
     Dismount-MountedVHDs
-
 
     if (-not $SkipControlDownload) {
         # Download docker.exe for the control daemon in single binary mode. In dual
@@ -690,8 +699,6 @@ Try {
     # Install git if not already installed
     if (-not (Test-CommandExists git)) {
         Remove-Item "$env:Temp\gitinstaller.exe" -Erroraction SilentlyContinue
-
-    
         Write-Host -ForegroundColor green "INFO: Git installer $GitLocation"
         $r=Download-File "$GitLocation" "" "$env:Temp\gitinstaller.exe"
         Unblock-File "$env:Temp\gitinstaller.exe" -ErrorAction Stop
@@ -876,5 +883,10 @@ Finally {
         }
     }
 
+    if ($ConfigJSONBackedUp -eq $true) {
+        Write-Host -ForegroundColor green "INFO: Restoring $env:ProgramData\docker\config\daemon.json"
+        Rename-Item "$env:ProgramData\docker\config\daemon.CIBackup" "$env:ProgramData\docker\config\daemon.json" -ErrorAction SilentlyContinue
+    }
+    
     Write-Host -ForegroundColor $FinallyColour "`nINFO: Invoke-DockerCI.ps1 exiting at $(date)"
 }
