@@ -11,14 +11,17 @@
 # Any other jenkins-tp5-n machine, assume production
 # jenkins-tp5-\d+$,tp5prod
 
-# RS1 - Bumped to 14393.82 8/10/2016 (8/5 build)
-jenkins-rs1-\d+$,rs1-82
+# RS1
+jenkins-rs1-\d+$,rs1
+
+# RS2
+jenkins-rs2-\d+$,rs2
 
 # eg rs1-MMMMM-NN or rs1-MMMMM-N
-rs1-\d+-\d{1,2}$,rs1-82
+rs1-\d+-\d{1,2}$,rs1
 
 # eg rs2-MMMMM-NN
 rs2-\d+-\d{1,2}$,rs2
 
 # default to rs1
-.*,rs1-82
+.*,rs1

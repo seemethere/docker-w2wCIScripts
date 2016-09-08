@@ -95,7 +95,7 @@ try {
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/ConfigureControlDaemon.ps1" -DestinationPath "c:\packer\ConfigureControlDaemon.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/DownloadScripts.ps1" -DestinationPath "c:\packer\DownloadScripts.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/DownloadOSImages.ps1" -DestinationPath "c:\packer\DownloadOSImages.ps1"
-    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/InstallPrivates.ps1" -DestinationPath "c:\packer\InstallPrivates.ps1"
+    #Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/InstallPrivates.ps1" -DestinationPath "c:\packer\InstallPrivates.ps1"
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/rs1/nssmdocker.cmd" -DestinationPath "c:\packer\nssmdocker.cmd"
 }
 Catch [Exception] {
