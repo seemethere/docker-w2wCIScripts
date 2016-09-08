@@ -78,7 +78,7 @@ function Copy-File {
 
 Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
-    set-PSDebug -Trace 1  # 1 to turn on
+    set-PSDebug -Trace 0  # 1 to turn on
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
         $Branch=""
