@@ -16,6 +16,7 @@ $NPP_LOCATION="https://notepad-plus-plus.org/repository/6.x/6.9.2/npp.6.9.2.Inst
 $SQLITE_LOCATION="https://www.sqlite.org/2016/sqlite-amalgamation-3110100.zip"
 $DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
 $JAR_LOCATION="http://jenkins.dockerproject.org/jnlpJars/slave.jar"
+$DELVE_LOCATION="github.com/derekparker/delve/cmd/dlv"
 
 # Stop on error
 $ErrorActionPreference="stop"
@@ -133,6 +134,10 @@ try {
     if ($env:LOCAL_CI_INSTALL -ne 1) {
         setx "GOPATH" "$env:GOPATH" /M  # persist
     }
+
+    # Install delve debugger.
+    echo "$(date) InstallMostThings.ps1 Installing delve..." >> $env:SystemDrive\packer\configure.log
+    go get $DELVE_LOCATION
 
     # Download 7z to extract GIT on nanoserver
     #if (Test-Nano) {
