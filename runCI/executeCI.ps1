@@ -86,7 +86,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="20-Jul-2016 13:26 PDT" 
+$SCRIPT_VER="10-Nov-2016 15:26 PDT" 
 $FinallyColour="Cyan"
 
 
@@ -364,7 +364,7 @@ Try {
     # Redirect to a temporary location. 
     $TEMPORIG=$env:TEMP
     $env:TEMP="$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR\CI-$COMMITHASH"
-    $env:USERPROFILE="$TEMP\userprofile"
+    #$env:USERPROFILE="$TEMP\userprofile"  # NO NO NO Don't do this. Freaks out running invoking powershell on the host (eg TestRunServicingContainer)
     $env:LOCALAPPDATA="$TEMP\localappdata"
     $errorActionPreference='Stop'
     New-Item -ItemType Directory "$env:TEMP" -ErrorAction SilentlyContinue | Out-Null

@@ -583,6 +583,7 @@ Try {
     Write-Host  -ForegroundColor yellow "Git"
     if (-not [string]::IsNullOrWhiteSpace($GitRemote)) { Write-Host " - Remote:            $GitRemote" }
     if (-not [string]::IsNullOrWhiteSpace($GitCheckout)) { Write-Host " - Checkout:          $GitCheckout" }
+    Write-Host " - Skip clone:        $SkipClone"
     Write-Host " - Installer:         $GitLocation"
     Write-Host  -ForegroundColor yellow "Debug"
     Write-Host " - Daemon under test: $DUTDebugMode"
@@ -598,7 +599,6 @@ Try {
     Write-Host " - Destroy Cache:     $DestroyCache"
     Write-Host " - Control binaries:  $DockerBasePath"
     Write-Host " - CI Script:         $CIScriptLocation"
-    Write-Host " - Skip clone:        $SkipClone"
     Write-Host " - Skip binary build: $SkipBinaryBuild"
     Write-Host " - Skip zap DUT dir:  $SkipZapDUT"
     Write-Host " - Skip image build:  $SkipImageBuild"
