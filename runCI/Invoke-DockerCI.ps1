@@ -5,7 +5,8 @@
     Created: February 2016
 
     Summary: Invokes Windows to Windows Docker CI testing on an arbitrary
-             build of Windows configured for running containers.
+             build of Windows configured for running containers, against
+             an arbitrary git branch (docker/docker master is default)
 
     License: See https://github.com/jhowardmsft/Invoke-DockerCI
 
@@ -14,9 +15,7 @@
      - Must be elevated
      - Hyper-V role is installed
      - Containers role is installed
-     - NAT (and a switch is created for TP4). ie Everything set by InstallFeatures.cmd
-     - Container image for windowsservercore is installed. Nanoserver is
-       optional at time of writing as no CI tests use it.
+     - (For non-public Windows builds/branches, either Microsoft corpnet access, or base images copied to c:\baseimages)
 
     If no parameters are supplied, the system drive will be used for
     everything; the latest binary from master.dockerproject.org will be
@@ -25,7 +24,7 @@
 
     THIS TAKES AGES TO RUN!!!
       Expect this entire script to take (as at time of writing based on around
-      400 integration tests and TP5) ~45 mins on a Z420 in a VM running with
+      500 integration tests and RS1 10B) ~35 mins on a Z420 in a VM running with
       8 cores, 4GB RAM and backed by a fast (Samsung Evo 850 Pro) SSD.
       I would expect HDD to take significantly longer (not recommended...). 
 
@@ -62,7 +61,7 @@
     `git checkout` after cloning the sources is done. This parameter
     allows a few things. 
 
-    -  Want version 1.11.0 on master?  Use `v1.11.0` with no GitRemote
+    -  Want version 1.12.0 on master?  Use `v1.12.0` with no GitRemote
 
     -  Want to test a feature branch `jjh/buildpathhack`? Use the
        name of the feature branch. This is generally only useful if
@@ -286,6 +285,7 @@ Function Get-GoVersionFromDockerfile {
         }
         $line=$pattern[0]
         $line=$line -replace "\\",""
+        $line=$line -replace "``",""
         $line=$line.TrimEnd()
         $index=$line.indexof("=")
         if ($index -eq -1) {
@@ -411,7 +411,11 @@ Function Get-Sources
     }
 }
 
-# Get-ImageTar copies the tar from the build share if not already present under \baseimages.
+# Get-ImageTar generates the tar from the build share if not already present under \baseimages, and 
+# subsequently loads it into the control daemon. Note if the location can't be reached, such as is
+# the case for public users off Microsoft corpnet, no error is generated. Instead, we assume that
+# the image can be docker pulled, which is generally true for public users. Not so for arbitrary
+# nightly Windows builds of any branch though. These must come off the build share.
 Function Get-ImageTar {
     Param([string]$Type,
           [string]$BuildName)
@@ -423,53 +427,33 @@ Function Get-ImageTar {
             return
         }
 
-        if ($Build -gt 14300) {
-            # Post TP5 builds. Copy from internal share
-
-            $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
-            if ($(Test-Path $Location) -eq $False) {
-                Throw "$Location inaccessible. If not on Microsoft corpnet, copy $type.tar manually to c:\baseimages"
-            }
-            
-            # https://github.com/microsoft/wim2img (Microsoft Internal)
-            Write-Host -ForegroundColor green "INFO: Installing containers module for image conversion"
-            Register-PackageSource -Name HyperVDev -Provider PowerShellGet -Location \\redmond\1Windows\TestContent\CORE\Base\HYP\HAT\packages -Trusted -Force | Out-Null
-            Install-Module -Name Containers.Layers -Repository HyperVDev | Out-Null
-            Import-Module Containers.Layers | Out-Null
-            
-            $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
-            Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
-
-            if (-not(Test-Path "C:\BaseImages"))
-            {
-                mkdir "C:\BaseImages"
-            }
-
-            Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar
-        } else {
-            # Assume that we're on later TP5 builds (6B+) where we have a TAR publically available.
-            Write-Host -ForegroundColor green "INFO: Assuming image tar is already locally copied"
+        $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
+        if ($(Test-Path $Location) -eq $False) {
+            Write-Host -foregroundcolor green $("INFO: Skipping image conversion to c:\BaseImages\"+$type+".tar")
+            return
         }
 
-        
-    } catch {
-        Throw $_
-    }
-}
+        # Needed on Windows Server 2016 10B (Oct 2016) and later
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 
-# Load-ImageTar installs the image into docker. Doesn't tag it as latest.
-# TODO: Extend for docker pull as well once available. 
-Function Load-ImageTar {
-    Param([string]$Type)
-    $ErrorActionPreference = 'Stop'
-    try {
+        # https://github.com/microsoft/wim2img (Microsoft Internal)
+        Write-Host -ForegroundColor green "INFO: Installing containers module for image conversion"
+        Register-PackageSource -Name HyperVDev -Provider PowerShellGet -Location \\redmond\1Windows\TestContent\CORE\Base\HYP\HAT\packages -Trusted -Force | Out-Null
+        Install-Module -Name Containers.Layers -Repository HyperVDev | Out-Null
+        Import-Module Containers.Layers | Out-Null
+            
+        $SourceTar=$Location+"\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
+        Write-Host -foregroundcolor green "INFO: Converting $SourceTar. This may take a few minutes..."
+
+        if (-not(Test-Path "C:\BaseImages")) { mkdir "C:\BaseImages" }
+        Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar -Repository $("microsoft/"+$Type) -latest
+
         Write-Host -foregroundcolor green "INFO: Loading $type.tar into the control daemon. This may take a few minutes..."
         docker load -i c:\BaseImages\$type.tar
     } catch {
         Throw $_
     }
 }
-
 
 # Start of the main script. In a try block to catch any exception
 Try {
@@ -619,15 +603,23 @@ Try {
     $WorkspaceRoot="$($SourcesDrive):\$($SourcesSubdir)"
     $Workspace="$WorkspaceRoot\src\github.com\docker\docker"
 
+    if (-not(Test-Path "C:\CIUtilities")) { mkdir "C:\CIUtilities" | Out-Null }
+
     # Make sure we have the git posix utilities at the front of our path (overwrites find etc), and
     # also the GO bin directories. We also deliberately put $env:Temp there early so that the
     # docker.exe we are using is the one we downloaded above. Also configure GO environment variables
-    #BUGBUG Not c, use system drive in next two, and where git/go installed.
-    $env:Path="c:\git\cmd;c:\git\bin;c:\git\usr\bin;c:\go\bin;c:\gopath\bin;$env:Temp;$env:Path"
+    if (-not ($env:PATH -like $("*"+$env:TEMP+"*"))) { $env:Path = "$env:TEMP;$env:Path" }
+    if (-not ($env:PATH -like '*c:\gopath\bin*'))    { $env:Path = "c:\gopath\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\go\bin*'))        { $env:Path = "c:\go\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\git\usr\bin*'))   { $env:Path = "c:\git\usr\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\git\bin*'))       { $env:Path = "c:\git\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\git\cmd*'))       { $env:Path = "c:\git\cmd;$env:Path" }
+    if (-not ($env:PATH -like '*c:\CIUtilities*'))   { $env:Path = "c:\CIUtilities;$env:Path" }
+
     $env:GOROOT="c:\go"
     $env:GOPATH="$WorkspaceRoot"
 
-    # Turn off antimalware to make things run significantly faster
+    # Turn off defender to make things run significantly faster
     Write-Host -ForegroundColor green "INFO: Disabling Windows Defender for performance..."
     set-mppreference -disablerealtimemonitoring $true -ErrorAction Stop
 
@@ -674,28 +666,6 @@ Try {
         Write-Host -ForegroundColor Magenta "WARN: Skipping control docker*.exe downloads"
     }
 
-    # Install gcc if not already installed. This will also install windres
-    if (-not (Test-CommandExists gcc)) {
-        Remove-Item "$env:Temp\gcc.zip" -Erroraction SilentlyContinue
-        Remove-Item "$env:Temp\runtime.zip" -Erroraction SilentlyContinue
-        Remove-Item "$env:Temp\binutils.zip" -Erroraction SilentlyContinue
-        Write-Host -ForegroundColor green "INFO: Downloading GCC"
-        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/gcc.zip","$env:Temp\gcc.zip")
-        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/runtime.zip","$env:Temp\runtime.zip")
-        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/binutils.zip","$env:Temp\binutils.zip")
-        Write-Host -ForegroundColor green "INFO: Extracting GCC"
-        Expand-Archive $env:Temp\gcc.zip $env:SystemDrive\gcc -Force
-        Expand-Archive $env:Temp\runtime.zip $env:SystemDrive\gcc -Force
-        Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
-        [Environment]::SetEnvironmentVariable("Path","$env:Path;$env:SystemDrive\gcc\bin", "Machine")
-        $env:Path="$env:Path;$env:SystemDrive\gcc\bin"
-    }
-
-    # Install gcc if not already installed. This will also install windres
-    if (-not (Test-CommandExists windres)) {
-        Throw "windres not found. Should have been part of GCC. If you manually installed GCC, un-install and re-run this script"
-    }
-
     # Install git if not already installed
     if (-not (Test-CommandExists git)) {
         Remove-Item "$env:Temp\gitinstaller.exe" -Erroraction SilentlyContinue
@@ -736,30 +706,14 @@ Try {
         Start-Process -Wait "$env:Temp\goinstaller.msi" -ArgumentList '/quiet' -ErrorAction Stop
     }
 
-    # Install docker-ci-zap if not already installed
-    if (-not (Test-CommandExists docker-ci-zap)) {
-        Write-Host -ForegroundColor green "INFO: Installing docker-ci-zap..."
-        go get "github.com/jhowardmsft/docker-ci-zap"
-        if (-not ($? -eq $true)) {
-            Throw "Installation of docker-ci-zap failed"
-        }
-        if (-not ($env:Path.ToLower() -like "*$workspaceroot\bin*")) {
-            [Environment]::SetEnvironmentVariable("Path","$workspaceroot\bin;$env:Path", "Machine")
-            $env:Path="$workspaceroot\bin;$env:Path"
-        }
+    if (-not (Test-Path "c:\CIUtilities\docker-ci-zap.exe")) {
+        $r=Download-File "https://github.com/jhowardmsft/docker-ci-zap/raw/master/docker-ci-zap.exe" "" "c:\CIUtilities\docker-ci-zap.exe"
+        Unblock-File "c:\CIUtilities\docker-ci-zap.exe" -ErrorAction Stop
     }
 
-    # Install docker-signal if not already installed
-    if (-not (Test-CommandExists docker-signal)) {
-        Write-Host -ForegroundColor green "INFO: Installing docker-signal..."
-        go get "github.com/jhowardmsft/docker-signal"
-        if (-not ($? -eq $true)) {
-            Throw "Installation of docker-signal failed"
-        }
-        if (-not ($env:Path.ToLower() -like "*$workspaceroot\bin*")) {
-            [Environment]::SetEnvironmentVariable("Path","$workspaceroot\bin;$env:Path", "Machine")
-            $env:Path="$workspaceroot\bin;$env:Path"
-        }
+    if (-not (Test-Path "c:\CIUtilities\docker-signal.exe")) {
+        $r=Download-File "https://github.com/jhowardmsft/docker-signal/raw/master/docker-signal.exe" "" "c:\CIUtilities\docker-signal.exe"
+        Unblock-File "c:\CIUtilities\docker-signal.exe" -ErrorAction Stop
     }
 
     # Zap the control daemons path if asked to destroy the cache
@@ -778,22 +732,10 @@ Try {
     New-Item "$ControlRoot\daemon" -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
     New-Item "$ControlRoot\graph" -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
  
-    # Install golint if not already installed. Required for basic testing.
-    if (-not (Test-CommandExists golint)) {
-        Write-Host -ForegroundColor green "INFO: Installing golint..."
-        go get -u github.com/golang/lint/golint
-        if (-not ($? -eq $true)) {
-            Throw "Installation of golint failed"
-        }
-        if (-not ($env:Path.ToLower() -like "*$workspaceroot\bin*")) {
-            [Environment]::SetEnvironmentVariable("Path","$workspaceroot\bin;$env:Path", "Machine")
-            $env:Path="$workspaceroot\bin;$env:Path"
-        }
-    }
-
     # TODO: This will eventually be in the docker sources. Step can be removed when that's done.
     # Download the CI script
     Write-Host -ForegroundColor green "INFO: CI script $CIScriptLocation"
+    if (Test-Path "$ControlRoot\CIScript.ps1") { Remove-Item "$ControlRoot\CIScript.ps1" }
     $r=Download-File "$CIScriptLocation" "" "$ControlRoot\CIScript.ps1"
     # END TODO
 
@@ -835,26 +777,22 @@ Try {
         Write-Host -NoNewline "."
         sleep 1
     }
-    Write-Host -ForegroundColor Green "INFO: Control daemon started and replied!"
+    Write-Host -ForegroundColor Green "`nINFO: Control daemon started and replied!"
 
-    # Get the tar image for windowsservercore if not on disk. 
+    # Attempt to cache the tar image for windowsservercore if not on disk. 
     if ($(docker images | select -skip 1 | select-string "windowsservercore" | Measure-Object -line).Lines -lt 1) {
         $installWSC=$true
         Write-Host -ForegroundColor green "INFO: windowsservercore is not installed as an image in the control daemon"
         Get-ImageTar "windowsservercore" "serverdatacentercore"
-        Load-ImageTar "windowsservercore"
     }
     
-    # Get the tar image for nanoserver if not on disk
+    # Attempt to cache the tar image for nanoserver if not on disk
     if ($(docker images | select -skip 1 | select-string "nanoserver" | Measure-Object -line).Lines -lt 1) {
         Write-Host -ForegroundColor green "INFO: nanoserver is not installed as an image in the control daemon"
         Get-ImageTar "nanoserver" "nanoserver"
-        Load-ImageTar "nanoserver"
     }
 
-    # TODO Use the one from the cloned sources once it's checked in to docker/docker master
-    #      which will be somewhere under $Workspace/jenkins/w2w/...
-    # Run the shell script!
+    # Invoke the CI script itself.
     Write-Host -ForegroundColor cyan "INFO: Starting $TestrunDrive`:\control\CIScript.ps1"
     & "$TestrunDrive`:\control\CIScript.ps1"
     if ($LastExitCode -ne 0) {

@@ -219,6 +219,44 @@ Try {
     setx LOCAL_CI_INSTALL $env:LOCAL_CI_INSTALL /M
     setx BRANCH $env:BRANCH /M
 
+    New-Item "C:\BaseImages" -ItemType Directory -ErrorAction SilentlyContinue
+
+    # Copy from internal share
+    $bl=(Get-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion"  -Name BuildLabEx).BuildLabEx
+    $a=$bl.ToString().Split(".")
+    $Branch=$a[3]
+    $Build=$a[0]+"."+$a[1]+"."+$a[4]
+    $Location="\\winbuilds\release\$Branch\$Build\amd64fre\ContainerBaseOsPkgs"
+
+    if ($(Test-Path $Location) -eq $False) {
+        Write-Host -ForegroundColor RED "$Location inaccessible. If not on Microsoft corpnet, copy windowsservercore.tar and nanoserver.tar manually to c:\baseimages"
+    } else {
+        # Needed on 10B
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+
+        # https://github.com/microsoft/wim2img (Microsoft Internal)
+        Write-Host "INFO: Installing containers module for image conversion"
+        Register-PackageSource -Name HyperVDev -Provider PowerShellGet -Location \\redmond\1Windows\TestContent\CORE\Base\HYP\HAT\packages -Trusted -Force | Out-Null
+        Install-Module -Name Containers.Layers -Repository HyperVDev | Out-Null
+        Import-Module Containers.Layers | Out-Null
+
+        if (-not (Test-Path "c:\baseimages\windowsservercore.tar")) {
+            $type="windowsservercore"
+            $BuildName="serverdatacentercore"  # Internal build name for windowsservercore
+            $SourceTar="$Location\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
+            Write-Host "INFO: Converting $SourceTar. This may take a few minutes...."
+            Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar -Repository "microsoft/windowsservercore" -latest
+        }
+
+        if (-not (Test-Path "c:\baseimages\nanoserver.tar")) {
+            $type="nanoserver"
+            $BuildName="nanoserver"
+            $SourceTar="$Location\cbaseospkg_"+$BuildName+"_en-us\CBaseOS_"+$Branch+"_"+$Build+"_amd64fre_"+$BuildName+"_en-us.tar.gz"
+            Write-Host "INFO: Converting $SourceTar. This may take a few minutes...."
+            Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar -Repository "microsoft/nanoserver" -latest
+        }
+    }
+
     mkdir c:\packer -ErrorAction SilentlyContinue
     Copy-Item "..\common\Bootstrap.ps1" c:\packer\ -ErrorAction SilentlyContinue
     Unblock-File c:\packer\Bootstrap.ps1
