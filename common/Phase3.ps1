@@ -16,11 +16,6 @@ try {
     . $("$env:SystemDrive\packer\ConfigureControlDaemon.ps1")
 
     #--------------------------------------------------------------------------------------------
-    # Download the container OS images
-    echo "$(date) Phase3.ps1 Downloading OS images..." >> $env:SystemDrive\packer\configure.log    
-    . $("$env:SystemDrive\packer\DownloadOSImages.ps1")
-
-    #--------------------------------------------------------------------------------------------
     # Initiate Phase4. This runs as the Jenkins user interactively. This is particularly on account
     # of configuring cygwin SSH not working as local system, RunOnce regkey also fails. And so does
     # a scheduled task that isn't interactive. All due to cygwin oddities.
