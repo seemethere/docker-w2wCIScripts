@@ -8,7 +8,7 @@
              build of Windows configured for running containers, against
              an arbitrary git branch (docker/docker master is default)
 
-    License: See https://github.com/jhowardmsft/Invoke-DockerCI
+    License: See https://github.com/jhowardmsft/docker-w2wCIScripts/blob/master/LICENSE
 
     Pre-requisites:
 
@@ -24,7 +24,7 @@
 
     THIS TAKES AGES TO RUN!!!
       Expect this entire script to take (as at time of writing based on around
-      500 integration tests and RS1 10B) ~35 mins on a Z420 in a VM running with
+      540 integration tests and RS1 10B) ~48 mins on a Z420 in a VM running with
       8 cores, 4GB RAM and backed by a fast (Samsung Evo 850 Pro) SSD.
       I would expect HDD to take significantly longer (not recommended...). 
 
@@ -187,16 +187,11 @@ param(
     [Parameter(Mandatory=$false)][switch]$SkipControlDownload=$False
 )
 
-
-
-
 $ErrorActionPreference = 'Stop'
 $FinallyColour="Cyan"
 $DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
-$GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.8.1.windows.1/Git-2.8.1-64-bit.exe"
+$GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.10.1.windows.1/Git-2.10.1-64-bit.exe"
 $ConfigJSONBackedUp=$False
-
-# THIS IS TEMPORARY - WILL EVENTUALLY BE CHECKED INTO DOCKER SOURCES
 $CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.ps1"
 
 # Download-File is a simple wrapper to get a file from somewhere (HTTP, SMB or local file path)
@@ -274,32 +269,6 @@ Function Dismount-MountedVHDs {
         Throw $_
     }
 }
-
-# Get-GoVersionFromDockerfile extracts the version of go from dockerfile.Windows
-Function Get-GoVersionFromDockerfile {
-    $ErrorActionPreference = 'Stop'
-    try {
-        $pattern=select-string $workspace\dockerfile.windows -pattern "GO_VERSION="
-        if ($pattern.Count -lt 1) {
-            Throw "Could not find GO_VERSION= in dockerfile.Windows!"
-        }
-        $line=$pattern[0]
-        $line=$line -replace "\\",""
-        $line=$line -replace "``",""
-        $line=$line.TrimEnd()
-        $index=$line.indexof("=")
-        if ($index -eq -1) {
-            Throw "Could not find '=' in the GO_VERSION line of dockerfile.Windows"
-        }
-        $GoVersionInDockerfile=$line.Substring($index+1)
-        Write-Host -ForegroundColor green "INFO: Need go version $GoVersionInDockerfile"
-        return $GoVersionInDockerfile
-    } catch {
-        Throw $_
-    }
-}
-
-
 
 # Kill-Processes kills any processes which might be locking files.
 Function Kill-Processes
@@ -673,10 +642,18 @@ Try {
         $r=Download-File "$GitLocation" "" "$env:Temp\gitinstaller.exe"
         Unblock-File "$env:Temp\gitinstaller.exe" -ErrorAction Stop
         Write-Host -ForegroundColor green "INFO: Installing git..."
+        $installPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'; `
+        $installItem = 'Git_is1'; `
+        New-Item -Path $installPath -Name $installItem -Force; `
+        $installKey = $installPath+'\'+$installItem; `
+        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Path Option' -Value 'CmdTools' -PropertyType 'String' -Force; `
+        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Bash Terminal Option' -Value 'ConHost' -PropertyType 'String' -Force; `
+        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: CRLF Option' -Value 'CRLFCommitAsIs' -PropertyType 'String' -Force; `
         Start-Process -Wait "$env:Temp\gitinstaller.exe" -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=c:\git' -ErrorAction Stop
 
-        # Set the path for the machine (as the installer doesn't seem to do it) AND for the current process.
-        [Environment]::SetEnvironmentVariable("Path","c:\git\bin;c:\git\usr\bin;$env:Path", "Machine")
+        # Don't think needed for git 2.8 and later
+        ## Set the path for the machine (as the installer doesn't seem to do it) AND for the current process.
+        #[Environment]::SetEnvironmentVariable("Path","c:\git\bin;c:\git\usr\bin;$env:Path", "Machine")
         $env:Path="c:\git\bin;c:\git\usr\bin;$env:Path"
     }
 
@@ -685,25 +662,6 @@ Try {
         Get-Sources $Workspace $GitRemote $GitCheckout
     } else {
         Write-Host -ForegroundColor green "INFO: Skipping clone. Assuming sources are in $Workspace"
-    }
-
-    # Get the version of GO from the dockerfile
-    $GoVersionInDockerfile = Get-GoVersionFromDockerfile
-    $GO_DEFAULT_LOCATION="https://storage.googleapis.com/golang/go"+$GoVersionInDockerfile+".windows-amd64.msi"
-
-    # Install go if not already installed
-    if (-not (Test-CommandExists go)) {
-        Remove-Item "$env:Temp\goinstaller.msi" -Erroraction SilentlyContinue
-
-        if ([string]::IsNullOrWhiteSpace($GoLocation)) {
-            $GoLocation = $GO_DEFAULT_LOCATION
-        }
-
-        Write-Host -ForegroundColor green "INFO: GoLang installer $GoLocation"
-        $r=Download-File "$GoLocation" "" "$env:Temp\goinstaller.msi"
-        Unblock-File "$env:Temp\goinstaller.msi" -ErrorAction Stop
-        Write-Host -ForegroundColor green "INFO: Installing go..."
-        Start-Process -Wait "$env:Temp\goinstaller.msi" -ArgumentList '/quiet' -ErrorAction Stop
     }
 
     if (-not (Test-Path "c:\CIUtilities\docker-ci-zap.exe")) {

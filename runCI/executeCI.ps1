@@ -175,6 +175,8 @@ Try {
     Set-PSDebug -Trace 0  # 1 to turn on
     $origPath="$env:PATH"            # so we can restore it at the end
     $origDOCKER_HOST="$DOCKER_HOST"  # So we can restore it at the end
+    $origGOROOT="$env:GOROOT"        # So we can restore it at the end
+    $origGOPATH="$env:GOPATH"        # So we can restore it at the end
 
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
@@ -190,51 +192,28 @@ Try {
     Get-ChildItem Env:
 
     # PR
-    if (-not ($env:PR -eq $Null)) {
-        echo "INFO: PR#$env:PR (https://github.com/docker/docker/pull/$env:PR)"
-    }
+    if (-not ($env:PR -eq $Null)) { echo "INFO: PR#$env:PR (https://github.com/docker/docker/pull/$env:PR)" }
 
     # Make sure docker is installed
-    if ((Get-Command "docker" -ErrorAction SilentlyContinue) -eq $null) {
-        Throw "ERROR: docker is not installed or not found on path"
-    }
-
-    # Make sure go is installed
-    if ((Get-Command "go" -ErrorAction SilentlyContinue) -eq $null) {
-        Throw "ERROR: go is not installed or not found on path"
-    }
-
-
+    if ((Get-Command "docker" -ErrorAction SilentlyContinue) -eq $null) { Throw "ERROR: docker is not installed or not found on path" }
 
     # Make sure docker-ci-zap is installed
-    if ((Get-Command "docker-ci-zap" -ErrorAction SilentlyContinue) -eq $null) {
-        Throw "ERROR: docker-ci-zap is not installed or not found on path"
-    }
+    if ((Get-Command "docker-ci-zap" -ErrorAction SilentlyContinue) -eq $null) { Throw "ERROR: docker-ci-zap is not installed or not found on path" }
 
     # Make sure SOURCES_DRIVE is set
-    if ($env:SOURCES_DRIVE -eq $Null) {
-        Throw "ERROR: Environment variable SOURCES_DRIVE is not set"
-    }
+    if ($env:SOURCES_DRIVE -eq $Null) { Throw "ERROR: Environment variable SOURCES_DRIVE is not set" }
 
     # Make sure TESTRUN_DRIVE is set
-    if ($env:TESTRUN_DRIVE -eq $Null) {
-        Throw "ERROR: Environment variable TESTRUN_DRIVE is not set"
-    }
+    if ($env:TESTRUN_DRIVE -eq $Null) { Throw "ERROR: Environment variable TESTRUN_DRIVE is not set" }
 
     # Make sure SOURCES_SUBDIR is set
-    if ($env:SOURCES_SUBDIR -eq $Null) {
-        Throw "ERROR: Environment variable SOURCES_SUBDIR is not set"
-    }
+    if ($env:SOURCES_SUBDIR -eq $Null) { Throw "ERROR: Environment variable SOURCES_SUBDIR is not set" }
 
     # Make sure TESTRUN_SUBDIR is set
-    if ($env:TESTRUN_SUBDIR -eq $Null) {
-        Throw "ERROR: Environment variable TESTRUN_SUBDIR is not set"
-    }
+    if ($env:TESTRUN_SUBDIR -eq $Null) { Throw "ERROR: Environment variable TESTRUN_SUBDIR is not set" }
 
     # SOURCES_DRIVE\SOURCES_SUBDIR must be a directory and exist
-    if (-not (Test-Path -PathType Container "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR")) {
-        Throw "ERROR: $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR must be an existing directory"
-    }
+    if (-not (Test-Path -PathType Container "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR")) { Throw "ERROR: $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR must be an existing directory" }
 
 
     # Create the TESTRUN_DRIVE\TESTRUN_SUBDIR if it does not already exist
@@ -242,10 +221,6 @@ Try {
 
     Write-Host  -ForegroundColor Green "INFO: Sources under $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\..."
     Write-Host  -ForegroundColor Green "INFO: Test run under $env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR\..."
-
-    # Set the GOPATH to the root and the vendor directory
-    $env:GOPATH="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\vendor;$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
-    Write-Host -ForegroundColor Green "INFO: GOPATH=$env:GOPATH"
 
     # Check the intended source location is a directory
     if (-not (Test-Path -PathType Container "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker" -ErrorAction SilentlyContinue)) {
@@ -308,16 +283,16 @@ Try {
     $ErrorActionPreference = "Stop"
     Write-Host -ForegroundColor Green $("INFO: Version of microsoft/"+$ControlDaemonBaseImage+":latest is '"+$imgVersion+"'")
 
-    # Back compatibility: Also tag it as imagename:latest (no microsoft/ prefix). This can be removed once the CI suite has been updated.
-    # TODO: Open docker/docker PR to fix this.
-    $ErrorActionPreference = "SilentlyContinue"
-    docker tag $("microsoft/"+$ControlDaemonBaseImage) $($ControlDaemonBaseImage+":latest")
-    $ErrorActionPreference = "Stop"
-    if ($LastExitCode -ne 0) {
-        Throw $("ERROR: Failed to tag microsoft/"+$ControlDaemonBaseImage+":latest"+" as "+$($ControlDaemonBaseImage+":latest"))
-    }
-    Write-Host  -ForegroundColor Green $("INFO: (Interim back-compatibility) Tagged microsoft/"+$ControlDaemonBaseImage+":latest"+" as "+$($ControlDaemonBaseImage+":latest"))
-    $ErrorActionPreference = "Stop"
+#    # Back compatibility: Also tag it as imagename:latest (no microsoft/ prefix). This can be removed once the CI suite has been updated.
+#    # TODO: Open docker/docker PR to fix this.
+#    $ErrorActionPreference = "SilentlyContinue"
+#    docker tag $("microsoft/"+$ControlDaemonBaseImage) $($ControlDaemonBaseImage+":latest")
+#    $ErrorActionPreference = "Stop"
+#    if ($LastExitCode -ne 0) {
+#        Throw $("ERROR: Failed to tag microsoft/"+$ControlDaemonBaseImage+":latest"+" as "+$($ControlDaemonBaseImage+":latest"))
+#    }
+#    Write-Host  -ForegroundColor Green $("INFO: (Interim back-compatibility) Tagged microsoft/"+$ControlDaemonBaseImage+":latest"+" as "+$($ControlDaemonBaseImage+":latest"))
+#    $ErrorActionPreference = "Stop"
 
     # Provide the docker version for debugging purposes.
     Write-Host  -ForegroundColor Green "INFO: Docker version of control daemon"
@@ -344,7 +319,6 @@ Try {
     $ErrorActionPreference = "SilentlyContinue"
     docker info
     $ErrorActionPreference = "Stop"
-    echo $LastExitCode
     if (-not($LastExitCode -eq 0)) {
         Throw "ERROR: The control daemon does not appear to be running."
     }
@@ -366,28 +340,22 @@ Try {
     # Redirect to a temporary location. 
     $TEMPORIG=$env:TEMP
     $env:TEMP="$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR\CI-$COMMITHASH"
-    #$env:USERPROFILE="$TEMP\userprofile"  # NO NO NO Don't do this. Freaks out running invoking powershell on the host (eg TestRunServicingContainer)
     $env:LOCALAPPDATA="$TEMP\localappdata"
     $errorActionPreference='Stop'
     New-Item -ItemType Directory "$env:TEMP" -ErrorAction SilentlyContinue | Out-Null
     New-Item -ItemType Directory "$env:TEMP\userprofile" -ErrorAction SilentlyContinue  | Out-Null
     New-Item -ItemType Directory "$env:TEMP\localappdata" -ErrorAction SilentlyContinue | Out-Null
     New-Item -ItemType Directory "$env:TEMP\binary" -ErrorAction SilentlyContinue | Out-Null
-    Write-Host -ForegroundColor Green "INFO: Location for testing is $env:TEMP"
+    New-Item -ItemType Directory "$env:TEMP\installer" -ErrorAction SilentlyContinue | Out-Null
+    # Wipe the previous version of GO - we're going to get it out of the image
+    if (Test-Path "$env:TEMP\go") { Remove-Item "$env:TEMP\go" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null }
+    New-Item -ItemType Directory "$env:TEMP\go" -ErrorAction SilentlyContinue | Out-Null
 
-    # CI Integrity check - ensure we are using the same version of go as present in the Dockerfile
-    $warnGoVersionAtEnd=0
-    $ErrorActionPreference = "SilentlyContinue"
-    $goVersionDockerfile=$(Get-Content ".\Dockerfile" | Select-String "ENV GO_VERSION").ToString().Split(" ")[2]
-    $goVersionInstalled=$(go version).ToString().Split(" ")[2].SubString(2)
-    $ErrorActionPreference = "Stop"
-    Write-Host  -ForegroundColor Green "INFO: Validating installed GOLang version $goVersionInstalled is correct..."
-    if (-not($goVersionInstalled -eq $goVersionDockerfile)) {
-        $warnGoVersionAtEnd=1
-    }
+    Write-Host -ForegroundColor Green "INFO: Location for testing is $env:TEMP"
 
     # CI Integrity check - ensure Dockerfile.windows and Dockerfile go versions match
     $goVersionDockerfileWindows=$(Get-Content ".\Dockerfile.windows" | Select-String "ENV GO_VERSION").ToString().Replace("ENV GO_VERSION=","").Replace("\","").Replace("``","").Trim()
+    $goVersionDockerfile=$(Get-Content ".\Dockerfile" | Select-String "ENV GO_VERSION").ToString().Split(" ")[2]
     Write-Host  -ForegroundColor Green "INFO: Validating GOLang consistency in Dockerfile.windows..."
     if (-not ($goVersionDockerfile -eq $goVersionDockerfileWindows)) {
         Throw "ERROR: Mismatched GO versions between Dockerfile and Dockerfile.windows. Update your PR to ensure that both files are updated and in sync. $goVersionDockerfile $goVersionDockerfileWindows"
@@ -408,6 +376,9 @@ Try {
         Write-Host -ForegroundColor Magenta "WARN: Skipping building the docker image"
     }
 
+    $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
+    $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
+
     # Build the binary in a container unless asked to skip it
     if ($env:SKIP_BINARY_BUILD -eq $null) {
         Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binaries at $(Get-Date)..."
@@ -421,8 +392,6 @@ Try {
         Write-Host  -ForegroundColor Green "INFO: Binaries build ended at $(Get-Date). Duration`:$Duration"
 
         # Copy the binaries and the generated version_autogen.go out of the container
-        $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
-        $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
         $ErrorActionPreference = "SilentlyContinue"
         docker cp "$contPath\binary-client\docker.exe" $env:TEMP\binary\
         if (-not($LastExitCode -eq 0)) {
@@ -431,10 +400,6 @@ Try {
         docker cp "$contPath\binary-daemon\dockerd.exe" $env:TEMP\binary\
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to docker cp the daemon binary (dockerd.exe) from $contPath\binary-daemon\ to $env:TEMP\binary"
-        }
-        docker cp "$contPath\..\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
-        if (-not($LastExitCode -eq 0)) {
-            Throw "ERROR: Failed to docker cp the generated version_autogen.go from $contPath\..\..\dockerversion to $env:SOURCES_DRIVE`:\SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
         }
         $ErrorActionPreference = "Stop"
 
@@ -445,9 +410,44 @@ Try {
         # Copy the built docker.exe to docker-$COMMITHASH.exe
         Write-Host -ForegroundColor Green "INFO: Copying the built client binary to $env:TEMP\binary\docker-$COMMITHASH.exe..."
         Copy-Item $env:TEMP\binary\docker.exe $env:TEMP\binary\docker-$COMMITHASH.exe -Force -ErrorAction SilentlyContinue
+
     } else {
         Write-Host -ForegroundColor Magenta "WARN: Skipping building the binaries"
     }
+
+    Write-Host -ForegroundColor Green "INFO: Copying dockerversion from the container..."
+    $ErrorActionPreference = "SilentlyContinue"
+    docker cp "$contPath\..\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+    if (-not($LastExitCode -eq 0)) {
+         Throw "ERROR: Failed to docker cp the generated version_autogen.go from $contPath\..\..\dockerversion to $env:SOURCES_DRIVE`:\SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+    }
+    $ErrorActionPreference = "Stop"
+
+    # Grab the golang installer out of the built image. That way, we know we are consistent once extracted and paths set,
+    # so there's no need to re-deploy on account of an upgrade to the version of GO being used in docker.
+    Write-Host -ForegroundColor Green "INFO: Copying the golang package from the container to $env:TEMP\installer\go.zip..."
+    docker cp "$COMMITHASH`:c`:\go.zip" $env:TEMP\installer\
+    if (-not($LastExitCode -eq 0)) {
+        Throw "ERROR: Failed to docker cp the golang installer 'go.zip' from container:c:\go.zip to $env:TEMP\installer"
+    }
+    $ErrorActionPreference = "Stop"
+
+    # Extract the golang installer
+    Write-Host -ForegroundColor Green "INFO: Extracting go.zip to $env:TEMP\go"
+    $Duration=$(Measure-Command { Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force | Out-Host })
+    Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
+
+    # Set the GOPATH to the root and the vendor directory
+    Write-Host -ForegroundColor Green "INFO: Updating the golang and path environment variables"
+    $env:GOPATH="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\vendor;$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
+    Write-Host -ForegroundColor Green "INFO: GOPATH=$env:GOPATH"
+
+    # Set the path to have the version of go from the image at the front
+    $env:PATH="$env:TEMP\go\bin;$env:PATH"
+
+    # Set the GOROOT to be our copy of go from the image
+    $env:GOROOT="$env:TEMP\go"
+    Write-Host -ForegroundColor Green "INFO: $(go version)"
     
     # Work out the the -H parameter for the daemon under test (DASHH_DUT) and client under test (DASHH_CUT)
     #$DASHH_DUT="npipe:////./pipe/$COMMITHASH" # Can't do remote named pipe
@@ -781,6 +781,9 @@ Finally {
     # Restore the DOCKER_HOST
     if ($origDOCKER_HOST -ne $null) { $env:DOCKER_HOST=$origDOCKER_HOST }
 
+    # Restore the GOROOT and GOPATH variables
+    if ($origGOROOT -ne $null) { $env:GOROOT=$origGOROOT }
+    if ($origGOPATH -ne $null) { $env:GOPATH=$origGOPATH }
 
     # Dump the daemon log if asked to 
     if ($daemonStarted -eq 1) {
@@ -795,18 +798,6 @@ Finally {
     if ($daemonStarted -eq 1) {
         Write-Host -ForegroundColor Green "INFO: Saving daemon under test log ($env:TEMP\dut.err) to $TEMPORIG\CIDUT.log"
         Copy-Item  "$env:TEMP\dut.err" "$TEMPORIG\CIDUT.log" -Force -ErrorAction SilentlyContinue
-    }
-
-    # Warning about Go Version
-    if ("$warnGoVersionAtEnd" -eq 1) {
-        Write-Host
-        Write-Host -ForegroundColor Red "---------------------------------------------------------------------------"
-        Write-Host -ForegroundColor Red "WARN: CI should be using go version $goVersionDockerfile, but it is using $goVersionInstalled"
-        Write-Host
-        Write-Host -ForegroundColor Red "        This CI server needs updating. Please ping #docker-dev or"
-        Write-Host -ForegroundColor Red "        #docker-maintainers."
-        Write-Host -ForegroundColor Red "---------------------------------------------------------------------------"
-        Write-Host
     }
 
     cd "$env:SOURCES_DRIVE\$env:SOURCES_SUBDIR" -ErrorAction SilentlyContinue
