@@ -642,13 +642,13 @@ Try {
         $r=Download-File "$GitLocation" "" "$env:Temp\gitinstaller.exe"
         Unblock-File "$env:Temp\gitinstaller.exe" -ErrorAction Stop
         Write-Host -ForegroundColor green "INFO: Installing git..."
-        $installPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'; `
-        $installItem = 'Git_is1'; `
-        New-Item -Path $installPath -Name $installItem -Force; `
-        $installKey = $installPath+'\'+$installItem; `
-        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Path Option' -Value 'CmdTools' -PropertyType 'String' -Force; `
-        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Bash Terminal Option' -Value 'ConHost' -PropertyType 'String' -Force; `
-        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: CRLF Option' -Value 'CRLFCommitAsIs' -PropertyType 'String' -Force; `
+        $installPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
+        $installItem = 'Git_is1'
+        New-Item -Path $installPath -Name $installItem -Force
+        $installKey = $installPath+'\'+$installItem
+        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Path Option' -Value 'CmdTools' -PropertyType 'String' -Force
+        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Bash Terminal Option' -Value 'ConHost' -PropertyType 'String' -Force
+        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: CRLF Option' -Value 'CRLFCommitAsIs' -PropertyType 'String' -Force
         Start-Process -Wait "$env:Temp\gitinstaller.exe" -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=c:\git' -ErrorAction Stop
 
         # Don't think needed for git 2.8 and later
