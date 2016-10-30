@@ -86,7 +86,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="20-Oct-2016 19:14 PDT" 
+$SCRIPT_VER="30-Oct-2016 13:26 PDT" 
 $FinallyColour="Cyan"
 
 
