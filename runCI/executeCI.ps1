@@ -589,14 +589,14 @@ Try {
 
     # Back compatibility: Also tag it as imagename:latest (no microsoft/ prefix). This can be removed once the CI suite has been updated.
     # TODO: Open docker/docker PR to fix this.
-    $ErrorActionPreference = "SilentlyContinue"
-    & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" tag $("microsoft/"+$env:WINDOWS_BASE_IMAGE) $($env:WINDOWS_BASE_IMAGE+":latest")
-    $ErrorActionPreference = "Stop"
-    if ($LastExitCode -ne 0) {
-        Throw $("ERROR: Failed to tag microsoft/"+$env:WINDOWS_BASE_IMAGE+":latest"+" as "+$($env:WINDOWS_BASE_IMAGE+":latest in the daemon under test"))
-    }
-    Write-Host  -ForegroundColor Green $("INFO: (Interim back-compatibility) Tagged microsoft/"+$env:WINDOWS_BASE_IMAGE+":latest"+" as "+$($env:WINDOWS_BASE_IMAGE+":latest in the daemon under test"))
-    $ErrorActionPreference = "Stop"
+#    $ErrorActionPreference = "SilentlyContinue"
+#    & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" tag $("microsoft/"+$env:WINDOWS_BASE_IMAGE) $($env:WINDOWS_BASE_IMAGE+":latest")
+#    $ErrorActionPreference = "Stop"
+#    if ($LastExitCode -ne 0) {
+#        Throw $("ERROR: Failed to tag microsoft/"+$env:WINDOWS_BASE_IMAGE+":latest"+" as "+$($env:WINDOWS_BASE_IMAGE+":latest in the daemon under test"))
+#    }
+#    Write-Host  -ForegroundColor Green $("INFO: (Interim back-compatibility) Tagged microsoft/"+$env:WINDOWS_BASE_IMAGE+":latest"+" as "+$($env:WINDOWS_BASE_IMAGE+":latest in the daemon under test"))
+#    $ErrorActionPreference = "Stop"
 
 
     # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
