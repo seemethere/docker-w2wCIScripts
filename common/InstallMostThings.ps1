@@ -94,10 +94,10 @@ try {
     if ($env:LOCAL_CI_INSTALL -eq 1) {
         if (-not ($env:PATH -like '*c:\gopath\bin*'))    { $env:Path = "c:\gopath\bin;$env:Path" }
         if (-not ($env:PATH -like '*c:\go\bin*'))        { $env:Path = "c:\go\bin;$env:Path" }
-        if (-not ($env:PATH -like '*c:\gcc\bin*'))       { $env:Path = "c:\gcc\bin;$env:Path" }
     } else {
         if (-not ($env:PATH -like '*c:\jdk\bin*'))       { $env:Path = "c:\jdk\bin;$env:Path" }
     }
+    if (-not ($env:PATH -like '*c:\gcc\bin*'))       { $env:Path = "c:\gcc\bin;$env:Path" }
     if (-not ($env:PATH -like '*c:\git\usr\bin*'))                     { $env:Path = "c:\git\usr\bin;$env:Path" }
     if (-not ($env:PATH -like '*c:\git\bin*'))                         { $env:Path = "c:\git\bin;$env:Path" }
     if (-not ($env:PATH -like '*c:\git\cmd*'))                         { $env:Path = "c:\git\cmd;$env:Path" }
@@ -106,7 +106,7 @@ try {
     if (-not ($env:PATH -like '*c:\pstools*'))                         { $env:Path = "c:\pstools;$env:Path" }
     setx "PATH" "$env:PATH" /M
 
-    # Only need golang, delve and GCC locally if this is a dev VM
+    # Only need golang, delve locally if this is a dev VM
     if ($env:LOCAL_CI_INSTALL -eq 1) {
         # Work out the version of GO from dockerfile.Windows currently on master
         echo "$(date) InstallMostThings.ps1 Working out GO version..." >> $env:SystemDrive\packer\configure.log
@@ -141,21 +141,21 @@ try {
         $env:GOROOT="$env:SystemDrive\go"
         $env:GOPATH="$env:SystemDrive\gopath"
         setx "GOROOT" "$env:GOROOT" /M  # persist
-
-        # Install GCC
-        echo "$(date) InstallMostThings.ps1 Downloading compiler 1 of 3..." >> $env:SystemDrive\packer\configure.log
-        Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/gcc.zip" -DestinationPath "$env:Temp\gcc.zip"
-         echo "$(date) InstallMostThings.ps1 Downloading compiler 2 of 3..." >> $env:SystemDrive\packer\configure.log
-        Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/runtime.zip" -DestinationPath "$env:Temp\runtime.zip"
-        echo "$(date) InstallMostThings.ps1 Downloading compiler 3 of 3..." >> $env:SystemDrive\packer\configure.log
-        Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/binutils.zip" -DestinationPath "$env:Temp\binutils.zip"
-        echo "$(date) InstallMostThings.ps1 Extracting compiler 1 of 3..." >> $env:SystemDrive\packer\configure.log
-        Expand-Archive $env:Temp\gcc.zip $env:SystemDrive\gcc -Force
-        echo "$(date) InstallMostThings.ps1 Extracting compiler 2 of 3..." >> $env:SystemDrive\packer\configure.log
-        Expand-Archive $env:Temp\runtime.zip $env:SystemDrive\gcc -Force
-        echo "$(date) InstallMostThings.ps1 Extracting compiler 3 of 3..." >> $env:SystemDrive\packer\configure.log
-        Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
     }
+
+    # Install GCC
+    echo "$(date) InstallMostThings.ps1 Downloading compiler 1 of 3..." >> $env:SystemDrive\packer\configure.log
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/gcc.zip" -DestinationPath "$env:Temp\gcc.zip"
+     echo "$(date) InstallMostThings.ps1 Downloading compiler 2 of 3..." >> $env:SystemDrive\packer\configure.log
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/runtime.zip" -DestinationPath "$env:Temp\runtime.zip"
+    echo "$(date) InstallMostThings.ps1 Downloading compiler 3 of 3..." >> $env:SystemDrive\packer\configure.log
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/binutils.zip" -DestinationPath "$env:Temp\binutils.zip"
+    echo "$(date) InstallMostThings.ps1 Extracting compiler 1 of 3..." >> $env:SystemDrive\packer\configure.log
+    Expand-Archive $env:Temp\gcc.zip $env:SystemDrive\gcc -Force
+    echo "$(date) InstallMostThings.ps1 Extracting compiler 2 of 3..." >> $env:SystemDrive\packer\configure.log
+    Expand-Archive $env:Temp\runtime.zip $env:SystemDrive\gcc -Force
+    echo "$(date) InstallMostThings.ps1 Extracting compiler 3 of 3..." >> $env:SystemDrive\packer\configure.log
+    Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
 
     # Download 7z to extract GIT on nanoserver
     #if (Test-Nano) {
