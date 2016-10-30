@@ -119,6 +119,11 @@ try {
 }
 Catch [Exception] {
     Throw $_
+    echo "$(date) Phase0.ps1 complete with Error '$_'" >> $env:SystemDrive\packer\configure.log
+    if (-not (Test-Nano)) {
+        echo $(date) > "c:\users\public\desktop\ERROR Phase0.txt"
+    }
+    exit 1
 }
 Finally {
     echo "$(date) Phase0.ps1 completed..." >> $env:SystemDrive\packer\configure.log
