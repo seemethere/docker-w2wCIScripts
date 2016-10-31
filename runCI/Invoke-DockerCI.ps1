@@ -403,7 +403,8 @@ Function Get-ImageTar {
         }
 
         # Needed on Windows Server 2016 10B (Oct 2016) and later
-        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+        #Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+        Install-PackageProvider -Name NuGet -Force
 
         # https://github.com/microsoft/wim2img (Microsoft Internal)
         Write-Host -ForegroundColor green "INFO: Installing containers module for image conversion"

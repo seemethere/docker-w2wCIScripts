@@ -234,7 +234,8 @@ Try {
         Write-Host -ForegroundColor RED "$Location inaccessible. If not on Microsoft corpnet, copy windowsservercore.tar and nanoserver.tar manually to c:\baseimages"
     } else {
         # Needed on 10B
-        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+        #Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+        Install-PackageProvider -Name NuGet -Force
 
         # https://github.com/microsoft/wim2img (Microsoft Internal)
         Write-Host "INFO: Installing containers module for image conversion"
