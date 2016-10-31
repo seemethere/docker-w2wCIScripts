@@ -636,6 +636,30 @@ Try {
         Write-Host -ForegroundColor Magenta "WARN: Skipping control docker*.exe downloads"
     }
 
+    # Install gcc if not already installed. This will also install windres
+    if (-not (Test-CommandExists gcc)) {
+        Remove-Item "$env:Temp\gcc.zip" -Erroraction SilentlyContinue
+        Remove-Item "$env:Temp\runtime.zip" -Erroraction SilentlyContinue
+        Remove-Item "$env:Temp\binutils.zip" -Erroraction SilentlyContinue
+        Write-Host -ForegroundColor green "INFO: Downloading GCC"
+        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/gcc.zip","$env:Temp\gcc.zip")
+        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/runtime.zip","$env:Temp\runtime.zip")
+        $wc=New-Object net.webclient;$wc.Downloadfile("https://raw.githubusercontent.com/jhowardmsft/docker-tdmgcc/master/binutils.zip","$env:Temp\binutils.zip")
+        Write-Host -ForegroundColor green "INFO: Extracting GCC"
+        Expand-Archive $env:Temp\gcc.zip $env:SystemDrive\gcc -Force
+        Expand-Archive $env:Temp\runtime.zip $env:SystemDrive\gcc -Force
+        Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
+        if (-not ($env:PATH -like '*c:\gcc\bin*')) { 
+            $env:Path = "c:\gcc\bin;$env:Path" 
+            [Environment]::SetEnvironmentVariable("Path","$env:Path;$env:SystemDrive\gcc\bin", "Machine")
+        }
+    }
+
+    # Install gcc if not already installed. This will also install windres
+    if (-not (Test-CommandExists windres)) {
+        Throw "windres not found. Should have been part of GCC. If you manually installed GCC, un-install and re-run this script"
+    }
+
     # Install git if not already installed
     if (-not (Test-CommandExists git)) {
         Remove-Item "$env:Temp\gitinstaller.exe" -Erroraction SilentlyContinue
