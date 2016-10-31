@@ -131,6 +131,7 @@ try {
     }
 
     # Store the branch
+    echo "$(date) Bootstrap.ps1 Branch is $Branch..." >> $env:SystemDrive\packer\configure.log
     setx "Branch" "$Branch" /M
     $env:Branch=$Branch
 

@@ -79,8 +79,10 @@ try {
     }
 
     if ([string]::IsNullOrWhiteSpace($Branch)) {
-         Throw "Branch must be supplied (eg tp5dev, tp5prod, rs1,...)"
+         Throw "Branch must be supplied (eg rs1)"
     }
+    echo "$(date) Phase0.ps1 Branch is $Branch" >> $env:SystemDrive\packer\configure.log
+
     # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot. This also has the nice
     # side effect that we are guaranteed after the reboot the $env:Branch is set so that any script subsequently can pick it up.
     if (-not (Test-Path c:\packer\Phase0.RebootedOnce.txt)) {
