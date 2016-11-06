@@ -603,7 +603,7 @@ Try {
     if ($env:SKIP_VALIDATION_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running validation tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh validate-dco validate-gofmt validate-pkg" | Out-Host } )
+        $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/validate/dco; hack/validate/gofmt; hack/validate/pkg-imports" | Out-Host } )
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Validation tests failed"
