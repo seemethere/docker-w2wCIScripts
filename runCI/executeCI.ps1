@@ -556,7 +556,7 @@ Try {
         if (Test-Path $("c:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar")) {
             Write-Host  -ForegroundColor Green "INFO: Loading"$($env:WINDOWS_BASE_IMAGE -Split "/")[1]".tar from disk into the daemon under test. This may take some time..."
             $ErrorActionPreference = "SilentlyContinue"
-            & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" load -i "c:\baseimages\$($env:WINDOWS_BASE_IMAGE -Split "/")[1].tar"
+            & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" load -i $("c:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar")
             $ErrorActionPreference = "Stop"
             if (-not $LastExitCode -eq 0) {
                 Throw $("ERROR: Failed to load c:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar into daemon under test")
