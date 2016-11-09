@@ -89,7 +89,8 @@ try {
         #--------------------------------------------------------------------------------------------
         # Add the containers features
         echo "$(date) Phase1.ps1 Adding containers feature..." >> $env:SystemDrive\packer\configure.log
-        Add-WindowsFeature containers
+        Enable-WindowsOptionalFeature -Featurename 'Containers' -online -norestart
+        #Add-WindowsFeature containers - only works on server
     }
 
     if (-not (Test-Nano)) {
