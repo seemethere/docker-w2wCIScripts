@@ -679,6 +679,7 @@ Try {
             $sourceBaseLocation="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
             $pathUpdate="`$env:PATH='$env:TEMP\binary;'+`$env:PATH;"
         }
+        $sourceBaseLocation += "\src\github.com\docker\docker"
 
         # Jumping through hoop craziness. Don't ask! Parameter parsing, powershell, go, parameters starting "-check."... :(
         # Just dump it to a file and pass through in a volume with the binaries when in a container, or run locally otherwise
@@ -704,10 +705,18 @@ Try {
             `$cliArgs+=`"-check.timeout=240m`"; `
             `$cliArgs+=`"-test.timeout=360m`"; `
             `$cliArgs+=`"-tags autogen`"; `
-            cd $sourceBaseLocation\src\github.com\docker\docker\integration-cli;         `
+            if (Test-Path $sourceBaseLocation\cmd\integration-cli) { `
+                cd $sourceBaseLocation\cmd\integration-cli; `
+                cmd /c mklink /j  ..\vendor\github.com\docker\docker $sourceBaseLocation `
+            } else { `
+                cd $sourceBaseLocation\integration-cli `
+            }; `
             echo `$cliArgs; `
             `$p=Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs  -PassThru; `
-             exit `$p.ExitCode `
+            if (Test-Path $sourceBaseLocation\cmd\vendor\github.com\docker\docker) { `
+                cmd /c rd $sourceBaseLocation\cmd\vendor\github.com\docker\docker `
+            }; `
+            exit `$p.ExitCode `
            "
         $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
 
