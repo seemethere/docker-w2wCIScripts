@@ -86,7 +86,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="09-Nov-2016 13:12 PDT" 
+$SCRIPT_VER="17-Nov-2016 11:42 PDT" 
 $FinallyColour="Cyan"
 
 
@@ -700,6 +700,7 @@ Try {
         }
 
         # Note about passthru: This cmdlet generates a System.Diagnostics.Process object, if you specify the PassThru parameter. Otherwise, this cmdlet does not return any output.
+		# TODO: Can remove the first else clause below after Alex's PR is merged into master. (https://github.com/docker/docker/pull/28080)
         $c+=" `
             `$cliArgs+=`"-check.v`"; `
             `$cliArgs+=`"-check.timeout=240m`"; `
