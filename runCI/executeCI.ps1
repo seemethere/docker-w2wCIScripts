@@ -89,6 +89,9 @@ $StartTime=Get-Date
 $SCRIPT_VER="17-Nov-2016 11:42 PDT" 
 $FinallyColour="Cyan"
 
+# Temporary workaround. Eventually we will use the native toolset for everything.
+$nativeToolset=$false
+
 
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
@@ -237,6 +240,12 @@ Try {
     }
     Write-Host  -ForegroundColor Green "INFO: docker/docker repository was found"
 
+    # Nov 2016. Look for hack/make.ps1 to see if we are doing things in native PowerShell way
+    if (Test-Path -Path ".\hack\make.ps1") {
+        Write-Host -ForegroundColor Green "INFO: Using native toolset where implemented"
+        $nativeToolset=$true
+    }
+
     # Make sure microsoft/windowsservercore:latest image is installed in the control daemon. On public CI machines, windowsservercore.tar and nanoserver.tar
     # are pre-baked and tagged appropriately in the c:\baseimages directory, and can be directly loaded. 
     # Note - this script will only work on 10B (Oct 2016) or later machines! Not 9D or previous due to image tagging assumptions.
@@ -366,14 +375,24 @@ Try {
     }
 
     $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
-    $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
-
+    if ($nativeToolset) {
+        $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles"
+    } else {
+        # TODO Can remove this once on the full native toolset
+        $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
+    }
     # Build the binary in a container unless asked to skip it
     if ($env:SKIP_BINARY_BUILD -eq $null) {
         Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binaries at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
-        $Duration=$(Measure-Command {docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
+        if ($nativeToolset) {
+            # New way of doing things
+            $Duration=$(Measure-Command {docker run --name $COMMITHASH docker hack/make.ps1 -Binary | Out-Host })
+        } else {
+            # TODO Backwards compatibility. Can be removed once native toolset support is in the repo.
+            $Duration=$(Measure-Command {docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
+        }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to build binary"
@@ -382,13 +401,23 @@ Try {
 
         # Copy the binaries and the generated version_autogen.go out of the container
         $ErrorActionPreference = "SilentlyContinue"
-        docker cp "$contPath\binary-client\docker.exe" $env:TEMP\binary\
-        if (-not($LastExitCode -eq 0)) {
-            Throw "ERROR: Failed to docker cp the client binary (docker.exe) from $contPath\binary-client\ to $env:TEMP\binary"
+        if ($nativeToolset) {
+            docker cp "$contPath\docker.exe" $env:TEMP\binary\
+        } else {
+            # TODO Can remove this once moved fully across to the native toolset
+            docker cp "$contPath\binary-client\docker.exe" $env:TEMP\binary\
         }
-        docker cp "$contPath\binary-daemon\dockerd.exe" $env:TEMP\binary\
         if (-not($LastExitCode -eq 0)) {
-            Throw "ERROR: Failed to docker cp the daemon binary (dockerd.exe) from $contPath\binary-daemon\ to $env:TEMP\binary"
+            Throw "ERROR: Failed to docker cp the client binary (docker.exe) to $env:TEMP\binary"
+        }
+        if ($nativeToolset) {
+            docker cp "$contPath\dockerd.exe" $env:TEMP\binary\
+        } else {
+            # TODO Can remove this once moved fully across to the native toolset
+            docker cp "$contPath\binary-daemon\dockerd.exe" $env:TEMP\binary\
+        }
+        if (-not($LastExitCode -eq 0)) {
+            Throw "ERROR: Failed to docker cp the daemon binary (dockerd.exe) to $env:TEMP\binary"
         }
         $ErrorActionPreference = "Stop"
 
@@ -406,9 +435,14 @@ Try {
 
     Write-Host -ForegroundColor Green "INFO: Copying dockerversion from the container..."
     $ErrorActionPreference = "SilentlyContinue"
-    docker cp "$contPath\..\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+    if ($nativeToolset) {
+        docker cp "$contPath\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+    } else {
+            # TODO Backwards compatibility. Can be removed once native toolset support is in the repo.
+        docker cp "$contPath\..\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+    }
     if (-not($LastExitCode -eq 0)) {
-         Throw "ERROR: Failed to docker cp the generated version_autogen.go from $contPath\..\..\dockerversion to $env:SOURCES_DRIVE`:\SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+         Throw "ERROR: Failed to docker cp the generated version_autogen.go to $env:SOURCES_DRIVE`:\SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
     }
     $ErrorActionPreference = "Stop"
 
@@ -426,9 +460,9 @@ Try {
     $Duration=$(Measure-Command { Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force | Out-Host })
     Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
 
-    # Set the GOPATH to the root and the vendor directory
+    # Set the GOPATH
     Write-Host -ForegroundColor Green "INFO: Updating the golang and path environment variables"
-    $env:GOPATH="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\vendor;$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
+    $env:GOPATH="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
     Write-Host -ForegroundColor Green "INFO: GOPATH=$env:GOPATH"
 
     # Set the path to have the version of go from the image at the front
@@ -583,23 +617,12 @@ Try {
     $ErrorActionPreference = "Stop"
     Write-Host -ForegroundColor Green $("INFO: Version of "+$env:WINDOWS_BASE_IMAGE+":latest is '"+$dutimgVersion+"'")
 
-    # Back compatibility: Also tag it as imagename:latest (no microsoft/ prefix). This can be removed once the CI suite has been updated.
-    # TODO: Open docker/docker PR to fix this.
-    #$ErrorActionPreference = "SilentlyContinue"
-    #& "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" tag $("microsoft/"+$env:WINDOWS_BASE_IMAGE) $($env:WINDOWS_BASE_IMAGE+":latest")
-    #$ErrorActionPreference = "Stop"
-    #if ($LastExitCode -ne 0) {
-    #    Throw $("ERROR: Failed to tag microsoft/"+$env:WINDOWS_BASE_IMAGE+":latest"+" as "+$($env:WINDOWS_BASE_IMAGE+":latest in the daemon under test"))
-    #}
-    #Write-Host  -ForegroundColor Green $("INFO: (Interim back-compatibility) Tagged microsoft/"+$env:WINDOWS_BASE_IMAGE+":latest"+" as "+$($env:WINDOWS_BASE_IMAGE+":latest in the daemon under test"))
-    #$ErrorActionPreference = "Stop"
-
-
     # Run the validation tests inside a container unless SKIP_VALIDATION_TESTS is defined
     if ($env:SKIP_VALIDATION_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running validation tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/validate/dco; hack/validate/gofmt; hack/validate/pkg-imports" | Out-Host } )
+        # TODO: Remove --entrypoint and cd once in native toolset
+        $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/validate/dco; hack/validate/gofmt; hack/validate/pkg-imports" | Out-Host } )
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Validation tests failed"
@@ -613,7 +636,8 @@ Try {
     if ($env:SKIP_UNIT_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running unit tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        $Duration= $(Measure-Command { & docker run --rm docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit" | Out-Host } )
+        # TODO: Remove --entrypoint and cd once in native toolset
+        $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit" | Out-Host } )
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Unit tests failed"
@@ -700,7 +724,7 @@ Try {
         }
 
         # Note about passthru: This cmdlet generates a System.Diagnostics.Process object, if you specify the PassThru parameter. Otherwise, this cmdlet does not return any output.
-		# TODO: Can remove the first else clause below after Alex's PR is merged into master. (https://github.com/docker/docker/pull/28080)
+        # TODO: Can remove the first else clause below after Alex's PR is merged into master. (https://github.com/docker/docker/pull/28080)
         $c+=" `
             `$cliArgs+=`"-check.v`"; `
             `$cliArgs+=`"-check.timeout=240m`"; `
