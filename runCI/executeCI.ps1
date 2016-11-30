@@ -92,7 +92,6 @@ $FinallyColour="Cyan"
 # Temporary workaround. Eventually we will use the native toolset for everything.
 $nativeToolset=$false
 
-
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
 #$env:SKIP_ZAP_DUT="yes"
@@ -181,6 +180,9 @@ Try {
     $origGOROOT="$env:GOROOT"        # So we can restore it at the end
     $origGOPATH="$env:GOPATH"        # So we can restore it at the end
 
+    # Turn off progress bars
+    $ProgressPreference='SilentlyContinue'
+
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
 
@@ -240,7 +242,7 @@ Try {
     }
     Write-Host  -ForegroundColor Green "INFO: docker/docker repository was found"
 
-    # Nov 2016. Look for hack/make.ps1 to see if we are doing things in native PowerShell way
+    # Nov 2016. Look for hack\make.ps1 to see if we are doing things in native PowerShell way
     if (Test-Path -Path ".\hack\make.ps1") {
         Write-Host -ForegroundColor Green "INFO: Using native toolset where implemented"
         $nativeToolset=$true
@@ -388,7 +390,7 @@ Try {
         docker rm -f $COMMITHASH 2>&1 | Out-Null
         if ($nativeToolset) {
             # New way of doing things
-            $Duration=$(Measure-Command {docker run --name $COMMITHASH docker hack/make.ps1 -Binary | Out-Host })
+            $Duration=$(Measure-Command {docker run --name $COMMITHASH docker hack\make.ps1 -Binary | Out-Host })
         } else {
             # TODO Backwards compatibility. Can be removed once native toolset support is in the repo.
             $Duration=$(Measure-Command {docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
@@ -457,7 +459,8 @@ Try {
 
     # Extract the golang installer
     Write-Host -ForegroundColor Green "INFO: Extracting go.zip to $env:TEMP\go"
-    $Duration=$(Measure-Command { Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force | Out-Host })
+    $ProgressPreference='SilentlyContinue'
+    $Duration=$(Measure-Command { $ProgressPreference='SilentlyContinue'; Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force })
     Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
 
     # Set the GOPATH
@@ -621,8 +624,12 @@ Try {
     if ($env:SKIP_VALIDATION_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running validation tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        # TODO: Remove --entrypoint and cd once in native toolset
-        $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/validate/dco; hack/validate/gofmt; hack/validate/pkg-imports" | Out-Host } )
+        if ($nativeToolset) {
+            $Duration=$(Measure-Command { docker run docker hack\make.ps1 -DCO -GoFormat -PkgImports | Out-Host })
+        } else {
+            # TODO: Remove --entrypoint and cd once in native toolset
+            $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/validate/dco; hack/validate/gofmt; hack/validate/pkg-imports" | Out-Host } )
+        }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Validation tests failed"
@@ -636,8 +643,15 @@ Try {
     if ($env:SKIP_UNIT_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running unit tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        # TODO: Remove --entrypoint and cd once in native toolset
-        $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit" | Out-Host } )
+        if ($nativeToolset) {
+            # New way of doing things
+            $Duration=$(Measure-Command {docker run docker hack\make.ps1 -TestUnit | Out-Host })
+        } else {
+            # TODO: Remove --entrypoint and cd once in native toolset. In fact remove the whole thing once in the repo
+            $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit" | Out-Host } )
+        }
+
+
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Unit tests failed"

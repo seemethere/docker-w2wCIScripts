@@ -97,7 +97,7 @@ try {
     } else {
         if (-not ($env:PATH -like '*c:\jdk\bin*'))       { $env:Path = "c:\jdk\bin;$env:Path" }
     }
-    if (-not ($env:PATH -like '*c:\gcc\bin*'))       { $env:Path = "c:\gcc\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\gcc\bin*'))                         { $env:Path = "c:\gcc\bin;$env:Path" }
     if (-not ($env:PATH -like '*c:\git\usr\bin*'))                     { $env:Path = "c:\git\usr\bin;$env:Path" }
     if (-not ($env:PATH -like '*c:\git\bin*'))                         { $env:Path = "c:\git\bin;$env:Path" }
     if (-not ($env:PATH -like '*c:\git\cmd*'))                         { $env:Path = "c:\git\cmd;$env:Path" }
