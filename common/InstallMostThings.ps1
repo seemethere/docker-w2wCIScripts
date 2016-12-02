@@ -7,11 +7,9 @@
 # not just a CI server. Note Git is a full location, not a version as interim releases have more than just the version in the path.
 echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configure.log
 
-$FULL_GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.10.1.windows.1/Git-2.10.1-64-bit.exe"
-$NANO_GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.10.1.windows.1/PortableGit-2.10.1-64-bit.7z.exe"
-$JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-windows-x64.exe"  # 10/24/2016
-$NPP_LOCATION="https://notepad-plus-plus.org/repository/7.x/7.1/npp.7.1.Installer.x64.exe" # 10/24/2016
-$SQLITE_LOCATION="https://sqlite.org/2016/sqlite-amalgamation-3150000.zip" # 10/24/2016
+$GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.11.0.windows.1/PortableGit-2.11.0-64-bit.7z.exe"
+$JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jdk-8u112-windows-x64.exe"  # 12/2/2016
+$NPP_LOCATION="https://notepad-plus-plus.org/repository/7.x/7.2.2/npp.7.2.2.Installer.x64.exe" # 12/2/2016
 $DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
 $DELVE_LOCATION="github.com/derekparker/delve/cmd/dlv"
 
@@ -73,14 +71,9 @@ function Copy-File {
     }  
 }  
 
-if (-not (Test-Nano)) {
-    echo "$(date)  Git:           $FULL_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
-} else { 
-    echo "$(date)  Git:           $NANO_GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
-}
+echo "$(date)  Git:           $GIT_LOCATION"    >> $env:SystemDrive\packer\configure.log
 if ($env:LOCAL_CI_INSTALL -ne 1) {echo "$(date)  JDK:           $JDK_LOCATION"         >> $env:SystemDrive\packer\configure.log }
 echo "$(date)  Notepad++:     $NPP_LOCATION"         >> $env:SystemDrive\packer\configure.log
-if ($env:LOCAL_CI_INSTALL -eq 1) { echo "$(date)  SQLite:        $SQLITE_LOCATION"      >> $env:SystemDrive\packer\configure.log }
 echo "$(date)  Docker:        $DOCKER_LOCATION"      >> $env:SystemDrive\packer\configure.log
 
 
@@ -97,13 +90,13 @@ try {
     } else {
         if (-not ($env:PATH -like '*c:\jdk\bin*'))       { $env:Path = "c:\jdk\bin;$env:Path" }
     }
-    if (-not ($env:PATH -like '*c:\gcc\bin*'))                         { $env:Path = "c:\gcc\bin;$env:Path" }
-    if (-not ($env:PATH -like '*c:\git\usr\bin*'))                     { $env:Path = "c:\git\usr\bin;$env:Path" }
-    if (-not ($env:PATH -like '*c:\git\bin*'))                         { $env:Path = "c:\git\bin;$env:Path" }
-    if (-not ($env:PATH -like '*c:\git\cmd*'))                         { $env:Path = "c:\git\cmd;$env:Path" }
-    if (-not ($env:PATH -like '*c:\CIUtilities*'))                     { $env:Path = "c:\CIUtilities;$env:Path" }
-    if (-not ($env:PATH -like '*c:\Program Files (x86)\Notepad++*'))   { $env:Path = "c:\Program Files (x86)\Notepad++;$env:Path" }
-    if (-not ($env:PATH -like '*c:\pstools*'))                         { $env:Path = "c:\pstools;$env:Path" }
+    if (-not ($env:PATH -like '*c:\gcc\bin*'))                 { $env:Path = "c:\gcc\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\git\usr\bin*'))             { $env:Path = "c:\git\usr\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\git\bin*'))                 { $env:Path = "c:\git\bin;$env:Path" }
+    if (-not ($env:PATH -like '*c:\git\cmd*'))                 { $env:Path = "c:\git\cmd;$env:Path" }
+    if (-not ($env:PATH -like '*c:\CIUtilities*'))             { $env:Path = "c:\CIUtilities;$env:Path" }
+    if (-not ($env:PATH -like '*c:\Program Files\Notepad++*')) { $env:Path = "c:\Program Files\Notepad++;$env:Path" }
+    if (-not ($env:PATH -like '*c:\pstools*'))                 { $env:Path = "c:\pstools;$env:Path" }
     setx "PATH" "$env:PATH" /M
 
     # Only need golang, delve locally if this is a dev VM
@@ -157,28 +150,18 @@ try {
     echo "$(date) InstallMostThings.ps1 Extracting compiler 3 of 3..." >> $env:SystemDrive\packer\configure.log
     Expand-Archive $env:Temp\binutils.zip $env:SystemDrive\gcc -Force
 
-    # Download 7z to extract GIT on nanoserver
-    #if (Test-Nano) {
-    #    echo "$(date) InstallMostThings.ps1 Downloading 7z (nano only)..." >> $env:SystemDrive\packer\configure.log
-    #    Copy-File -SourcePath "http://www.7-zip.org/a/7z1602-x64.exe" -DestinationPath "$env:Temp\7zsetup.exe"
-    #}
-
     # Download and install git
     echo "$(date) InstallMostThings.ps1 Downloading git..." >> $env:SystemDrive\packer\configure.log
-    if (-not (Test-Nano)) {
-        Copy-File -SourcePath "$FULL_GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
-        echo "$(date) InstallMostThings.ps1 Installing git..." >> $env:SystemDrive\packer\configure.log
-        $installPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
-        $installItem = 'Git_is1'
-        New-Item -Path $installPath -Name $installItem -Force
-        $installKey = $installPath+'\'+$installItem
-        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Path Option' -Value 'CmdTools' -PropertyType 'String' -Force
-        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: Bash Terminal Option' -Value 'ConHost' -PropertyType 'String' -Force
-        New-ItemProperty $installKey -Name 'Inno Setup CodeFile: CRLF Option' -Value 'CRLFCommitAsIs' -PropertyType 'String' -Force
-        Start-Process $env:Temp\gitsetup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /DIR=$env:SystemDrive\git" -Wait
-    } else {
-        Copy-File -SourcePath "$NANO_GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.exe"
-    }
+    Copy-File -SourcePath "$GIT_LOCATION" -DestinationPath "$env:Temp\gitsetup.7z.exe"
+    echo "$(date) InstallMostThings.ps1 installing PS7Zip package..." >> $env:SystemDrive\packer\configure.log
+    Install-Package PS7Zip -Force | Out-Null
+    echo "$(date) InstallMostThings.ps1 importing PS7Zip..." >> $env:SystemDrive\packer\configure.log
+    Import-Module PS7Zip -Force
+    New-Item C:\git -ItemType Directory -erroraction SilentlyContinue| Out-Null
+    Push-Location C:\git
+    echo "$(date) InstallMostThings.ps1 extracting git..." >> $env:SystemDrive\packer\configure.log
+    Expand-7Zip "$env:Temp\gitsetup.7z.exe" | Out-Null
+    Pop-Location
 
     # Perform an initial clone so that we can do a local verification outside of jenkins through c:\scripts\doit.sh
     if ($env:LOCAL_CI_INSTALL -ne 1) {
@@ -250,12 +233,6 @@ try {
     echo "$(date) InstallMostThings.ps1 Installing PSTools..." >> $env:SystemDrive\packer\configure.log
     Expand-Archive $env:Temp\pstools.zip c:\pstools
 
-    # Not needed for RTM
-    # Add registry keys for enabling nanoserver. 
-    #echo "$(date) InstallMostThings.ps1 Adding nano registry keys..." >> $env:SystemDrive\packer\configure.log
-    #REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipVersionCheck /t REG_DWORD /d 2 /f | Out-Null
-    #REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Windows Containers" /v SkipSkuCheck /t REG_DWORD /d 2 /f | Out-Null
-
     if (-not (Test-Nano)) {
         # Stop Server Manager from opening at logon
         echo "$(date) InstallMostThings.ps1 Turning off server manager at logon..." >> $env:SystemDrive\packer\configure.log
@@ -274,19 +251,6 @@ try {
             echo "$(date) InstallMostThings.ps1 Installing JDK..." >> $env:SystemDrive\packer\configure.log
             Start-Process -Wait "$env:Temp\jdkinstaller.exe" -ArgumentList "/s /INSTALLDIRPUBJRE=$env:SystemDrive\jdk"
         }
-    }
-
-    # If a dev VM, download sources for, and compile sqlite3.dll from amalgamation sources in case of a dynamically linked docker binary
-    if ($env:LOCAL_CI_INSTALL -eq 1) {
-        echo "$(date) InstallMostThings.ps1 Downloading SQLite sources..." >> $env:SystemDrive\packer\configure.log
-        Copy-File -SourcePath "$SQLITE_LOCATION" -DestinationPath "$env:Temp\sqlite.zip"
-        echo "$(date) InstallMostThings.ps1 Extracting SQLite sources..." >> $env:SystemDrive\packer\configure.log
-        Expand-Archive $env:Temp\sqlite.zip $env:SystemDrive\sqlite
-        cd $env:SystemDrive\sqlite
-        move .\sql*\* .
-        echo "$(date) InstallMostThings.ps1 Compiling SQLite3.dll..." >> $env:SystemDrive\packer\configure.log
-        Start-Process -wait gcc -ArgumentList "-shared sqlite3.c -o sqlite3.dll"
-        copy sqlite3.dll $env:SystemRoot\system32
     }
 
     # Download slave.jar from Jenkins
