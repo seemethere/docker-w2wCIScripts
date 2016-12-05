@@ -193,6 +193,7 @@ $DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
 $GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.10.1.windows.1/Git-2.10.1-64-bit.exe"
 $ConfigJSONBackedUp=$False
 $CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.ps1"
+$pushed=$False  # To restore the directory if we have temporarily pushed to one.
 
 # Download-File is a simple wrapper to get a file from somewhere (HTTP, SMB or local file path)
 # If file is supplied, the source is assumed to be a base path. Returns -1 if does not exist, 
@@ -435,7 +436,7 @@ Try {
     $ORIGTEMP=$env:TEMP
 
     # Start in the root of the system drive
-    cd "$env:SystemDrive\"
+    Push-Location "$env:SystemDrive\"; $global:pushed=$True
 
     # Set some defaults if they are not defined in the environment
     if ([string]::IsNullOrWhiteSpace($SourcesDrive)) {
@@ -777,20 +778,17 @@ Try {
 
     # Invoke the CI script itself.
     Write-Host -ForegroundColor cyan "INFO: Starting $TestrunDrive`:\control\CIScript.ps1"
-    & "$TestrunDrive`:\control\CIScript.ps1"
-    if ($LastExitCode -ne 0) {
-        Throw "CI script failed, so quitting Invoke-DockerCI with error"
-    }
+    Try { & "$TestrunDrive`:\control\CIScript.ps1" }
+    Catch [Exception] { Throw "CI script failed, so quitting Invoke-DockerCI with error $_" }
 
     Write-Host -ForegroundColor green "INFO: $TestrunDrive`:\control\CIScript.ps1 succeeded!!!"
-    exit 0
 }
 Catch [Exception] {
     Write-Host -ForegroundColor Red "`n---------------------------------------------------------------------------"
     Write-Host -ForegroundColor Red ("ERROR: Overall CI run has failed with error:`n '$_'")
     Write-Host -ForegroundColor Red "---------------------------------------------------------------------------`n"
     $FinallyColour="Red"
-    exit 1
+    Throw $_
 }
 Finally {
     Kill-Processes
@@ -808,6 +806,8 @@ Finally {
         Write-Host -ForegroundColor green "INFO: Restoring $env:ProgramData\docker\config\daemon.json"
         Rename-Item "$env:ProgramData\docker\config\daemon.CIBackup" "$env:ProgramData\docker\config\daemon.json" -ErrorAction SilentlyContinue
     }
+
+    if ($global:pushed) { Pop-Location }
     
     Write-Host -ForegroundColor $FinallyColour "`nINFO: Invoke-DockerCI.ps1 exiting at $(date)"
 }

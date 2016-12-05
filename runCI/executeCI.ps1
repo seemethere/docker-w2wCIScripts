@@ -86,7 +86,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="05-Dec-2016 10:05 PDT" 
+$SCRIPT_VER="05-Dec-2016 12:28 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -758,15 +758,18 @@ Try {
     }
 
     Write-Host -ForegroundColor Green "INFO: executeCI.ps1 Completed successfully at $(Get-Date)."
-    $host.SetShouldExit(0)
 }
 Catch [Exception] {
     $FinallyColour="Red"
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
     Write-Host "`n`n"
-    # Throw the error onwards to ensure Jenkins captures it.
-    $host.SetShouldExit(1)
-    Throw $_
+
+    # Exit to ensure Jenkins captures it. Don't do this in the ISE or interactive Powershell - they will catch the Throw onwards.
+    if ( ([bool]([Environment]::GetCommandLineArgs() -Like '*-NonInteractive*')) -and `
+         ([bool]([Environment]::GetCommandLineArgs() -NotLike "*Powershell_ISE.exe*"))) {
+        exit 1
+    }
+    Throw $_
 }
 Finally {
     $ErrorActionPreference="SilentlyContinue"
