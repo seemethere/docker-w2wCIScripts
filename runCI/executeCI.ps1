@@ -89,9 +89,6 @@ $StartTime=Get-Date
 $SCRIPT_VER="17-Nov-2016 11:42 PDT" 
 $FinallyColour="Cyan"
 
-# Temporary workaround. Eventually we will use the native toolset for everything.
-$nativeToolset=$false
-
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
 #$env:SKIP_ZAP_DUT="yes"
@@ -242,12 +239,6 @@ Try {
     }
     Write-Host  -ForegroundColor Green "INFO: docker/docker repository was found"
 
-    # Nov 2016. Look for hack\make.ps1 to see if we are doing things in native PowerShell way
-    if (Test-Path -Path ".\hack\make.ps1") {
-        Write-Host -ForegroundColor Green "INFO: Using native toolset where implemented"
-        $nativeToolset=$true
-    }
-
     # Make sure microsoft/windowsservercore:latest image is installed in the control daemon. On public CI machines, windowsservercore.tar and nanoserver.tar
     # are pre-baked and tagged appropriately in the c:\baseimages directory, and can be directly loaded. 
     # Note - this script will only work on 10B (Oct 2016) or later machines! Not 9D or previous due to image tagging assumptions.
@@ -377,24 +368,14 @@ Try {
     }
 
     $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
-    if ($nativeToolset) {
-        $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles"
-    } else {
-        # TODO Can remove this once on the full native toolset
-        $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles\$v"
-    }
+    $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles"
+
     # Build the binary in a container unless asked to skip it
     if ($env:SKIP_BINARY_BUILD -eq $null) {
         Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binaries at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
-        if ($nativeToolset) {
-            # New way of doing things
-            $Duration=$(Measure-Command {docker run --name $COMMITHASH docker hack\make.ps1 -Binary | Out-Host })
-        } else {
-            # TODO Backwards compatibility. Can be removed once native toolset support is in the repo.
-            $Duration=$(Measure-Command {docker run --name $COMMITHASH docker sh -c 'cd /c/go/src/github.com/docker/docker; hack/make.sh binary' | Out-Host })
-        }
+        $Duration=$(Measure-Command {docker run --name $COMMITHASH docker hack\make.ps1 -Binary | Out-Host })
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to build binary"
@@ -403,21 +384,11 @@ Try {
 
         # Copy the binaries and the generated version_autogen.go out of the container
         $ErrorActionPreference = "SilentlyContinue"
-        if ($nativeToolset) {
-            docker cp "$contPath\docker.exe" $env:TEMP\binary\
-        } else {
-            # TODO Can remove this once moved fully across to the native toolset
-            docker cp "$contPath\binary-client\docker.exe" $env:TEMP\binary\
-        }
+        docker cp "$contPath\docker.exe" $env:TEMP\binary\
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to docker cp the client binary (docker.exe) to $env:TEMP\binary"
         }
-        if ($nativeToolset) {
-            docker cp "$contPath\dockerd.exe" $env:TEMP\binary\
-        } else {
-            # TODO Can remove this once moved fully across to the native toolset
-            docker cp "$contPath\binary-daemon\dockerd.exe" $env:TEMP\binary\
-        }
+        docker cp "$contPath\dockerd.exe" $env:TEMP\binary\
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to docker cp the daemon binary (dockerd.exe) to $env:TEMP\binary"
         }
@@ -437,12 +408,7 @@ Try {
 
     Write-Host -ForegroundColor Green "INFO: Copying dockerversion from the container..."
     $ErrorActionPreference = "SilentlyContinue"
-    if ($nativeToolset) {
-        docker cp "$contPath\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
-    } else {
-            # TODO Backwards compatibility. Can be removed once native toolset support is in the repo.
-        docker cp "$contPath\..\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
-    }
+    docker cp "$contPath\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
     if (-not($LastExitCode -eq 0)) {
          Throw "ERROR: Failed to docker cp the generated version_autogen.go to $env:SOURCES_DRIVE`:\SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
     }
@@ -624,12 +590,7 @@ Try {
     if ($env:SKIP_VALIDATION_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running validation tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        if ($nativeToolset) {
-            $Duration=$(Measure-Command { docker run docker hack\make.ps1 -DCO -GoFormat -PkgImports | Out-Host })
-        } else {
-            # TODO: Remove --entrypoint and cd once in native toolset
-            $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/validate/dco; hack/validate/gofmt; hack/validate/pkg-imports" | Out-Host } )
-        }
+        $Duration=$(Measure-Command { docker run docker hack\make.ps1 -DCO -GoFormat -PkgImports | Out-Host })
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Validation tests failed"
@@ -643,15 +604,7 @@ Try {
     if ($env:SKIP_UNIT_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running unit tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        if ($nativeToolset) {
-            # New way of doing things
-            $Duration=$(Measure-Command {docker run docker hack\make.ps1 -TestUnit | Out-Host })
-        } else {
-            # TODO: Remove --entrypoint and cd once in native toolset. In fact remove the whole thing once in the repo
-            $Duration= $(Measure-Command { & docker run --rm --entrypoint="" docker sh -c "cd /c/go/src/github.com/docker/docker; hack/make.sh test-unit" | Out-Host } )
-        }
-
-
+        $Duration=$(Measure-Command {docker run docker hack\make.ps1 -TestUnit | Out-Host })
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Unit tests failed"
