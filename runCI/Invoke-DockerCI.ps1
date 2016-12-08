@@ -290,27 +290,36 @@ Function Get-Sources
 
     try {
 
-        # Wipe the workspace where the sources exist
-        if ( Test-Path $Workspace -ErrorAction SilentlyContinue ) {
-            Write-Host -ForegroundColor green "INFO: Wiping $Workspace..."
-            Remove-Item -Recurse -Force $Workspace
-        }
-           
+          
         # Clone the sources into the workspace.
         Write-Host -ForegroundColor green "INFO: Cloning docker sources into $Workspace..."
         #$env:GIT_TERMINAL_PROMPT=0 # Make git not prompt
-        $proc = Start-Process git.exe -ArgumentList "clone https://github.com/docker/docker $Workspace" -NoNewWindow -PassThru 
-        try
-        {
-            $proc | Wait-Process -Timeout 180 -ErrorAction Stop
-            if ($proc.ExitCode -ne 0) {
-                Throw "Clone failed"
+        $retryCount = 0
+        while ($true) {
+            # Wipe the workspace where the sources exist
+            if ( Test-Path $Workspace -ErrorAction SilentlyContinue ) {
+                Write-Host -ForegroundColor green "INFO: Wiping $Workspace..."
+                Remove-Item -Recurse -Force $Workspace
             }
-            Write-Host -ForegroundColor green "INFO: Cloned successfully"
-        } catch {
-            # No point using Stop-Process as git launches several sub-processes
-            Kill-Processes
-            Throw "Timeout cloning the docker sources"
+            $proc = Start-Process git.exe -ArgumentList "clone https://github.com/docker/docker $Workspace" -NoNewWindow -PassThru 
+            try
+            {
+                $proc | Wait-Process -Timeout 300 -ErrorAction Stop
+                if ($proc.ExitCode -ne 0) {
+                    Throw "Clone failed"
+                }
+                Write-Host -ForegroundColor green "INFO: Cloned successfully"
+                break
+            } catch {
+                # No point using Stop-Process as git launches several sub-processes
+                Kill-Processes
+                if ($retryCount -lt 3) {
+                    Write-Warning "Failed to clone, so retrying"
+                } else {
+                    Throw "Timeout cloning the docker sources"
+                }
+            }
+            $retryCount++
         }
 
         # Change to our workspace directory
