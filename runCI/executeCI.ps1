@@ -694,8 +694,8 @@ Try {
         # TODO: Can remove the first else clause below after Alex's PR is merged into master. (https://github.com/docker/docker/pull/28080)
         $c+=" `
             `$cliArgs+=`"-check.v`"; `
-            `$cliArgs+=`"-check.timeout=240m`"; `
-            `$cliArgs+=`"-test.timeout=360m`"; `
+            `$cliArgs+=`"-check.timeout=10m`"; `
+            `$cliArgs+=`"-test.timeout=200m`"; `
             `$cliArgs+=`"-tags autogen`"; `
             if (Test-Path $sourceBaseLocation\cmd\integration-cli) { `
                 cd $sourceBaseLocation\cmd\integration-cli; `
