@@ -376,7 +376,7 @@ Try {
     $dockerIgnoreContents = ""
     $dockerIgnoreContents = Get-Content ".\.dockerignore" -ErrorAction SilentlyContinue
     $passGitCommitToContainer = $dockerIgnoreContents -contains ".git"
-    $CommitUnsupported=$False
+    $CommitUnsupported=""
     if ($passGitCommitToContainer) {
         # We have to generate the warning outside of make.ps1
         if ($(git status --porcelain --untracked-files=no).Length -ne 0) {
@@ -635,7 +635,11 @@ Try {
     if ($env:SKIP_UNIT_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running unit tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        $Duration=$(Measure-Command {docker run docker hack\make.ps1 -TestUnit | Out-Host })
+        if ($passGitCommitToContainer) {
+            $Duration=$(Measure-Command {docker run -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -TestUnit | Out-Host })
+        } else {
+            $Duration=$(Measure-Command {docker run docker hack\make.ps1 -TestUnit | Out-Host })
+        }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Unit tests failed"
