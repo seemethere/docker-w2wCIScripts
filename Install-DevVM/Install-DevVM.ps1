@@ -195,8 +195,8 @@ Try {
         enable-netfirewallrule -displaygroup 'Remote Desktop'
     }
 
-    Write-Host "INFO: Turning off the firewall"
-    NetSh Advfirewall set allprofiles state off
+    #Write-Host "INFO: Turning off the firewall"
+    #NetSh Advfirewall set allprofiles state off
 
     Write-Host "INFO: Copying some utilities (pipelist, sfpcopy, windiff)"
     Copy-Item pipelist.exe c:\windows\system32  -ErrorAction SilentlyContinue
