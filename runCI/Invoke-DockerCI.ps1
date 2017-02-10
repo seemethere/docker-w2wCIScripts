@@ -110,6 +110,9 @@
 .PARAMETER SkipIntegrationTests
     Whether to skip the integration tests. They are run by default.
 
+.PARAMETER SkipCopyGo
+    Whether to skip the copying go from the container (eg on a hot cache).
+
 .PARAMETER HyperVControl
     Whether to run the control daemon configured to run containers as
     Hyper-V containers. By default it is not
@@ -175,6 +178,7 @@ param(
     [Parameter(Mandatory=$false)][switch]$SkipValidationTests=$False,
     [Parameter(Mandatory=$false)][switch]$SkipUnitTests=$False,
     [Parameter(Mandatory=$false)][switch]$SkipIntegrationTests=$False,
+    [Parameter(Mandatory=$false)][switch]$SkipCopyGo=$False,
     [Parameter(Mandatory=$false)][switch]$HyperVControl=$False,
     [Parameter(Mandatory=$false)][switch]$HyperVDUT=$False,
     [Parameter(Mandatory=$false)][switch]$SkipClone=$False,
@@ -502,6 +506,9 @@ Try {
     if ($SkipIntegrationTests) {
         $env:SKIP_INTEGRATION_TESTS = "Yes"
     }
+    if ($SkipCopyGo) {
+        $env:SKIP_COPY_GO = "Yes"
+    }
     if ($SkipBinaryBuild) {
         $env:SKIP_BINARY_BUILD = "Yes"
     }
@@ -568,6 +575,7 @@ Try {
     Write-Host " - Skip image build:  $SkipImageBuild"
     Write-Host " - Skip all cleanup:  $SkipAllCleanup"
     Write-Host " - Skip download:     $SkipControlDownload"
+    Write-Host " - Skip copy go:      $SkipCopyGo"
     if ($SkipIntegrationTests -eq $false) {
         if (-not ([string]::IsNullOrWhiteSpace($IntegrationTestName))) {
             Write-Host " - CLI test match:    $IntegrationTestName"

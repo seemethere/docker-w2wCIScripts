@@ -46,6 +46,8 @@ $StartTime=Get-Date
 #
 #    SKIP_INTEGRATION_TESTS   if defined skips the integration tests
 #
+#    SKIP_COPY_GO             if defined skips copy the go installer from the image
+#
 #    DOCKER_DUT_HYPERV        if default daemon under test default isolation is hyperv
 #
 #    INTEGRATION_TEST_NAME    to only run partial tests eg "TestInfo*" will only run
@@ -86,7 +88,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="05-Dec-2016 12:28 PDT" 
+$SCRIPT_VER="09-Feb-2017 19:35 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -338,9 +340,11 @@ Try {
     New-Item -ItemType Directory "$env:TEMP\localappdata" -ErrorAction SilentlyContinue | Out-Null
     New-Item -ItemType Directory "$env:TEMP\binary" -ErrorAction SilentlyContinue | Out-Null
     New-Item -ItemType Directory "$env:TEMP\installer" -ErrorAction SilentlyContinue | Out-Null
-    # Wipe the previous version of GO - we're going to get it out of the image
-    if (Test-Path "$env:TEMP\go") { Remove-Item "$env:TEMP\go" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null }
-    New-Item -ItemType Directory "$env:TEMP\go" -ErrorAction SilentlyContinue | Out-Null
+    if ($env:SKIP_COPY_GO -eq $null) {
+        # Wipe the previous version of GO - we're going to get it out of the image
+        if (Test-Path "$env:TEMP\go") { Remove-Item "$env:TEMP\go" -Recurse -Force -ErrorAction SilentlyContinue | Out-Null }
+        New-Item -ItemType Directory "$env:TEMP\go" -ErrorAction SilentlyContinue | Out-Null
+    }
 
     Write-Host -ForegroundColor Green "INFO: Location for testing is $env:TEMP"
 
@@ -441,18 +445,22 @@ Try {
 
     # Grab the golang installer out of the built image. That way, we know we are consistent once extracted and paths set,
     # so there's no need to re-deploy on account of an upgrade to the version of GO being used in docker.
-    Write-Host -ForegroundColor Green "INFO: Copying the golang package from the container to $env:TEMP\installer\go.zip..."
-    docker cp "$COMMITHASH`:c`:\go.zip" $env:TEMP\installer\
-    if (-not($LastExitCode -eq 0)) {
-        Throw "ERROR: Failed to docker cp the golang installer 'go.zip' from container:c:\go.zip to $env:TEMP\installer"
-    }
-    $ErrorActionPreference = "Stop"
+    if ($env:SKIP_COPY_GO -eq $null) {
+        Write-Host -ForegroundColor Green "INFO: Copying the golang package from the container to $env:TEMP\installer\go.zip..."
+        docker cp "$COMMITHASH`:c`:\go.zip" $env:TEMP\installer\
+        if (-not($LastExitCode -eq 0)) {
+            Throw "ERROR: Failed to docker cp the golang installer 'go.zip' from container:c:\go.zip to $env:TEMP\installer"
+        }
+        $ErrorActionPreference = "Stop"
 
-    # Extract the golang installer
-    Write-Host -ForegroundColor Green "INFO: Extracting go.zip to $env:TEMP\go"
-    $ProgressPreference='SilentlyContinue'
-    $Duration=$(Measure-Command { $ProgressPreference='SilentlyContinue'; Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force })
-    Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
+        # Extract the golang installer
+        Write-Host -ForegroundColor Green "INFO: Extracting go.zip to $env:TEMP\go"
+        $ProgressPreference='SilentlyContinue'
+        $Duration=$(Measure-Command { $ProgressPreference='SilentlyContinue'; Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force })
+        Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
+    } else {
+        Write-Host -ForegroundColor Magenta "WARN: Skipping copying and extracting golang from the image"
+    }
 
     # Set the GOPATH
     Write-Host -ForegroundColor Green "INFO: Updating the golang and path environment variables"
@@ -695,7 +703,7 @@ Try {
 
         # Location of the daemon under test.
         $env:OrigDOCKER_HOST="$env:DOCKER_HOST"
-        if ($INTEGRATION_IN_CONTAINER -ne $null) {
+        if ($env:INTEGRATION_IN_CONTAINER -ne $null) {
             $dutLocation="tcp://172.16.0.1:2357" # Talk back through the containers gateway address
             $sourceBaseLocation="c:\go"          # in c:\go\src\github.com\docker\docker in a container
             $pathUpdate="`$env:PATH='c:\target;'+`$env:PATH;"
@@ -707,54 +715,28 @@ Try {
         }
         $sourceBaseLocation += "\src\github.com\docker\docker"
 
-        # Jumping through hoop craziness. Don't ask! Parameter parsing, powershell, go, parameters starting "-check."... :(
-        # Just dump it to a file and pass through in a volume with the binaries when in a container, or run locally otherwise
-        $c=" `
-            `$ErrorActionPreference='Stop'; `
-            `$origPath=`$env:PATH`;
-            $pathUpdate `
-            `$env:DOCKER_HOST='$dutLocation'; `
-            `
-            `$cliArgs=@(); `
-            `$cliArgs+=`"test`"; 
-           "
-
-        # Makes is quicker for debugging to be able to run only a subset of the integration tests
-        if ($env:INTEGRATION_TEST_NAME -ne $null) {
-            $c += " `$cliArgs+=`"-check.f $env:INTEGRATION_TEST_NAME`";"
+        #https://blogs.technet.microsoft.com/heyscriptingguy/2011/09/20/solve-problems-with-external-command-lines-in-powershell/ is useful to see tokenising
+        $c = "go test "
+        $c += "`"-check.v`" "
+        if ($env:INTEGRATION_TEST_NAME -ne $null) { # Makes is quicker for debugging to be able to run only a subset of the integration tests
+            $c += "`"-check.f`" "
+            $c += "`"$env:INTEGRATION_TEST_NAME`" "
             Write-Host -ForegroundColor Magenta "WARN: Only running integration tests matching $env:INTEGRATION_TEST_NAME"
         }
+        $c += "`"-tags`" " + "`"autogen`" "
+        $c += "`"-check.timeout`" " + "`"10m`" "
+        $c += "`"-test.timeout`" " + "`"200m`" "
 
-        # Note about passthru: This cmdlet generates a System.Diagnostics.Process object, if you specify the PassThru parameter. Otherwise, this cmdlet does not return any output.
-        # TODO: Can remove the first else clause below after Alex's PR is merged into master. (https://github.com/docker/docker/pull/28080)
-        $c+=" `
-            `$cliArgs+=`"-check.v`"; `
-            `$cliArgs+=`"-check.timeout=10m`"; `
-            `$cliArgs+=`"-test.timeout=200m`"; `
-            `$cliArgs+=`"-tags autogen`"; `
-            if (Test-Path $sourceBaseLocation\cmd\integration-cli) { `
-                cd $sourceBaseLocation\cmd\integration-cli; `
-                cmd /c mklink /j  ..\vendor\github.com\docker\docker $sourceBaseLocation `
-            } else { `
-                cd $sourceBaseLocation\integration-cli `
-            }; `
-            echo `$cliArgs; `
-            `$p=Start-Process -Wait -NoNewWindow -FilePath go -ArgumentList `$cliArgs  -PassThru; `
-            if (Test-Path $sourceBaseLocation\cmd\vendor\github.com\docker\docker) { `
-                cmd /c rd $sourceBaseLocation\cmd\vendor\github.com\docker\docker `
-            }; `
-            exit `$p.ExitCode `
-           "
-        $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
-
-
-        if ($INTEGRATION_IN_CONTAINER -ne $null) {
+        if ($env:INTEGRATION_IN_CONTAINER -ne $null) {
             Write-Host -ForegroundColor Green "INFO: Integration tests being run inside a container"
-            $Duration= $(Measure-Command { & docker run --rm -v "$env:TEMP\binary`:c:\target" --entrypoint "powershell" --workdir "c`:\target" docker ".\runIntegrationCLI.ps1" | Out-Host } )
+            $Duration= $(Measure-Command { & docker run --rm --entrypoint "powershell" --workdir "c`:\gopath\src\github.com\docker\docker\integration-cli" docker "$c" | Out-Host } )
         } else  {
-            Write-Host -ForegroundColor Green "INFO: Integration tests being run from the host"
-            $Duration= $(Measure-Command {. "$env:TEMP\binary\runIntegrationCLI.ps1"})
-            $origPath="$env:PATH"  # We need to restore if running locally
+            Write-Host -ForegroundColor Green "INFO: Integration tests being run from the host: $c"
+            cd $sourceBaseLocation\integration-cli
+
+            # Explicit to not use measure-command otherwise don't get output as it goes
+            $start=(Get-Date); Invoke-Expression $c; $Duration=New-Timespan -Start $start -End (Get-Date)
+            $origPath="$env:PATH"  # We need to restore if running locally   #### Query BUGBUG Is this needed anymore?
         }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
