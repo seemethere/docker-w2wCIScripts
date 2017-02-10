@@ -88,18 +88,19 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="09-Feb-2017 19:35 PDT" 
+$SCRIPT_VER="10-Feb-2017 13:55 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
 #$env:SKIP_VALIDATION_TESTS="yes"
-#$env:SKIP_ZAP_DUT="yes"
+#$env:SKIP_ZAP_DUT=""
 #$env:SKIP_BINARY_BUILD="yes"
-#$env:INTEGRATION_TEST_NAME="TestGetVersion"
+#$env:INTEGRATION_TEST_NAME=""
 #$env:SKIP_IMAGE_BUILD="yes"
 #$env:SKIP_ALL_CLEANUP="yes"
 #$env:INTEGRATION_IN_CONTAINER="yes"
-#$env:WINDOWS_BASE_IMAGE="microsoft/nanoserver"
+#$env:WINDOWS_BASE_IMAGE=""
+#$env:SKIP_COPY_GO="yes"
 
 Function Nuke-Everything {
     $ErrorActionPreference = 'SilentlyContinue'
@@ -371,7 +372,7 @@ Try {
         Write-Host -ForegroundColor Magenta "WARN: Skipping building the docker image"
     }
 
-    $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
+    # DON'T THINK THIS IS USED ANYMORE.... $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
     $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles"
 
     # After https://github.com/docker/docker/pull/30290, .git was added to .dockerignore. Therefore
@@ -429,7 +430,7 @@ Try {
     $ErrorActionPreference = "SilentlyContinue"
     docker cp "$contPath\..\dockerversion\version_autogen.go" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
     if (-not($LastExitCode -eq 0)) {
-         Throw "ERROR: Failed to docker cp the generated version_autogen.go to $env:SOURCES_DRIVE`:\SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
+         Throw "ERROR: Failed to docker cp the generated version_autogen.go to $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\dockerversion"
     }
     $ErrorActionPreference = "Stop"
 
@@ -683,17 +684,6 @@ Try {
 
         # Location of the daemon under test.
         $env:OrigDOCKER_HOST="$env:DOCKER_HOST"
-        if ($env:INTEGRATION_IN_CONTAINER -ne $null) {
-            $dutLocation="tcp://172.16.0.1:2357" # Talk back through the containers gateway address
-            $sourceBaseLocation="c:\go"          # in c:\go\src\github.com\docker\docker in a container
-            $pathUpdate="`$env:PATH='c:\target;'+`$env:PATH;"
-
-        } else {
-            $dutLocation="$DASHH_CUT"   # Talk back through localhost
-            $sourceBaseLocation="$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
-            $pathUpdate="`$env:PATH='$env:TEMP\binary;'+`$env:PATH;"
-        }
-        $sourceBaseLocation += "\src\github.com\docker\docker"
 
         #https://blogs.technet.microsoft.com/heyscriptingguy/2011/09/20/solve-problems-with-external-command-lines-in-powershell/ is useful to see tokenising
         $c = "go test "
@@ -709,14 +699,26 @@ Try {
 
         if ($env:INTEGRATION_IN_CONTAINER -ne $null) {
             Write-Host -ForegroundColor Green "INFO: Integration tests being run inside a container"
-            $Duration= $(Measure-Command { & docker run --rm --entrypoint "powershell" --workdir "c`:\gopath\src\github.com\docker\docker\integration-cli" docker "$c" | Out-Host } )
+            # Note we talk back through the containers gateway address
+            # And the ridiculous lengths we have to go to to get the default gateway address... (GetNetIPConfiguration doesn't work in nanoserver)
+            # I just could not get the escaping to work in a single command, so output $c to a file and run that in the container instead...
+            # Not the prettiest, but it works.
+            $c | Out-File -Force "$env:TEMP\binary\runIntegrationCLI.ps1"
+            $Duration= $(Measure-Command { & docker run `
+                                                    --rm `
+                                                    -e c=$c `
+                                                    --workdir "c`:\go\src\github.com\docker\docker\integration-cli" `
+                                                    -v "$env:TEMP\binary`:c:\target" `
+                                                    docker `
+                                                    "`$env`:PATH`='c`:\target;'+`$env:PATH`;  `$env:DOCKER_HOST`='tcp`://'+(ipconfig | select -last 1).Substring(39)+'`:2357'; c:\target\runIntegrationCLI.ps1" | Out-Host } )
         } else  {
-            Write-Host -ForegroundColor Green "INFO: Integration tests being run from the host: $c"
-            cd $sourceBaseLocation\integration-cli
-
+            Write-Host -ForegroundColor Green "INFO: Integration tests being run from the host:"
+            cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\integration-cli"
+            $env:DOCKER_HOST=$DASHH_CUT  
+            Write-Host -ForegroundColor Green "INFO: $c"
+            Write-Host -ForegroundColor Green "INFO: DOCKER_HOST at $DASHH_CUT"
             # Explicit to not use measure-command otherwise don't get output as it goes
             $start=(Get-Date); Invoke-Expression $c; $Duration=New-Timespan -Start $start -End (Get-Date)
-            $origPath="$env:PATH"  # We need to restore if running locally   #### Query BUGBUG Is this needed anymore?
         }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
