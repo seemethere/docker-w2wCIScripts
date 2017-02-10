@@ -374,18 +374,12 @@ Try {
     $v=$(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
     $contPath="$COMMITHASH`:c`:\go\src\github.com\docker\docker\bundles"
 
-    # Determine if .dockerignore contains ".git" (https://github.com/docker/docker/pull/30290)
-    # If it does, then the validation tests have to run outside of a container (as they rely on git),
-    # and we have to pass DOCKER_GITCOMMIT environment variable into the binary build.
-    $dockerIgnoreContents = ""
-    $dockerIgnoreContents = Get-Content ".\.dockerignore" -ErrorAction SilentlyContinue
-    $passGitCommitToContainer = $dockerIgnoreContents -contains ".git"
+    # After https://github.com/docker/docker/pull/30290, .git was added to .dockerignore. Therefore
+    # we have to calculate unsupported outside of the container, and pass the commit ID in through
+    # an environment variable for the binary build
     $CommitUnsupported=""
-    if ($passGitCommitToContainer) {
-        # We have to generate the warning outside of make.ps1
-        if ($(git status --porcelain --untracked-files=no).Length -ne 0) {
-            $CommitUnsupported="-unsupported"
-        }
+    if ($(git status --porcelain --untracked-files=no).Length -ne 0) {
+        $CommitUnsupported="-unsupported"
     }
 
     # Build the binary in a container unless asked to skip it.
@@ -393,18 +387,14 @@ Try {
         Write-Host  -ForegroundColor Cyan "`n`nINFO: Building the test binaries at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
         docker rm -f $COMMITHASH 2>&1 | Out-Null
-        if ($passGitCommitToContainer) {
-            if ($CommitUnsupported -ne "") {
-                Write-Host ""
-                Write-Warning "This version is unsupported because there are uncommitted file(s)."
-                Write-Warning "Either commit these changes, or add them to .gitignore."
-                git status --porcelain --untracked-files=no | Write-Warning
-                Write-Host ""
-            }
-            $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Binary | Out-Host })
-        } else {
-            $Duration=$(Measure-Command {docker run --name $COMMITHASH docker hack\make.ps1 -Binary | Out-Host })
+        if ($CommitUnsupported -ne "") {
+            Write-Host ""
+            Write-Warning "This version is unsupported because there are uncommitted file(s)."
+            Write-Warning "Either commit these changes, or add them to .gitignore."
+            git status --porcelain --untracked-files=no | Write-Warning
+             Write-Host ""
         }
+        $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Binary | Out-Host })
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to build binary"
@@ -623,13 +613,7 @@ Try {
     if ($env:SKIP_VALIDATION_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running validation tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        if ($passGitCommitToContainer) {
-            # Have to run on the host as there no .git directory in the container
-            $Duration=$(Measure-Command { hack\make.ps1 -DCO -GoFormat -PkgImports | Out-Host })
-        } else {
-            # Run in the container
-            $Duration=$(Measure-Command { docker run docker hack\make.ps1 -DCO -GoFormat -PkgImports | Out-Host })
-        }
+        $Duration=$(Measure-Command { hack\make.ps1 -DCO -GoFormat -PkgImports | Out-Host })
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Validation tests failed"
@@ -643,11 +627,7 @@ Try {
     if ($env:SKIP_UNIT_TESTS -eq $null) {
         Write-Host -ForegroundColor Cyan "INFO: Running unit tests at $(Get-Date)..."
         $ErrorActionPreference = "SilentlyContinue"
-        if ($passGitCommitToContainer) {
-            $Duration=$(Measure-Command {docker run -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -TestUnit | Out-Host })
-        } else {
-            $Duration=$(Measure-Command {docker run docker hack\make.ps1 -TestUnit | Out-Host })
-        }
+        $Duration=$(Measure-Command {docker run -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -TestUnit | Out-Host })
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Unit tests failed"
