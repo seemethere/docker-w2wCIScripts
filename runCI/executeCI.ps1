@@ -88,7 +88,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="10-Feb-2017 13:55 PDT" 
+$SCRIPT_VER="13-Feb-2017 08:30 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -166,6 +166,31 @@ Function Nuke-Everything {
             }
         }
 
+        # RS1 Production Server workaround - Psched
+        $reg = "HKLM:\System\CurrentControlSet\Services\Psched\Parameters\NdisAdapters"
+        $count=(Get-ChildItem $reg | Measure-Object).Count
+        if ($count -gt 0) {
+            Write-Warning "There are $count NdisAdapters leaked under Psched\Parameters"
+            if ($env:COMPUTERNAME -match "jenkins-rs1-") {
+                Write-Warning "Cleaning Psched..."
+                Get-ChildItem $reg | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
+            } else {
+                Write-Warning "Not cleaning as not a production RS1 server"
+            }
+        }
+
+        # RS1 Production Server workaround - WFPLWFS
+        $reg = "HKLM:\System\CurrentControlSet\Services\WFPLWFS\Parameters\NdisAdapters"
+        $count=(Get-ChildItem $reg | Measure-Object).Count
+        if ($count -gt 0) {
+            Write-Warning "There are $count NdisAdapters leaked under WFPLWFS\Parameters"
+            if ($env:COMPUTERNAME -match "jenkins-rs1-") {
+                Write-Warning "Cleaning WFPLWFS..."
+                Get-ChildItem $reg | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue | Out-Null
+            } else {
+                Write-Warning "Not cleaning as not a production RS1 server"
+            }
+        }
     } catch {
         # Don't throw any errors onwards Throw $_
     }
