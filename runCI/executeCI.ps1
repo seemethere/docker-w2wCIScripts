@@ -88,7 +88,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="13-Feb-2017 08:30 PDT" 
+$SCRIPT_VER="15-Feb-2017 12:21 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -740,6 +740,7 @@ Try {
             Write-Host -ForegroundColor Green "INFO: Integration tests being run from the host:"
             cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\integration-cli"
             $env:DOCKER_HOST=$DASHH_CUT  
+            $env:PATH="$env:TEMP\binary;$env:PATH;"  # Force to use the test binaries, not the host ones.
             Write-Host -ForegroundColor Green "INFO: $c"
             Write-Host -ForegroundColor Green "INFO: DOCKER_HOST at $DASHH_CUT"
             # Explicit to not use measure-command otherwise don't get output as it goes

@@ -148,6 +148,9 @@
 .Parameter SkipControlDownload
    Skips the download of docker.exe and dockerd.exe
 
+.Parameter IntegrationInContainer
+   Skips the download of docker.exe and dockerd.exe
+
    
 .EXAMPLE
     Example To Be Completed #TODO
@@ -188,7 +191,8 @@ param(
     [Parameter(Mandatory=$false)][switch]$SkipImageBuild=$False,
     [Parameter(Mandatory=$false)][switch]$SkipAllCleanup=$False,
     [Parameter(Mandatory=$false)][string]$WindowsBaseImage="",
-    [Parameter(Mandatory=$false)][switch]$SkipControlDownload=$False
+    [Parameter(Mandatory=$false)][switch]$SkipControlDownload=$False,
+    [Parameter(Mandatory=$false)][switch]$IntegrationInContainer=$False
 )
 
 $ErrorActionPreference = 'Stop'
@@ -494,33 +498,47 @@ Try {
     if (-not [string]::IsNullOrWhiteSpace($IntegrationTestName)) {
         $env:INTEGRATION_TEST_NAME = $IntegrationTestName
     }
+    $env:DOCKER_DUT_DEBUG=""
     if ($DUTDebugMode) {
         $env:DOCKER_DUT_DEBUG = "Yes, debug daemon under test"
     }
+    $env:SKIP_VALIDATION_TESTS = ""
     if ($SkipValidationTests) {
         $env:SKIP_VALIDATION_TESTS = "Yes"
     }
+    $env:SKIP_UNIT_TESTS=""
     if ($SkipUnitTests) {
         $env:SKIP_UNIT_TESTS = "Yes"
     }
+    $env:SKIP_INTEGRATION_TESTS=""
     if ($SkipIntegrationTests) {
         $env:SKIP_INTEGRATION_TESTS = "Yes"
     }
+    $env:INTEGRATION_IN_CONTAINER=""
+    if ($IntegrationInContainer) {
+        $env:INTEGRATION_IN_CONTAINER = "Yes"
+    }
+    $env:SKIP_COPY_GO=""
     if ($SkipCopyGo) {
         $env:SKIP_COPY_GO = "Yes"
     }
+    $env:SKIP_BINARY_BUILD=""
     if ($SkipBinaryBuild) {
         $env:SKIP_BINARY_BUILD = "Yes"
     }
+    $env:DOCKER_DUT_HYPERV=""
     if ($HyperVDUT) {
         $env:DOCKER_DUT_HYPERV = "Yes"
     }
+    $env:SKIP_ZAP_DUT=""
     if ($SkipZapDUT) {
         $env:SKIP_ZAP_DUT = "Yes"
     }
+    $env:SKIP_IMAGE_BUILD=""
     if ($SkipImageBuild) {
         $env:SKIP_IMAGE_BUILD = "Yes"
     }
+    $env:SKIP_ALL_CLEANUP=""
     if ($SkipAllCleanup) {
         $env:SKIP_ALL_CLEANUP = "Yes"
     }
@@ -576,6 +594,7 @@ Try {
     Write-Host " - Skip all cleanup:  $SkipAllCleanup"
     Write-Host " - Skip download:     $SkipControlDownload"
     Write-Host " - Skip copy go:      $SkipCopyGo"
+    Write-Host " - Test in container: $IntegrationInContainer"
     if ($SkipIntegrationTests -eq $false) {
         if (-not ([string]::IsNullOrWhiteSpace($IntegrationTestName))) {
             Write-Host " - CLI test match:    $IntegrationTestName"
