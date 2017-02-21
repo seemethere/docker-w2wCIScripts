@@ -745,7 +745,7 @@ Try {
     # Start the control daemon
     $daemon="$env:Temp\dockerdcontrol.exe --graph $ControlRoot --pidfile=$ControlRoot\daemon\docker.pid -H=$env:DOCKER_HOST -H=tcp://0.0.0.0:2375"
     if ($HyperVControl -eq $True) {
-        $daemon=$daemon+" --isolation=hyperv"
+        $daemon=$daemon+" --exec-opt isolation=hyperv"
     }
     if ($ControlDebugMode -eq $True) {
         $daemon=$daemon+" -D"
