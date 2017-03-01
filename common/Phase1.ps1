@@ -104,7 +104,7 @@ try {
     # Re-download the script that downloads our files in case we want to refresh them
     echo "$(date) Phase1.ps1 Re-downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
     $ErrorActionPreference='SilentlyContinue'
-    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$env:Branch/DownloadScripts.ps1" -DestinationPath "$env:SystemDrive\packer\DownloadScripts.ps1"
+    Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$env:ConfigSet/DownloadScripts.ps1" -DestinationPath "$env:SystemDrive\packer\DownloadScripts.ps1"
     $ErrorActionPreference='SilentlyContinue'
 
 
@@ -194,7 +194,7 @@ try {
         $pass = Get-Content c:\packer\password.txt -raw
         Register-ScheduledTask -TaskName "Phase2" -Action $action -Trigger $trigger -User jenkins -Password $pass -RunLevel Highest
     } else {
-        Register-ScheduledTask -TaskName "Phase2" -Action $action -Trigger $trigger -User "administrator" -Password "p@ssw0rd" -RunLevel Highest
+        Register-ScheduledTask -TaskName "Phase2" -Action $action -Trigger $trigger -User administrator -Password "p@ssw0rd" -RunLevel Highest
     }
 }
 Catch [Exception] {

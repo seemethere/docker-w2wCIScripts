@@ -35,7 +35,7 @@ try {
         $pass = Get-Content c:\packer\password.txt -raw
         Register-ScheduledTask -TaskName "Phase3" -Action $action -Trigger $trigger -User jenkins -Password $pass -RunLevel Highest
     } else {
-        Register-ScheduledTask -TaskName "Phase3" -Action $action -Trigger $trigger -User "administrator" -Password "p@ssw0rd" -RunLevel Highest
+        Register-ScheduledTask -TaskName "Phase3" -Action $action -Trigger $trigger -User administrator -Password "p@ssw0rd" -RunLevel Highest
     }
 }
 Catch [Exception] {

@@ -57,7 +57,7 @@ Note this will require some username/password/subscription IDs. This is for TP5
 
     # BUMP THE VERSION EACH TIME!!!
     $version=54  # packer.ps1 picks this up too.
-    $env:BranchType="tp5"
+    $env:ConfigSet="tp5"
     $env:version=$version
     $env:storageaccount="tp5"
     $env:JENKINS_PASSWORD_W2W="SECRET"

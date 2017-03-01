@@ -1,5 +1,5 @@
 # Regex matching for hosts and which configuration to use
-# Syntax of each line is <regex>,<branchtype>
+# Syntax of each line is <regex>,<configset>
 # Gets more specific as it goes down. Include a default at the end (.*)
 
 # Production jenkins-tp5-1 through jenkins-tp5-9
@@ -14,8 +14,11 @@
 # RS1
 jenkins-rs1-\d+$,rs1
 
-# RS2
-jenkins-rs2-\d+$,rs2
+# RS2 (No production CI for RS2 as not released publically)
+jenkins-rs2-\d+$,rs1
+
+# RS3 (No changes so far from the RS1 config set)
+jenkins-rs3-\d+$,rs1
 
 # eg rs1-MMMMM-NN or rs1-MMMMM-N
 rs1-\d+-\d{1,2}$,rs1

@@ -4,7 +4,7 @@ param(
     [Parameter(Mandatory=$false)][switch]$Force=$False,
     [Parameter(Mandatory=$false)][string]$size="D3", # Size of the VM
     [Parameter(Mandatory=$false)][string]$ImageVersion, # Image version
-    [Parameter(Mandatory=$false)][string]$BranchType, # eg rs1
+    [Parameter(Mandatory=$false)][string]$ConfigSet, # eg rs1
     [Parameter(Mandatory=$false)][string]$Password=$env:JENKINS_PASSWORD_W2W 
 )
 
@@ -22,8 +22,8 @@ if ([string]::IsNullOrWhiteSpace($ImageVersion)) {
      Throw "ImageVersion must be supplied. It's the nnnnn bit in AzureRS1vnnnnn.vhd for example"
 }
 
-if ([string]::IsNullOrWhiteSpace($BranchType)) {
-     Throw "BranchType must be supplied. It's the rs1 bit in AzureRS1vnnnnn.vhd for example"
+if ([string]::IsNullOrWhiteSpace($ConfigSet)) {
+     Throw "ConfigSet must be supplied. It's the rs1 bit in AzureRS1vnnnnn.vhd for example"
 }
 
 $ErrorActionPreference = 'Stop'
@@ -65,7 +65,7 @@ try {
     # Useful $sourceImages = Get-AzureVMImage | Where-Object { $_.ImageName -like "$imagePrefix*" } | Sort-Object -Descending CreatedTime
 	
     Write-Host "INFO: Creating the configuration object..."
-    $ImageName="azure"+$BranchType+"v"+$ImageVersion
+    $ImageName="azure"+$ConfigSet+"v"+$ImageVersion
     Write-Host "INFO: Based on image $ImageName"
     $vmc = New-AzureVMConfig -ImageName $ImageName -InstanceSize $size -Name $vmName -DiskLabel $vmName |
             Add-AzureEndpoint -Name 'SSH' -LocalPort 22 -PublicPort 22 -Protocol tcp |

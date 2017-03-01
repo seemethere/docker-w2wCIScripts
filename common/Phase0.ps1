@@ -4,7 +4,7 @@
 #-----------------------
 
 param(
-    [Parameter(Mandatory=$false)][string]$Branch
+    [Parameter(Mandatory=$false)][string]$ConfigSet
 )
 
 $ErrorActionPreference="stop"
@@ -78,17 +78,17 @@ try {
         Unregister-ScheduledTask 'Phase0' -Confirm:$False -ErrorAction SilentlyContinue
     }
 
-    if ([string]::IsNullOrWhiteSpace($Branch)) {
-         Throw "Branch must be supplied (eg rs1)"
+    if ([string]::IsNullOrWhiteSpace($ConfigSet)) {
+         Throw "ConfigSet must be supplied (eg rs1)"
     }
-    echo "$(date) Phase0.ps1 Branch is $Branch" >> $env:SystemDrive\packer\configure.log
+    echo "$(date) Phase0.ps1 ConfigSet is $ConfigSet" >> $env:SystemDrive\packer\configure.log
 
     # Coming out of sysprep, we reboot twice, so do not do anything on the first reboot. This also has the nice
-    # side effect that we are guaranteed after the reboot the $env:Branch is set so that any script subsequently can pick it up.
+    # side effect that we are guaranteed after the reboot the $env:ConfigSet is set so that any script subsequently can pick it up.
     if (-not (Test-Path c:\packer\Phase0.RebootedOnce.txt)) {
 
         # Re-register on account of local install on development machine (done in packer for production)
-        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase0.ps1 $Branch"
+        $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-command c:\packer\Phase0.ps1 $ConfigSet"
         $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
         Register-ScheduledTask -TaskName "Phase0" -Action $action -Trigger $trigger -User SYSTEM -RunLevel Highest
 
@@ -105,7 +105,7 @@ try {
 
         # Download the script that downloads our files
         echo "$(date) Phase0.ps1 Downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
-        Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$Branch/DownloadScripts.ps1" -DestinationPath "$env:SystemDrive\packer\DownloadScripts.ps1"
+        Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$ConfigSet/DownloadScripts.ps1" -DestinationPath "$env:SystemDrive\packer\DownloadScripts.ps1"
 
         # Invoke the downloads
         echo "$(date) Phase0.ps1 Invoking DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log

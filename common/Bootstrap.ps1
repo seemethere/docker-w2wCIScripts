@@ -9,7 +9,7 @@
 # Don't put anything in here apart from things that are required for launching the post sysprep tasks.
 
 param(
-    [Parameter(Mandatory=$false)][string]$Branch,
+    [Parameter(Mandatory=$false)][string]$ConfigSet,
     [Parameter(Mandatory=$false)][switch]$Doitanyway=$False
 )
 
@@ -90,23 +90,66 @@ try {
     # told to do it anyway
     if ($Doitanyway -eq $False) {
         if (-not ($env:COMPUTERNAME.ToLower() -like "jenkins*")) { 
-            echo "$(date) Bootstrap.ps1 exiting as computername doesn't start with jenkins.." >> $env:SystemDrive\packer\configure.log
+            echo "$(date) Bootstrap.ps1 computername doesn't start with jenkins.." >> $env:SystemDrive\packer\configure.log
             if (-not (Test-Nano)) {
                 echo $(date) > "c:\users\public\desktop\Bootstrap not jenkins.txt"
             }
-            exit 0
+
+
+            # If we are running as system, we are coming out of sysprep. In which case we are currently
+            # running as local system, so we need to schedule a task to run Install-DevVM as the administrator account,
+            # and reboot
+            #
+            # If we are running as the administrator account, we don't need to do anything as chances our we were 
+            # called directly from Install-DevVM anyway (yes, it's circular)
+            if ((($env:USERNAME).ToLower()) -eq (($env:COMPUTERNAME).ToLower()+"$")) {
+                echo "$(date) Bootstrap.ps1 running as local system - scheduling Install-DevVM as administrator.." >> $env:SystemDrive\packer\configure.log
+                echo $(date) > "c:\users\public\desktop\Bootstrap scheduling Install-DevVM.txt"
+                $configset = Get-Content c:\packer\configset.txt -raw
+                $debugport = Get-Content c:\packer\debugport.txt -raw
+                $pass = Get-Content c:\packer\password.txt -raw
+
+
+                # Create the shortcut so that it can be interactive - I really can't figure interactive even using schtasks and /TI
+                New-Item "C:\Users\administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" -Type Directory -ErrorAction SilentlyContinue    
+                $TargetFile = "powershell"
+                $ShortcutFile = "C:\Users\administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\launch.lnk"
+                $WScriptShell = New-Object -ComObject WScript.Shell
+                $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
+                $Shortcut.Arguments ="`"cd c:\w2w\Install-DevVM; echo 'Sleeping for network to come up'; start-sleep -seconds 30; .\Install-DevVM.ps1 -ConfigSet $configset -DebugPort $debugport`""
+                $Shortcut.TargetPath = $TargetFile
+                $Shortcut.Save()
+
+
+
+
+
+
+
+                #$launch = "start powershell `"cd c:\w2w\Install-DevVM; .\Install-DevVM.ps1 -ConfigSet $configset -DebugPort $debugport`""
+                #[System.IO.File]::WriteAllText("c:\w2w\Install-DevVM\launch.cmd", $launch, (New-Object System.Text.UTF8Encoding($False)))
+
+                #$action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "`"cd c:\w2w\Install-DevVM; .\Install-DevVM.ps1 -ConfigSet $configset -DebugPort $debugport`""
+                #$action = New-ScheduledTaskAction -Execute "c:\w2w\Install-DevVM\launch.cmd"
+                #$trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
+                #Register-ScheduledTask -TaskName "Install-DevVM" -Action $action -Trigger $trigger -User administrator -Password $pass -RunLevel Highest
+                # Make interactive
+                #schtasks /change /RU administrator /RP $pass /TN "Install-DevVM" /IT
+                shutdown /t 0 /r
+                exit 0
+            }
         }
     }
 
-    if ([string]::IsNullOrWhiteSpace($Branch)) {
-        $Branch=""
+    if ([string]::IsNullOrWhiteSpace($ConfigSet)) {
+        $ConfigSet=""
         
         # Get config.txt
         echo "$(date) Bootstrap.ps1 Downloading config.txt..." >> $env:SystemDrive\packer\configure.log
         Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/config/config.txt" -DestinationPath "$env:SystemDrive\packer\config.txt"
 
         $hostname=$env:COMPUTERNAME.ToLower()
-        echo "$(date) Bootstrap.ps1 Matching $hostname for a branch type..." >> $env:SystemDrive\packer\configure.log
+        echo "$(date) Bootstrap.ps1 Matching $hostname for a configset..." >> $env:SystemDrive\packer\configure.log
         
         foreach ($line in Get-Content $env:SystemDrive\packer\config.txt) {
             $line=$line.Trim()
@@ -121,19 +164,19 @@ try {
                 continue
             }
             if ($hostname -match $elements[0]) {
-                $Branch=$elements[1]
+                $configSet=$elements[1]
                 Write-Host $hostname matches $elements[0]
                 break
             }
         }
-        if ($Branch.Length -eq 0) { Throw "Branch not supplied and $hostname regex match not found in configuration" }
-        echo "$(date) Bootstrap.ps1 Branch matches $Branch through "$elements[0] >> $env:SystemDrive\packer\configure.log
+        if ($ConfigSet.Length -eq 0) { Throw "ConfigSet not supplied and $hostname regex match not found in configuration" }
+        echo "$(date) Bootstrap.ps1 ConfigSet matches $ConfigSet through "$elements[0] >> $env:SystemDrive\packer\configure.log
     }
 
-    # Store the branch
-    echo "$(date) Bootstrap.ps1 Branch is $Branch..." >> $env:SystemDrive\packer\configure.log
-    setx "Branch" "$Branch" /M
-    $env:Branch=$Branch
+    # Store the configset
+    echo "$(date) Bootstrap.ps1 ConfigSet is $ConfigSet..." >> $env:SystemDrive\packer\configure.log
+    setx "ConfigSet" "$ConfigSet" /M
+    $env:ConfigSet=$ConfigSet
 
     # Create the scripts and packer directories
     echo "$(date) Bootstrap.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
@@ -150,9 +193,9 @@ try {
     echo "$(date) Bootstrap.ps1 Downloading Phase0.ps1..." >> $env:SystemDrive\packer\configure.log
     Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Phase0.ps1" -DestinationPath "$env:SystemDrive\packer\Phase0.ps1"
 
-    # Execute Phase0 passing the branch as a parameter
+    # Execute Phase0 passing the configset as a parameter
     echo "$(date) Bootstrap.ps1 Executing Phase0.ps1..." >> $env:SystemDrive\packer\configure.log
-    . "$env:SystemDrive\packer\Phase0.ps1" -Branch $Branch
+    . "$env:SystemDrive\packer\Phase0.ps1" -ConfigSet $ConfigSet
 }
 Catch [Exception] {
     echo "$(date) Bootstrap.ps1 Error '$_'" >> $env:SystemDrive\packer\configure.log

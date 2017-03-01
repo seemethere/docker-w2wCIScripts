@@ -11,11 +11,13 @@
 # Also assumes that this is running from \\redmond\osg\teams\....\team\jhoward\docker\ci\w2w\Install-DevVM
 
 param(
-    [Parameter(Mandatory=$false)][string]$Branch,
+    [Parameter(Mandatory=$false)][string]$ConfigSet,
     [Parameter(Mandatory=$false)][int]$DebugPort
 )
 $ErrorActionPreference = 'Stop'
 
+
+# BUGBUG GET RID OF THESE
 $DEV_MACHINE="jhoward-z420"
 $DEV_MACHINE_DRIVE="e"
 
@@ -74,11 +76,34 @@ Try {
     Write-Host -ForegroundColor Yellow "INFO: John's dev script for dev VM installation"
     set-PSDebug -Trace 0  # 1 to turn on
 
-    if ([string]::IsNullOrWhiteSpace($Branch)) {
-        $Branch=""
+
+    # We may be called circularly from bootstrap as localsystem where we get started through a scheduled task
+    # but now we are running as administrator. Disable it if it exists. When we call back into bootstrap
+    # we are administrator, so that stops the subsequent loop
+    $ConfirmPreference='none'
+    Remove-Item "C:\Users\administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\launch.lnk" -Force -ErrorAction SilentlyContinue
+
+
+    # We need some credentials and the dev box to connect to. 
+    $defaultValue = '\\jhoward-z420\e$'
+    $devMachine = Read-Host "Enter dev machine share [$($defaultValue)]"
+    $devMachine= ($defaultValue,$devMachine)[[bool]$devMachine]
+
+    $defaultValue = 'E:'
+    $localDriveInVM = Read-Host "Enter local drive in VM [$($defaultValue)]"
+    $localDriveInVM= ($defaultValue,$localDriveInVM)[[bool]$localDriveInVM]
+    $cred = get-credential -UserName "ntdev\jhoward" -Message "Enter network credentials for $devMachine"
+    Write-Host "INFO: Storing credentials"
+    cmdkey /add:* /user:$($cred.UserName) /pass:$($cred.GetNetworkCredential().Password)
+    Write-Host "INFO: Net using to $devMachine"
+    net use $localDriveInVM $devMachine
+
+    
+    if ([string]::IsNullOrWhiteSpace($ConfigSet)) {
+        $ConfigSet=""
         
         $hostname=$env:COMPUTERNAME.ToLower()
-        Write-Host "Matching $hostname for a branch type..."
+        Write-Host "Matching $hostname for a config set..."
         
         foreach ($line in Get-Content ..\config\config.txt) {
             $line=$line.Trim()
@@ -93,19 +118,19 @@ Try {
                 continue
             }
             if ($hostname -match $elements[0]) {
-                $Branch=$elements[1]
+                $ConfigSet=$elements[1]
                 Write-Host $hostname matches $elements[0]
                 break
             }
         }
-        if ($Branch.Length -eq 0) { Throw "Branch not supplied and $hostname regex match not found in configuration" }
-        Write-Host "Branch matches $Branch through "$elements[0]
+        if ($ConfigSet.Length -eq 0) { Throw "ConfigSet not supplied and $hostname regex match not found in configuration" }
+        Write-Host "ConfigSet matches $ConfigSet through "$elements[0]
     }
-    $Branch = $Branch.ToLower()
+    $ConfigSet = $ConfigSet.ToLower()
 
-    # Check if branch is valid by looking if directory exists
-    if ($False -eq $(Test-Path -PathType Container ..\$Branch)) {
-        Throw "Branch doesn't appear to be valid"
+    # Check if config set is valid by looking if directory exists
+    if ($False -eq $(Test-Path -PathType Container ..\$ConfigSet)) {
+        Throw "Config set doesn't appear to be valid"
     }
 
     # Setup Debugging
@@ -123,7 +148,7 @@ Try {
         if (($DebugPort -lt 50000) -or ($DebugPort -gt 50030)) {
             Throw "Debug port must be 50000-50030"
         }
-        $ip = (resolve-dnsname $DEV_MACHINE -type A -NoHostsFile -LlmnrNetbiosOnly).IPAddress
+        $ip = (resolve-dnsname $DEV_MACHINE -type A -NoHostsFile -LlmnrNetbiosOnly).IPAddress[0]
         Write-Host "INFO: KD to $DEV_MACHINE ($ip`:$DebugPort) cle.ar.te.xt"
         bcdedit /dbgsettings NET HOSTIP`:$ip PORT`:$DebugPort KEY`:cle.ar.te.xt
         bcdedit /debug on
@@ -152,12 +177,12 @@ Try {
     }
 
     Write-Host "INFO: Configuring automatic logon"
+
+    # BUGBUG Username should be current user
+    # BUGBUG Password can come from c:\packer\password.txt now
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v AutoAdminLogon /t REG_DWORD /d 1 /f
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultUserName /t REG_SZ /d administrator /f
     REG ADD "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinLogon" /v DefaultPassword /t REG_SZ /d "p@ssw0rd" /f 
-
-    Write-Host "INFO: Net using to $DEV_MACHINE"
-    net use "$DEV_MACHINE_DRIVE`:" "\\$DEV_MACHINE\$DEV_MACHINE_DRIVE`$"
 
     if (-not (Test-Nano)) {
         Write-Host "INFO: Disabling real time monitoring"
@@ -167,10 +192,10 @@ Try {
     Set-ExecutionPolicy bypass
 
     if (-not (Test-Nano)) {
-        Write-Host "INFO: Unblocking the shortcut file"
-        Unblock-File .\docker-docker-shortcut.ps1
-        Write-Host "INFO: Running the shortcut file"
-        powershell -command .\docker-docker-shortcut.ps1
+        #Write-Host "INFO: Unblocking the shortcut file"
+        #Unblock-File .\docker-docker-shortcut.ps1
+        #Write-Host "INFO: Running the shortcut file"
+        #powershell -command .\docker-docker-shortcut.ps1
     }
 
     if (-not (Test-Nano)) {
@@ -204,13 +229,13 @@ Try {
     $env:GOPATH=$DEV_MACHINE_DRIVE+":\go\src\github.com\docker\docker\vendor;"+$DEV_MACHINE_DRIVE+":\go"
     $env:Path="$env:Path;c:\gopath\bin;"+$DEV_MACHINE_DRIVE+":\docker\utils"
     $env:LOCAL_CI_INSTALL="1"
-    $env:Branch="$Branch"
+    $env:ConfigSet="$ConfigSet"
 
     # Persist them. Note this way for coreCLR compatibility.
     setx GOPATH $env:GOPATH /M
     setx PATH $env:Path /M
     setx LOCAL_CI_INSTALL $env:LOCAL_CI_INSTALL /M
-    setx BRANCH $env:BRANCH /M
+    setx CONFIGSET $env:CONFIGSET /M
 
     New-Item "C:\BaseImages" -ItemType Directory -ErrorAction SilentlyContinue
 
@@ -250,14 +275,14 @@ Try {
             Export-ContainerLayer -SourceFilePath $SourceTar -DestinationFilePath c:\BaseImages\$type.tar -Repository "microsoft/nanoserver" -latest
         }
     }
-
+     
     mkdir c:\packer -ErrorAction SilentlyContinue
     Copy-Item "..\common\Bootstrap.ps1" c:\packer\ -ErrorAction SilentlyContinue
     Unblock-File c:\packer\Bootstrap.ps1
-    . "$env:SystemDrive\packer\Bootstrap.ps1" -Branch $Branch -Doitanyway
+    . "$env:SystemDrive\packer\Bootstrap.ps1" -ConfigSet $ConfigSet -Doitanyway
 
     if (-not (Test-Nano)) {
-        echo $(date) > "c:\users\public\desktop\$Branch.txt"
+        echo $(date) > "c:\users\public\desktop\$ConfigSet.txt"
     }
 
 } Catch [Exception] {
