@@ -41,6 +41,12 @@
 
 .Parameter Switch
    Name of the virtual switch (only used with -CreateVM)
+
+.Parameter AzureImageVersion
+   The image version (gets baked into the VHD filename such as the 31 in AzureRS1v31.vhd)
+
+.Parameter AzurePassword
+   The password for the Azure user (jenkins)
    
 .EXAMPLE
     #TODO
@@ -56,25 +62,29 @@ param(
     [Parameter(Mandatory=$false)][switch]$CreateVM,
     [Parameter(Mandatory=$false)][string]$Switch,
     [Parameter(Mandatory=$false)][int]   $DebugPort,
-    [Parameter(Mandatory=$false)][string]$ConfigSet
+    [Parameter(Mandatory=$false)][string]$ConfigSet,
+    [Parameter(Mandatory=$false)][int]   $AzureImageVersion,
+    [Parameter(Mandatory=$false)][string]$AzurePassword
 
 )
 
 $ErrorActionPreference = 'Stop'
 $mounted = $false
-$targetSize = 40GB
+$azureMounted = $false
+$targetSize = 127GB
 
 
 # For debugging
-$Path="\\winbuilds\release\RS1_RELEASE_INMARKET\14393.823.170209-1910"
-$Target="e:\vms"
-$SkipCopyVHD=$False
-$SkipBaseImages=$True
-$Password="p@ssw0rd"
-$CreateVM=$True
-$Switch="Wired"
-$DebugPort=50011
-$ConfigSet="rs1"
+#$Path="\\winbuilds\release\RS1_RELEASE_INMARKET\14393.823.170209-1910"
+#$Target="e:\vms"
+#$SkipCopyVHD=$False
+#$SkipBaseImages=$False
+#$Password="p@ssw0rd"
+#$CreateVM=$True
+#$Switch="Wired"
+#$DebugPort=50011
+#$ConfigSet="rs1"
+#$AzureImageVersion=31
 
 
 # Download-File is a simple wrapper to get a file from somewhere (HTTP, SMB or local file path)
@@ -119,7 +129,6 @@ Function Download-File([string] $source, [string] $file, [string] $target) {
 Try {
     Write-Host -ForegroundColor Cyan "INFO: Starting at $(date)`n"
     set-PSDebug -Trace 0  # 1 to turn on
-
 
     # Split the path into it's parts
     #\\winbuilds\release\RS_ONECORE_CONTAINER_HYP\15140.1001.170220-1700
@@ -321,10 +330,48 @@ Try {
     }
     Write-Host "`n"
 
+    # Are we creating the Azure image for this as well?
+    if ($AzureImageVersion -ne 0) {
+        $AzureTargetVHD=Join-Path $targetSubDir -ChildPath (("Azure$ConfigSet")+("v$AzureImageVersion.vhd"))
+        Write-Host "INFO: Copying Azure VHD to $AzureTargetVHD"
+        Copy-Item (Join-Path $targetSubdir -ChildPath $vhdFilename) $AzureTargetVHD -force
 
-#vmconnect localhost (split-path $targetSubdir -leaf)
+        # Mount the Azure VHD
+        Write-Host "INFO: Mounting the Azure VHD"
+        Mount-DiskImage $AzureTargetVHD
+        $azureMounted = $true
 
-#        Checkpoint-VM $vm    
+        # Get the drive letter
+        $driveLetter = (Get-DiskImage $AzureTargetVHD | Get-Disk | Get-Partition | Get-Volume).DriveLetter
+        Write-Host "INFO: Drive letter is $driveLetter"
+
+        # Start deleting - unattend.xml is useless in Azure
+        Write-Host "INFO: Removing bits from the Azure VHD"
+        Remove-Item "$driveLetter`:\unattend.xml" -ErrorAction SilentlyContinue
+        Remove-Item "$driveLetter`:\packer\debugport.txt" -ErrorAction SilentlyContinue
+        Remove-Item "$driveLetter`:\packer\configset.txt" -ErrorAction SilentlyContinue
+        Remove-Item "$driveLetter`:\packer\password.txt" -ErrorAction SilentlyContinue
+
+        # Create the password file for production systems
+        [System.IO.File]::WriteAllText("$driveLetter`:\packer\password.txt", $AzurePassword, (New-Object System.Text.UTF8Encoding($False)))
+
+        # Flush the disk
+        Write-Host "INFO: Flushing drive $driveLetter"
+        Write-VolumeCache -DriveLetter $driveLetter
+
+        # Dismount - we're done preparing it.
+        Write-Host "INFO: Dismounting Azure VHD"
+        Dismount-DiskImage $AzureTargetVHD
+        $azureMounted = $false
+    }
+
+    if ($createVM) {
+        Write-Host "INFO: Starting the development VM. It will ask for creds in a few minutes..."
+        Start-VM $vm
+        # Checkpoint-VM $vm    
+        vmconnect localhost (split-path $targetSubdir -leaf)
+    }
+
 
     # The Azure upload piece
 
@@ -336,6 +383,10 @@ Finally {
     if ($mounted) { 
         Write-Host "INFO: Dismounting VHD"
         Dismount-DiskImage (Join-Path $targetSubdir -ChildPath $vhdFilename)
+    }
+    if ($azureMounted) { 
+        Write-Host "INFO: Dismounting Azure VHD"
+        Dismount-DiskImage $AzureTargetVHD
     }
     Write-Host "INFO: Exiting at $(date)"
 }

@@ -103,7 +103,9 @@ try {
         echo "$(date) Phase0.ps1 Creating scripts directory..." >> $env:SystemDrive\packer\configure.log
         mkdir c:\\scripts -ErrorAction SilentlyContinue 2>&1 | Out-Null
 
-        # Download the script that downloads our files
+        # Download the script that downloads our files, but sleep 30 seconds to give the network time to come up
+        echo "$(date) Phase0.ps1 Sleeping 30 seconds for network..." >> $env:SystemDrive\packer\configure.log
+        Start-Sleep -Seconds 30
         echo "$(date) Phase0.ps1 Downloading DownloadScripts.ps1..." >> $env:SystemDrive\packer\configure.log
         Copy-File -SourcePath "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/$ConfigSet/DownloadScripts.ps1" -DestinationPath "$env:SystemDrive\packer\DownloadScripts.ps1"
 
