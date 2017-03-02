@@ -48,21 +48,34 @@
 #>
 
 param(
-    [Parameter(Mandatory=$false)][string]$Path="\\winbuilds\release\RS_ONECORE_CONTAINER\15146.1000.170227-1702",
-    [Parameter(Mandatory=$false)][string]$Target="e:\vms",
-    [Parameter(Mandatory=$false)][switch]$SkipCopyVHD=$False,
-    [Parameter(Mandatory=$false)][switch]$SkipBaseImages=$False,
-    [Parameter(Mandatory=$false)][string]$Password="p@ssw0rd",
-    [Parameter(Mandatory=$false)][switch]$CreateVM=$True,
-    [Parameter(Mandatory=$false)][string]$Switch="Wired",
-    [Parameter(Mandatory=$false)][int]   $DebugPort=50011,
-    [Parameter(Mandatory=$false)][string]$ConfigSet="rs1"
+    [Parameter(Mandatory=$false)][string]$Path,
+    [Parameter(Mandatory=$false)][string]$Target,
+    [Parameter(Mandatory=$false)][switch]$SkipCopyVHD,
+    [Parameter(Mandatory=$false)][switch]$SkipBaseImages,
+    [Parameter(Mandatory=$false)][string]$Password,
+    [Parameter(Mandatory=$false)][switch]$CreateVM,
+    [Parameter(Mandatory=$false)][string]$Switch,
+    [Parameter(Mandatory=$false)][int]   $DebugPort,
+    [Parameter(Mandatory=$false)][string]$ConfigSet
 
 )
 
 $ErrorActionPreference = 'Stop'
 $mounted = $false
-$targetSize = 127GB
+$targetSize = 40GB
+
+
+# For debugging
+$Path="\\winbuilds\release\RS1_RELEASE_INMARKET\14393.823.170209-1910"
+$Target="e:\vms"
+$SkipCopyVHD=$False
+$SkipBaseImages=$True
+$Password="p@ssw0rd"
+$CreateVM=$True
+$Switch="Wired"
+$DebugPort=50011
+$ConfigSet="rs1"
+
 
 # Download-File is a simple wrapper to get a file from somewhere (HTTP, SMB or local file path)
 # If file is supplied, the source is assumed to be a base path. Returns -1 if does not exist, 
@@ -254,15 +267,20 @@ Try {
     # Create the password file
     [System.IO.File]::WriteAllText("$driveLetter`:\packer\password.txt", $Password, (New-Object System.Text.UTF8Encoding($False)))
 
-    # Add the pre-bootstrapper that gets invoked by the unattend
+    # Add the pre-bootstrapper that gets invoked by the unattend. Note we always re-download the bootstrapper.
+    # Note also the use of c:\packer\PreBootStrappedOnce.txt so that on the first specialize pass to add the scheduled task,
+    # we make sure the VM is re-sysprepped, not re-started.
     $prebootstrap = `
        "c:\privates\certutil -addstore root c:\privates\testroot-sha2.cer`n" + `
        "bcdedit /set `"{current}`" testsigning on`n" + `
        "set-executionpolicy bypass`n" + `
+       "`$wc=New-Object net.webclient;`$wc.Downloadfile(`"https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/common/Bootstrap.ps1`",`"c:\w2w\common\Bootstrap.ps1`")`n" + `
         "`$action = New-ScheduledTaskAction -Execute `"powershell.exe`" -Argument `"-command c:\w2w\common\Bootstrap.ps1`"`n " + `
         "`$trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00`n" + `
         "Register-ScheduledTask -TaskName `"Bootstrap`" -Action `$action -Trigger `$trigger -User SYSTEM -RunLevel Highest`n`n" + `
-        "shutdown /t 0 /r"
+        "if (Test-Path c:\packer\PreBootStrappedOnce.txt) { shutdown /t 0 /r } else { New-Item c:\packer\PreBootStrappedOnce.txt -ErrorAction SilentlyContinue; c:\windows\system32\sysprep\sysprep.exe /generalize /oobe /shutdown }`n`n"
+
+ 
     [System.IO.File]::WriteAllText("$driveLetter`:\packer\prebootstrap.ps1", $prebootstrap, (New-Object System.Text.UTF8Encoding($False)))
 
     # Write the config set out to disk
@@ -282,26 +300,31 @@ Try {
     
 
     # Create a VM from that VHD
-    if ($CreateVM) {
-        $vm = Get-VM (split-path $targetSubdir -leaf) -ErrorAction SilentlyContinue
-        if ($vm -ne $null) {
-            Write-Host "WARN: VM already exists - deleting"
-            Remove-VM $vm -Force
-        }
-        Write-Host "INFO: Creating a VM"
-        $vm = New-VM -generation 1 -Path $Target -Name (split-path $targetSubdir -leaf) -NoVHD
-        Set-VMProcessor $vm -ExposeVirtualizationExtensions $true -Count 8
-        Add-VMHardDiskDrive $vm -ControllerNumber 0 -ControllerLocation 0 -Path (Join-Path $targetSubdir -ChildPath $vhdFilename)
-        if ($switch -ne "") {
-            Connect-VMNetworkAdapter -VMName (split-path $targetSubdir -leaf) -SwitchName $switch
-        }
-        Checkpoint-VM $vm
-
-        # BUGBUG - At some point, we need to copy the VHD to the Azure version for upload
-        Start-VM $vm
-        vmconnect localhost (split-path $targetSubdir -leaf)
+    $vm = Get-VM (split-path $targetSubdir -leaf) -ErrorAction SilentlyContinue
+    if ($vm -ne $null) {
+        Write-Host "WARN: VM already exists - deleting"
+        Remove-VM $vm -Force
     }
-    
+    Write-Host "INFO: Creating a VM"
+    $vm = New-VM -generation 1 -Path $Target -Name (split-path $targetSubdir -leaf) -NoVHD
+    Set-VMProcessor $vm -ExposeVirtualizationExtensions $true -Count 8
+    Add-VMHardDiskDrive $vm -ControllerNumber 0 -ControllerLocation 0 -Path (Join-Path $targetSubdir -ChildPath $vhdFilename)
+    if ($switch -ne "") {
+        Connect-VMNetworkAdapter -VMName (split-path $targetSubdir -leaf) -SwitchName $switch
+    }
+
+    Start-VM $vm
+    Write-Host -NoNewline "INFO: Waiting for VM to complete booting and re-sysprep: "
+    while ($vm.State -ne "Off") {
+        Write-host -NoNewline "."
+        Start-Sleep -seconds 6
+    }
+    Write-Host "`n"
+
+
+#vmconnect localhost (split-path $targetSubdir -leaf)
+
+#        Checkpoint-VM $vm    
 
     # The Azure upload piece
 

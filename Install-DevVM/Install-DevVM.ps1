@@ -192,10 +192,10 @@ Try {
     Set-ExecutionPolicy bypass
 
     if (-not (Test-Nano)) {
-        #Write-Host "INFO: Unblocking the shortcut file"
-        #Unblock-File .\docker-docker-shortcut.ps1
-        #Write-Host "INFO: Running the shortcut file"
-        #powershell -command .\docker-docker-shortcut.ps1
+        Write-Host "INFO: Unblocking the shortcut file"
+        Unblock-File .\docker-docker-shortcut.ps1
+        Write-Host "INFO: Running the shortcut file"
+        powershell -command .\docker-docker-shortcut.ps1
     }
 
     if (-not (Test-Nano)) {

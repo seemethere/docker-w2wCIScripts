@@ -119,22 +119,6 @@ try {
                 $Shortcut.Arguments ="`"cd c:\w2w\Install-DevVM; echo 'Sleeping for network to come up'; start-sleep -seconds 30; .\Install-DevVM.ps1 -ConfigSet $configset -DebugPort $debugport`""
                 $Shortcut.TargetPath = $TargetFile
                 $Shortcut.Save()
-
-
-
-
-
-
-
-                #$launch = "start powershell `"cd c:\w2w\Install-DevVM; .\Install-DevVM.ps1 -ConfigSet $configset -DebugPort $debugport`""
-                #[System.IO.File]::WriteAllText("c:\w2w\Install-DevVM\launch.cmd", $launch, (New-Object System.Text.UTF8Encoding($False)))
-
-                #$action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "`"cd c:\w2w\Install-DevVM; .\Install-DevVM.ps1 -ConfigSet $configset -DebugPort $debugport`""
-                #$action = New-ScheduledTaskAction -Execute "c:\w2w\Install-DevVM\launch.cmd"
-                #$trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay 00:01:00
-                #Register-ScheduledTask -TaskName "Install-DevVM" -Action $action -Trigger $trigger -User administrator -Password $pass -RunLevel Highest
-                # Make interactive
-                #schtasks /change /RU administrator /RP $pass /TN "Install-DevVM" /IT
                 shutdown /t 0 /r
                 exit 0
             }
