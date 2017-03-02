@@ -5,7 +5,7 @@ param(
     [Parameter(Mandatory=$false)][string]$size="D3", # Size of the VM
     [Parameter(Mandatory=$false)][string]$ImageVersion, # Image version
     [Parameter(Mandatory=$false)][string]$ConfigSet, # eg rs1
-    [Parameter(Mandatory=$false)][string]$Password=$env:JENKINS_PASSWORD_W2W 
+    [Parameter(Mandatory=$false)][string]$Password
 )
 
 $vnetSiteName = 'Jenkins'             # Network to connect to
@@ -15,7 +15,7 @@ $size = "Standard_"+"$size"+"_v2"     # Size of the VM
 $adminUsername = 'jenkins'
 
 if ([string]::IsNullOrWhiteSpace($Password)) {
-     Throw "Password for the user 'jenkins' must be supplied, or provided in $env:JENKINS_PASSWORD_W2W"
+     Throw "Password for the user 'jenkins' must be supplied"
 }
 
 if ([string]::IsNullOrWhiteSpace($ImageVersion)) {

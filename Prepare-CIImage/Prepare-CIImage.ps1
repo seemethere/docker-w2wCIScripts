@@ -328,7 +328,6 @@ Try {
         Write-host -NoNewline "."
         Start-Sleep -seconds 6
     }
-    Write-Host "`n"
 
     # Are we creating the Azure image for this as well?
     if ($AzureImageVersion -ne 0) {
