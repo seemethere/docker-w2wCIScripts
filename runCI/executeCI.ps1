@@ -88,7 +88,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="15-Feb-2017 12:21 PDT" 
+$SCRIPT_VER="15-Mar-2017 16:14 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -473,7 +473,7 @@ Try {
         # Extract the golang installer
         Write-Host -ForegroundColor Green "INFO: Extracting go.zip to $env:TEMP\go"
         $ProgressPreference='SilentlyContinue'
-        $Duration=$(Measure-Command { $ProgressPreference='SilentlyContinue'; Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force })
+        $Duration=$(Measure-Command { $ProgressPreference='SilentlyContinue'; Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force | Out-Null})
         Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
     } else {
         Write-Host -ForegroundColor Magenta "WARN: Skipping copying and extracting golang from the image"
