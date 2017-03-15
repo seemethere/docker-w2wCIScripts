@@ -219,7 +219,8 @@ Try {
     Write-Host -ForegroundColor green "INFO: Branch:$Branch Build:$WindowsBuild"
 
     # List the environment variables
-    Get-ChildItem Env:
+    Write-Host -ForegroundColor green "INFO: Environment variables:"
+    Get-ChildItem Env: | Out-String
 
     # PR
     if (-not ($env:PR -eq $Null)) { echo "INFO: PR#$env:PR (https://github.com/docker/docker/pull/$env:PR)" }
