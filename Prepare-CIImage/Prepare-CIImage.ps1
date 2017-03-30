@@ -152,11 +152,18 @@ Try {
     Write-Host "INFO: Build is $build"
     Write-Host "INFO: Timestamp is $timestamp"
     
-    # Verify the VHD exists
+    # Verify the VHD exists. Try VL first
     $vhdFilename="$build"+".amd64fre."+$branch+".$timestamp"+"_server_ServerDataCenter_en-us_vl.vhd"
     $vhdSource="\\winbuilds\release\$branch\$build"+".$timestamp\amd64fre\vhd\vhd_server_serverdatacenter_en-us_vl\$vhdFilename"
     
-    if (-not (Test-Path $vhdSource)) { Throw "$vhdSource could not be found" }
+    if (-not (Test-Path $vhdSource)) { 
+	    $vhdFilename="$build"+".amd64fre."+$branch+".$timestamp"+"_server_ServerDataCenter_en-us.vhd"
+		$vhdSource="\\winbuilds\release\$branch\$build"+".$timestamp\amd64fre\vhd\vhd_server_serverdatacenter_en-us\$vhdFilename"
+		if (-not (Test-Path $vhdSource)) { Throw "$vhdSource could not be found" }
+		Write-Host "INFO: Using non-VL VHD"
+	}
+	
+    
     Write-Host "INFO: VHD found"
     
     # Verify the container images exist
