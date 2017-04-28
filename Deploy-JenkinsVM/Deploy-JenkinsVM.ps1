@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory=$false)][string]$vmName,
     [Parameter(Mandatory=$false)][switch]$Force=$False,
-    [Parameter(Mandatory=$false)][string]$size="D3", # Size of the VM
+    [Parameter(Mandatory=$false)][string]$size="Standard_D3_v2_Promo", # Size of the VM
     [Parameter(Mandatory=$false)][string]$ImageVersion, # Image version
     [Parameter(Mandatory=$false)][string]$ConfigSet, # eg rs1
     [Parameter(Mandatory=$false)][string]$Password
@@ -10,7 +10,7 @@ param(
 
 $vnetSiteName = 'Jenkins'             # Network to connect to
 $defaultLocation = 'Central US'       # Hopefully obvious
-$size = "Standard_"+"$size"+"_v2"     # Size of the VM
+#$size = "Standard_"+"$size"+"_v2"     # Size of the VM
 
 $adminUsername = 'jenkins'
 
