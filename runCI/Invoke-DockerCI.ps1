@@ -208,6 +208,15 @@ $pushed=$False  # To restore the directory if we have temporarily pushed to one.
 # 0 if success. Throws error on other errors.
 Function Download-File([string] $source, [string] $file, [string] $target) {
     $ErrorActionPreference = 'SilentlyContinue'
+
+    # Ensure that all secure protocols are enabled (TLS 1.2 is not by default in some cases).
+    $secureProtocols = @()
+    $insecureProtocols = @([System.Net.SecurityProtocolType]::SystemDefault, [System.Net.SecurityProtocolType]::Ssl3)
+    foreach ($protocol in [System.Enum]::GetValues([System.Net.SecurityProtocolType])) {
+        if ($insecureProtocols -notcontains $protocol) { $secureProtocols += $protocol }
+    }
+    [System.Net.ServicePointManager]::SecurityProtocol = $secureProtocols
+
     if (($source).ToLower().StartsWith("http")) {
         if ($file -ne "") {
             $source+="/$file"
