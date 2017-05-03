@@ -149,6 +149,7 @@ Function Nuke-Everything {
         Stop-Process -name "git" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
         Stop-Process -name "git-remote-https" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
         Stop-Process -name "integration-cli.test" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
+        Stop-Process -name "tail" -Force -ErrorAction SilentlyContinue 2>&1 | Out-Null
 
         # Detach any VHDs
         gwmi msvm_mountedstorageimage -namespace root/virtualization/v2 -ErrorAction SilentlyContinue | foreach-object {$_.DetachVirtualHardDisk() }
@@ -526,10 +527,14 @@ Try {
     Start-Process "$env:TEMP\binary\dockerd-$COMMITHASH" `
                   -ArgumentList $dutArgs `
                   -RedirectStandardOutput "$env:TEMP\dut.out" `
-                  -RedirectStandardError "$env:TEMP\dut.err" #`
-                  #-NoNewWindow
+                  -RedirectStandardError "$env:TEMP\dut.err" 
     Write-Host -ForegroundColor Green "INFO: Process started successfully."
     $daemonStarted=1
+
+    # Start tailing the daemon under test if the command is installed
+    if ((Get-Command "tail" -ErrorAction SilentlyContinue) -ne $null) { 
+        $tail = start-process "tail" -ArgumentList "-f $env:TEMP\dut.out" -ErrorAction SilentlyContinue
+    }
 
     # Verify we can get the daemon under test to respond 
     $tries=20

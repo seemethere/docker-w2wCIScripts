@@ -151,6 +151,9 @@
 .Parameter IntegrationInContainer
    Skips the download of docker.exe and dockerd.exe
 
+.Parameter LCOWSupported
+   Enabled Linux-Containers-On-Windows (LCOW) mode
+
    
 .EXAMPLE
     Example To Be Completed #TODO
@@ -192,7 +195,8 @@ param(
     [Parameter(Mandatory=$false)][switch]$SkipAllCleanup=$False,
     [Parameter(Mandatory=$false)][string]$WindowsBaseImage="",
     [Parameter(Mandatory=$false)][switch]$SkipControlDownload=$False,
-    [Parameter(Mandatory=$false)][switch]$IntegrationInContainer=$False
+    [Parameter(Mandatory=$false)][switch]$IntegrationInContainer=$False,
+    [Parameter(Mandatory=$false)][switch]$LCOWSupported=$False
 )
 
 $ErrorActionPreference = 'Stop'
@@ -527,6 +531,10 @@ Try {
     if ($IntegrationInContainer) {
         $env:INTEGRATION_IN_CONTAINER = "Yes"
     }
+    $env:LCOW_SUPPORTED=""
+    if ($LCOWSupported) {
+        $env:LCOW_SUPPORTED = "Yes"
+    }
     $env:SKIP_COPY_GO=""
     if ($SkipCopyGo) {
         $env:SKIP_COPY_GO = "Yes"
@@ -604,6 +612,7 @@ Try {
     Write-Host " - Skip download:     $SkipControlDownload"
     Write-Host " - Skip copy go:      $SkipCopyGo"
     Write-Host " - Test in container: $IntegrationInContainer"
+    Write-Host " - LCOW Supported:    $LCOWSupported"
     if ($SkipIntegrationTests -eq $false) {
         if (-not ([string]::IsNullOrWhiteSpace($IntegrationTestName))) {
             Write-Host " - CLI test match:    $IntegrationTestName"
