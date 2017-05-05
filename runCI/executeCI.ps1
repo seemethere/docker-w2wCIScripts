@@ -88,7 +88,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="15-Mar-2017 16:14 PDT" 
+$SCRIPT_VER="5-May-2017 12:21 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -282,16 +282,39 @@ Try {
     $ErrorActionPreference = "SilentlyContinue"
     $ControlDaemonBaseImage="windowsservercore"
 
+    $readBaseFrom="c"
     if ($((docker images --format "{{.Repository}}:{{.Tag}}" | Select-String $("microsoft/"+$ControlDaemonBaseImage+":latest") | Measure-Object -Line).Lines) -eq 0) {
         # Try the internal azure CI image version or Microsoft internal corpnet where the base image is already pre-prepared on the disk,
         # either through Invoke-DockerCI or, in the case of Azure CI servers, baked into the VHD at the same location.
-        if (Test-Path $("c:\baseimages\"+$ControlDaemonBaseImage+".tar")) {
+        if (Test-Path $("$env:SOURCES_DRIVE`:\baseimages\"+$ControlDaemonBaseImage+".tar")) {
+		
+			# An optimization for CI servers to copy it to the D: drive which is an SSD.
+			if ($env:SOURCES_DRIVE -ne $env:TESTRUN_DRIVE) {
+				$readBaseFrom=$env:TESTRUN_DRIVE
+				if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages")) {
+					New-Item "$env:TESTRUN_DRIVE`:\baseimages" -type directory | Out-Null
+				}
+				if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages\windowsservercore.tar")) {
+					if (Test-Path "$env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar") {
+						Write-Host -ForegroundColor Green "INFO: Optimisation - copying $env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar to $env:TESTRUN_DRIVE`:\baseimages"
+						Copy-Item "$env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar" "$env:TESTRUN_DRIVE`:\baseimages"
+					}
+				}
+				if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages\nanoserver.tar")) {
+					if (Test-Path "$env:SOURCES_DRIVE`:\baseimages\nanoserver.tar") {
+						Write-Host -ForegroundColor Green "INFO: Optimisation - copying $env:SOURCES_DRIVE`:\baseimages\nanoserver.tar to $env:TESTRUN_DRIVE`:\baseimages"
+						Copy-Item "$env:SOURCES_DRIVE`:\baseimages\nanoserver.tar" "$env:TESTRUN_DRIVE`:\baseimages"
+					}
+				}
+				$readBaseFrom=$env:TESTRUN_DRIVE
+			}
+		
             Write-Host  -ForegroundColor Green "INFO: Loading"$ControlDaemonBaseImage".tar from disk. This may take some time..."
             $ErrorActionPreference = "SilentlyContinue"
-            docker load -i $("c:\baseimages\"+$ControlDaemonBaseImage+".tar")
+            docker load -i $("$readBaseFrom`:\baseimages\"+$ControlDaemonBaseImage+".tar")
             $ErrorActionPreference = "Stop"
             if (-not $LastExitCode -eq 0) {
-                Throw $("ERROR: Failed to load c:\baseimages\"+$ControlDaemonBaseImage+".tar")
+                Throw $("ERROR: Failed to load $readBaseFrom`:\baseimages\"+$ControlDaemonBaseImage+".tar")
             }
             Write-Host -ForegroundColor Green "INFO: docker load of"$ControlDaemonBaseImage" completed successfully"
         } else {
@@ -614,10 +637,10 @@ Try {
         if (Test-Path $("c:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar")) {
             Write-Host  -ForegroundColor Green "INFO: Loading"$($env:WINDOWS_BASE_IMAGE -Split "/")[1]".tar from disk into the daemon under test. This may take some time..."
             $ErrorActionPreference = "SilentlyContinue"
-            & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" load -i $("c:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar")
+            & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" load -i $("$readBaseFrom`:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar")
             $ErrorActionPreference = "Stop"
             if (-not $LastExitCode -eq 0) {
-                Throw $("ERROR: Failed to load c:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar into daemon under test")
+                Throw $("ERROR: Failed to load $readBaseFrom`:\baseimages\"+$($env:WINDOWS_BASE_IMAGE -Split "/")[1]+".tar into daemon under test")
             }
             Write-Host -ForegroundColor Green "INFO: docker load of"$($env:WINDOWS_BASE_IMAGE -Split "/")[1]" into daemon under test completed successfully"
         } else {
