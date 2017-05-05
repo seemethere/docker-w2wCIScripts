@@ -21,6 +21,14 @@ function Copy-File {
 
     if ($SourcePath -eq $DestinationPath) { return }  
 
+    # Ensure that all secure protocols are enabled (TLS 1.2 is not by default in some cases).
+    $secureProtocols = @()
+    $insecureProtocols = @([System.Net.SecurityProtocolType]::SystemDefault, [System.Net.SecurityProtocolType]::Ssl3)
+    foreach ($protocol in [System.Enum]::GetValues([System.Net.SecurityProtocolType])) {
+        if ($insecureProtocols -notcontains $protocol) { $secureProtocols += $protocol }
+    }
+    [System.Net.ServicePointManager]::SecurityProtocol = $secureProtocols
+
     if (Test-Path $SourcePath) { 
         Copy-Item -Path $SourcePath -Destination $DestinationPath 
     } elseif (($SourcePath -as [System.URI]).AbsoluteURI -ne $null) {  
