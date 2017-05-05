@@ -9,7 +9,8 @@ echo "$(date) InstallMostThings.ps1 starting" >> $env:SystemDrive\packer\configu
 
 $GIT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.11.0.windows.1/PortableGit-2.11.0-64-bit.7z.exe"
 #$JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jdk-8u112-windows-x64.exe"  # 12/2/2016
-$JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jre-8u121-windows-x64.exe" #3/21/2017
+#$JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jre-8u121-windows-x64.exe" #3/21/2017
+$JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jre-8u131-windows-x64.exe" #5/5/2017
 
 
 $NPP_LOCATION="https://notepad-plus-plus.org/repository/7.x/7.3.3/npp.7.3.3.Installer.x64.exe" # 3/21/2017 - CIA hack...
