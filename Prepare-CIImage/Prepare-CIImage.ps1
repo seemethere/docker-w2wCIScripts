@@ -86,6 +86,10 @@ $targetSize = 127GB
 #$ConfigSet="rs1"
 #$AzureImageVersion=31
 
+Function Test-IsAdmin () {
+    [Security.Principal.WindowsPrincipal] $Identity = [Security.Principal.WindowsIdentity]::GetCurrent()            
+    $Identity.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)  
+}
 
 # Download-File is a simple wrapper to get a file from somewhere (HTTP, SMB or local file path)
 # If file is supplied, the source is assumed to be a base path. Returns -1 if does not exist, 
@@ -129,6 +133,10 @@ Function Download-File([string] $source, [string] $file, [string] $target) {
 Try {
     Write-Host -ForegroundColor Cyan "INFO: Starting at $(date)`n"
     set-PSDebug -Trace 0  # 1 to turn on
+
+    if (-not (Test-IsAdmin)) {
+        Throw("This must be run elevated")
+    }
 
     # Split the path into it's parts
     #\\winbuilds\release\RS_ONECORE_CONTAINER_HYP\15140.1001.170220-1700
