@@ -93,7 +93,7 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="5-May-2017 12:21 PDT" 
+$SCRIPT_VER="10-May-2017 12:16 PDT" 
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -212,7 +212,8 @@ Try {
     $origGOPATH="$env:GOPATH"        # So we can restore it at the end
 
     # Turn off progress bars
-    $ProgressPreference='SilentlyContinue'
+	$origProgressPreference=$global:ProgressPreference
+	$global:ProgressPreference='SilentlyContinue'
 
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
@@ -501,8 +502,7 @@ Try {
 
         # Extract the golang installer
         Write-Host -ForegroundColor Green "INFO: Extracting go.zip to $env:TEMP\go"
-        $ProgressPreference='SilentlyContinue'
-        $Duration=$(Measure-Command { $ProgressPreference='SilentlyContinue'; Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force | Out-Null})
+        $Duration=$(Measure-Command { Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force | Out-Null})
         Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
     } else {
         Write-Host -ForegroundColor Magenta "WARN: Skipping copying and extracting golang from the image"
@@ -832,6 +832,7 @@ Catch [Exception] {
 }
 Finally {
     $ErrorActionPreference="SilentlyContinue"
+	$global:ProgressPreference=$origProgressPreference
     Write-Host  -ForegroundColor Green "INFO: Tidying up at end of run"
 
     # Restore the path
