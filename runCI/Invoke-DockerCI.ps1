@@ -201,7 +201,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $FinallyColour="Cyan"
-$DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/amd64"
+$DOCKER_DEFAULT_BASEPATH="https://master.dockerproject.org/windows/x86_64"
 $GIT_DEFAULT_LOCATION="https://github.com/git-for-windows/git/releases/download/v2.10.1.windows.1/Git-2.10.1-64-bit.exe"
 $ConfigJSONBackedUp=$False
 $CISCRIPT_DEFAULT_LOCATION = "https://raw.githubusercontent.com/jhowardmsft/docker-w2wCIScripts/master/runCI/executeCI.ps1"
