@@ -6,6 +6,10 @@
 # Jenkins CI scripts for Windows to Windows CI (Powershell Version)
 # By John Howard (@jhowardmsft) January 2016 - bash version; July 2016 Ported to PowerShell
 
+Param(
+    [Parameter(Mandatory=$False)][switch]$DockerCE
+)
+
 $ErrorActionPreference = 'Stop'
 $StartTime=Get-Date
 #$env:DOCKER_DUT_DEBUG="yes" # Comment out to not be in debug mode
@@ -93,9 +97,6 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-param(
-    [Parameter(Mandatory=$False)][switch]$DockerCE
-)
 
 $SCRIPT_VER="10-May-2017 12:16 PDT" 
 $FinallyColour="Cyan"
