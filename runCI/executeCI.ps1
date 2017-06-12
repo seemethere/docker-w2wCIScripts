@@ -22,7 +22,7 @@ $StartTime=Get-Date
 #
 #    SOURCES_SUBDIR      is the top level directory under SOURCES_DRIVE where the
 #                        sources are cloned to. There are no platform semantics in this
-#                        as it does not include slashes. 
+#                        as it does not include slashes.
 #                        For example 'gopath'
 #
 #                        Based on the above examples, it would be expected that Jenkins
@@ -65,7 +65,7 @@ $StartTime=Get-Date
 #    SKIP_IMAGE_BUILD         if defined doesn't build the 'docker' image
 #
 #    INTEGRATION_IN_CONTAINER if defined, runs the integration tests from inside a container.
-#                             As of July 2016, there are known issues with this. 
+#                             As of July 2016, there are known issues with this.
 #
 #    SKIP_ALL_CLEANUP         if defined, skips any cleanup at the start or end of the run
 #
@@ -85,7 +85,7 @@ $StartTime=Get-Date
 #    try {
 #        Write-Host -ForegroundColor green "INFO: Downloading latest execution script..."
 #        $wc.Downloadfile($CISCRIPT_DEFAULT_LOCATION, $CISCRIPT_LOCAL_LOCATION)
-#    } 
+#    }
 #    catch [System.Net.WebException]
 #    {
 #        Throw ("Failed to download: $_")
@@ -93,7 +93,11 @@ $StartTime=Get-Date
 #    & $CISCRIPT_LOCAL_LOCATION
 # -------------------------------------------------------------------------------------------
 
-$SCRIPT_VER="10-May-2017 12:16 PDT" 
+param(
+    [Parameter(Mandatory=$False)[switch]$DockerCE]
+)
+
+$SCRIPT_VER="10-May-2017 12:16 PDT"
 $FinallyColour="Cyan"
 
 #$env:SKIP_UNIT_TESTS="yes"
@@ -107,6 +111,49 @@ $FinallyColour="Cyan"
 #$env:WINDOWS_BASE_IMAGE=""
 #$env:SKIP_COPY_GO="yes"
 
+Function Get-DockerVersion() {
+    if (-not (Test-Path ".\VERSION")) { Throw "VERSION file not found. Is this running from the root of a docker repository?" }
+    return $(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
+}
+
+Function Build-Client-For-Docker-CE() {
+    $DockerVersion = Get-DockerVersion
+    Push-Location "..\cli\cmd\docker"
+    $buildDateTime=$(Get-Date).ToUniversalTime()
+    Write-Host -ForegroundColor Green "INFO: Building the CLI binary"
+    Write-Host -ForegroundColor Green "INFO: Using: go build -o $env:TEMP\binary\docker.exe --ldflags `"-w -X github.com/docker/cli/cli.GitCommit=$COMMITHASH -X github.com/docker/cli/cli.Version=$DockerVersion`""
+    go build -o $env:TEMP\binary\docker.exe --ldflags "-w -X github.com/docker/cli/cli.GitCommit=$COMMITHASH -X github.com/docker/cli/cli.Version=$DockerVersion"
+    if (-not($LastExitCode -eq 0)) {
+        Throw "ERROR: Failed to compile the client binary (docker.exe) to $env:TEMP\binary"
+    }
+    Pop-Location
+    # Copy the built docker.exe to docker-$COMMITHASH.exe
+    Write-Host -ForegroundColor Green "INFO: Copying the built client binary to $env:TEMP\binary\docker-$COMMITHASH.exe..."
+    Copy-Item $env:TEMP\binary\docker.exe $env:TEMP\binary\docker-$COMMITHASH.exe -Force -ErrorAction SilentlyContinue
+}
+
+Function Move-Docker-CE-Sources() {
+    Write-Host -ForegroundColor green "INFO: Attempting to copy engine"
+    Write-Host -ForegroundColor green "INFO: SOURCE -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\engine"
+    Write-Host -ForegroundColor green "INFO: TARGET -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
+    cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
+    if (-Not (Test-Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker")) {
+         md -path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
+    }
+    Copy-Item "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\engine\*" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker" -Force -Recurse
+    ls "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
+
+    Write-Host -ForegroundColor green "INFO: Attempting to copy cli"
+    Write-Host -ForegroundColor green "INFO: SOURCE -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\cli"
+    Write-Host -ForegroundColor green "INFO: TARGET -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
+    cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
+    if (-Not (Test-Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli")) {
+         md -path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
+    }
+    Copy-Item "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\cli\*" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli" -Force -Recurse
+    ls "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
+}
+
 Function Nuke-Everything {
     $ErrorActionPreference = 'SilentlyContinue'
     if ($env:SKIP_ALL_CLEANUP -ne $null) {
@@ -116,7 +163,7 @@ Function Nuke-Everything {
 
     try {
         Write-Host -ForegroundColor green "INFO: Nuke-Everything..."
-        $containerCount = ($(docker ps -aq | Measure-Object -line).Lines) 
+        $containerCount = ($(docker ps -aq | Measure-Object -line).Lines)
         if (-not $LastExitCode -eq 0) {
             Throw "ERROR: Failed to get container count from control daemon while nuking"
         }
@@ -212,8 +259,8 @@ Try {
     $origGOPATH="$env:GOPATH"        # So we can restore it at the end
 
     # Turn off progress bars
-	$origProgressPreference=$global:ProgressPreference
-	$global:ProgressPreference='SilentlyContinue'
+    $origProgressPreference=$global:ProgressPreference
+    $global:ProgressPreference='SilentlyContinue'
 
     # Git version
     Write-Host  -ForegroundColor Green "INFO: Running $(git version)"
@@ -229,8 +276,13 @@ Try {
     Write-Host -ForegroundColor green "INFO: Environment variables:"
     Get-ChildItem Env: | Out-String
 
+    $BaseRepo="docker"
+    if ($DockerCE) {
+        $BaseRepo="docker-ce"
+    }
+
     # PR
-    if (-not ($env:PR -eq $Null)) { echo "INFO: PR#$env:PR (https://github.com/docker/docker/pull/$env:PR)" }
+    if (-not ($env:PR -eq $Null)) { echo "INFO: PR#$env:PR (https://github.com/docker/$BaseRepo/pull/$env:PR)" }
 
     # Make sure docker is installed
     if ((Get-Command "docker" -ErrorAction SilentlyContinue) -eq $null) { Throw "ERROR: docker is not installed or not found on path" }
@@ -253,6 +305,9 @@ Try {
     # SOURCES_DRIVE\SOURCES_SUBDIR must be a directory and exist
     if (-not (Test-Path -PathType Container "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR")) { Throw "ERROR: $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR must be an existing directory" }
 
+    if ($DockerCE) {
+        Move-Docker-CE-Sources
+    }
 
     # Create the TESTRUN_DRIVE\TESTRUN_SUBDIR if it does not already exist
     New-Item -ItemType Directory -Force -Path "$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR" -ErrorAction SilentlyContinue | Out-Null
@@ -276,7 +331,7 @@ Try {
     Write-Host  -ForegroundColor Green "INFO: docker/docker repository was found"
 
     # Make sure microsoft/windowsservercore:latest image is installed in the control daemon. On public CI machines, windowsservercore.tar and nanoserver.tar
-    # are pre-baked and tagged appropriately in the c:\baseimages directory, and can be directly loaded. 
+    # are pre-baked and tagged appropriately in the c:\baseimages directory, and can be directly loaded.
     # Note - this script will only work on 10B (Oct 2016) or later machines! Not 9D or previous due to image tagging assumptions.
     #
     # On machines not on Microsoft corpnet, or those which have not been pre-baked, we have to docker pull the image in which case it will
@@ -293,28 +348,28 @@ Try {
         # Try the internal azure CI image version or Microsoft internal corpnet where the base image is already pre-prepared on the disk,
         # either through Invoke-DockerCI or, in the case of Azure CI servers, baked into the VHD at the same location.
         if (Test-Path $("$env:SOURCES_DRIVE`:\baseimages\"+$ControlDaemonBaseImage+".tar")) {
-		
-			# An optimization for CI servers to copy it to the D: drive which is an SSD.
-			if ($env:SOURCES_DRIVE -ne $env:TESTRUN_DRIVE) {
-				$readBaseFrom=$env:TESTRUN_DRIVE
-				if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages")) {
-					New-Item "$env:TESTRUN_DRIVE`:\baseimages" -type directory | Out-Null
-				}
-				if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages\windowsservercore.tar")) {
-					if (Test-Path "$env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar") {
-						Write-Host -ForegroundColor Green "INFO: Optimisation - copying $env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar to $env:TESTRUN_DRIVE`:\baseimages"
-						Copy-Item "$env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar" "$env:TESTRUN_DRIVE`:\baseimages"
-					}
-				}
-				if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages\nanoserver.tar")) {
-					if (Test-Path "$env:SOURCES_DRIVE`:\baseimages\nanoserver.tar") {
-						Write-Host -ForegroundColor Green "INFO: Optimisation - copying $env:SOURCES_DRIVE`:\baseimages\nanoserver.tar to $env:TESTRUN_DRIVE`:\baseimages"
-						Copy-Item "$env:SOURCES_DRIVE`:\baseimages\nanoserver.tar" "$env:TESTRUN_DRIVE`:\baseimages"
-					}
-				}
-				$readBaseFrom=$env:TESTRUN_DRIVE
-			}
-		
+
+            # An optimization for CI servers to copy it to the D: drive which is an SSD.
+            if ($env:SOURCES_DRIVE -ne $env:TESTRUN_DRIVE) {
+                $readBaseFrom=$env:TESTRUN_DRIVE
+                if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages")) {
+                    New-Item "$env:TESTRUN_DRIVE`:\baseimages" -type directory | Out-Null
+                }
+                if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages\windowsservercore.tar")) {
+                    if (Test-Path "$env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar") {
+                        Write-Host -ForegroundColor Green "INFO: Optimisation - copying $env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar to $env:TESTRUN_DRIVE`:\baseimages"
+                        Copy-Item "$env:SOURCES_DRIVE`:\baseimages\windowsservercore.tar" "$env:TESTRUN_DRIVE`:\baseimages"
+                    }
+                }
+                if (!(Test-Path "$env:TESTRUN_DRIVE`:\baseimages\nanoserver.tar")) {
+                    if (Test-Path "$env:SOURCES_DRIVE`:\baseimages\nanoserver.tar") {
+                        Write-Host -ForegroundColor Green "INFO: Optimisation - copying $env:SOURCES_DRIVE`:\baseimages\nanoserver.tar to $env:TESTRUN_DRIVE`:\baseimages"
+                        Copy-Item "$env:SOURCES_DRIVE`:\baseimages\nanoserver.tar" "$env:TESTRUN_DRIVE`:\baseimages"
+                    }
+                }
+                $readBaseFrom=$env:TESTRUN_DRIVE
+            }
+
             Write-Host  -ForegroundColor Green "INFO: Loading"$ControlDaemonBaseImage".tar from disk. This may take some time..."
             $ErrorActionPreference = "SilentlyContinue"
             docker load -i $("$readBaseFrom`:\baseimages\"+$ControlDaemonBaseImage+".tar")
@@ -351,14 +406,14 @@ Try {
     docker version
     $ErrorActionPreference = "Stop"
     if (-not($LastExitCode -eq 0)) {
-        Write-Host 
+        Write-Host
         Write-Host  -ForegroundColor Green "---------------------------------------------------------------------------"
         Write-Host  -ForegroundColor Green " Failed to get a response from the control daemon. It may be down."
         Write-Host  -ForegroundColor Green " Try re-running this CI job, or ask on #docker-dev or #docker-maintainers"
         Write-Host  -ForegroundColor Green " to see if the the daemon is running. Also check the nssm configuration."
         Write-Host  -ForegroundColor Green " DOCKER_HOST is set to $DOCKER_HOST."
         Write-Host  -ForegroundColor Green "---------------------------------------------------------------------------"
-        Write-Host 
+        Write-Host
         Throw "ERROR: The control daemon does not appear to be running."
     }
     Write-Host
@@ -376,7 +431,12 @@ Try {
 
     # Get the commit has and verify we have something
     $ErrorActionPreference = "SilentlyContinue"
-    $COMMITHASH=$(git rev-parse --short HEAD)
+    if ($DockerCE) {
+        $COMMITHASH=$(git -C ../docker-ce rev-parse --short HEAD)
+    } else {
+        $COMMITHASH=$(git rev-parse --short HEAD)
+    }
+
     $ErrorActionPreference = "Stop"
     if (-not($LastExitCode -eq 0)) {
         Throw "ERROR: Failed to get commit hash. Are you sure this is a docker repository?"
@@ -387,7 +447,7 @@ Try {
     Nuke-Everything
     cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
 
-    # Redirect to a temporary location. 
+    # Redirect to a temporary location.
     $TEMPORIG=$env:TEMP
     $env:TEMP="$env:TESTRUN_DRIVE`:\$env:TESTRUN_SUBDIR\CI-$COMMITHASH"
     $env:LOCALAPPDATA="$TEMP\localappdata"
@@ -451,7 +511,11 @@ Try {
             git status --porcelain --untracked-files=no | Write-Warning
              Write-Host ""
         }
-        $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Binary | Out-Host })
+        if ($DockerCE) {
+            $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Daemon | Out-Host })
+        else {
+            $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Binary | Out-Host })
+        }
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to build binary"
@@ -503,7 +567,7 @@ Try {
         # Extract the golang installer
         Write-Host -ForegroundColor Green "INFO: Extracting go.zip to $env:TEMP\go"
         $Duration=$(Measure-Command { Expand-Archive $env:TEMP\installer\go.zip $env:TEMP -Force | Out-Null})
-        Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"    
+        Write-Host  -ForegroundColor Green "INFO: Extraction ended at $(Get-Date). Duration`:$Duration"
     } else {
         Write-Host -ForegroundColor Magenta "WARN: Skipping copying and extracting golang from the image"
     }
@@ -519,7 +583,11 @@ Try {
     # Set the GOROOT to be our copy of go from the image
     $env:GOROOT="$env:TEMP\go"
     Write-Host -ForegroundColor Green "INFO: $(go version)"
-    
+
+    if ($DockerCE) {
+        Build-Client-For-Docker-CE
+    }
+
     # Work out the the -H parameter for the daemon under test (DASHH_DUT) and client under test (DASHH_CUT)
     #$DASHH_DUT="npipe:////./pipe/$COMMITHASH" # Can't do remote named pipe
     #$ip = (resolve-dnsname $env:COMPUTERNAME -type A -NoHostsFile -LlmnrNetbiosOnly).IPAddress # Useful to tie down
@@ -546,7 +614,7 @@ Try {
 
     # Start the daemon under test, ensuring everything is redirected to folders under $TEMP.
     # Important - we launch the -$COMMITHASH version so that we can kill it without
-    # killing the control daemon. 
+    # killing the control daemon.
     Write-Host -ForegroundColor Green "INFO: Starting a daemon under test..."
     Write-Host -ForegroundColor Green "INFO: Args: $dutArgs"
     New-Item -ItemType Directory $env:TEMP\daemon -ErrorAction SilentlyContinue  | Out-Null
@@ -555,16 +623,16 @@ Try {
     Start-Process "$env:TEMP\binary\dockerd-$COMMITHASH" `
                   -ArgumentList $dutArgs `
                   -RedirectStandardOutput "$env:TEMP\dut.out" `
-                  -RedirectStandardError "$env:TEMP\dut.err" 
+                  -RedirectStandardError "$env:TEMP\dut.err"
     Write-Host -ForegroundColor Green "INFO: Process started successfully."
     $daemonStarted=1
 
     # Start tailing the daemon under test if the command is installed
-    if ((Get-Command "tail" -ErrorAction SilentlyContinue) -ne $null) { 
+    if ((Get-Command "tail" -ErrorAction SilentlyContinue) -ne $null) {
         $tail = start-process "tail" -ArgumentList "-f $env:TEMP\dut.out" -ErrorAction SilentlyContinue
     }
 
-    # Verify we can get the daemon under test to respond 
+    # Verify we can get the daemon under test to respond
     $tries=20
     Write-Host -ForegroundColor Green "INFO: Waiting for the daemon under test to start..."
     while ($true) {
@@ -587,7 +655,7 @@ Try {
 
     # Provide the docker version of the daemon under test for debugging purposes.
     Write-Host -ForegroundColor Green "INFO: Docker version of the daemon under test"
-    Write-Host 
+    Write-Host
     $ErrorActionPreference = "SilentlyContinue"
     & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" version
     $ErrorActionPreference = "Stop"
@@ -599,7 +667,7 @@ Try {
 
     # Same as above but docker info
     Write-Host -ForegroundColor Green "INFO: Docker info of the daemon under test"
-    Write-Host 
+    Write-Host
     $ErrorActionPreference = "SilentlyContinue"
     & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" info
     $ErrorActionPreference = "Stop"
@@ -611,7 +679,7 @@ Try {
 
     # Same as above but docker images
     Write-Host -ForegroundColor Green "INFO: Docker images of the daemon under test"
-    Write-Host 
+    Write-Host
     $ErrorActionPreference = "SilentlyContinue"
     & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images
     $ErrorActionPreference = "Stop"
@@ -725,7 +793,7 @@ Try {
 
 
         Write-Host -ForegroundColor Green "INFO: Docker images of the daemon under test"
-        Write-Host 
+        Write-Host
         $ErrorActionPreference = "SilentlyContinue"
         & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" images
         $ErrorActionPreference = "Stop"
@@ -773,7 +841,7 @@ Try {
         } else  {
             Write-Host -ForegroundColor Green "INFO: Integration tests being run from the host:"
             cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker\integration-cli"
-            $env:DOCKER_HOST=$DASHH_CUT  
+            $env:DOCKER_HOST=$DASHH_CUT
             $env:PATH="$env:TEMP\binary;$env:PATH;"  # Force to use the test binaries, not the host ones.
             Write-Host -ForegroundColor Green "INFO: $c"
             Write-Host -ForegroundColor Green "INFO: DOCKER_HOST at $DASHH_CUT"
@@ -792,7 +860,7 @@ Try {
     # Docker info now to get counts (after or if jjh/containercounts is merged)
     if ($daemonStarted -eq 1) {
         Write-Host -ForegroundColor Green "INFO: Docker info of the daemon under test at end of run"
-        Write-Host 
+        Write-Host
         $ErrorActionPreference = "SilentlyContinue"
         & "$env:TEMP\binary\docker-$COMMITHASH" "-H=$($DASHH_CUT)" info
         $ErrorActionPreference = "Stop"
@@ -823,16 +891,16 @@ Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
     Write-Host "`n`n"
 
-    # Exit to ensure Jenkins captures it. Don't do this in the ISE or interactive Powershell - they will catch the Throw onwards.
-    if ( ([bool]([Environment]::GetCommandLineArgs() -Like '*-NonInteractive*')) -and `
-         ([bool]([Environment]::GetCommandLineArgs() -NotLike "*Powershell_ISE.exe*"))) {
+    # Exit to ensure Jenkins captures it. Don't do this in the ISE or interactive Powershell - they will catch the Throw onwards.
+    if ( ([bool]([Environment]::GetCommandLineArgs() -Like '*-NonInteractive*')) -and `
+         ([bool]([Environment]::GetCommandLineArgs() -NotLike "*Powershell_ISE.exe*"))) {
         exit 1
-    }
-    Throw $_
+    }
+    Throw $_
 }
 Finally {
     $ErrorActionPreference="SilentlyContinue"
-	$global:ProgressPreference=$origProgressPreference
+    $global:ProgressPreference=$origProgressPreference
     Write-Host  -ForegroundColor Green "INFO: Tidying up at end of run"
 
     # Restore the path
@@ -845,7 +913,7 @@ Finally {
     if ($origGOROOT -ne $null) { $env:GOROOT=$origGOROOT }
     if ($origGOPATH -ne $null) { $env:GOPATH=$origGOPATH }
 
-    # Dump the daemon log if asked to 
+    # Dump the daemon log if asked to
     if ($daemonStarted -eq 1) {
         if ($dumpDaemonLog -eq 1) {
             Write-Host -ForegroundColor Cyan "----------- DAEMON LOG ------------"
