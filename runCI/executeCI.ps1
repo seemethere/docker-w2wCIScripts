@@ -133,7 +133,7 @@ Function Build-DockerCE-Client() {
     Copy-Item $env:TEMP\binary\docker.exe $env:TEMP\binary\docker-$COMMITHASH.exe -Force -ErrorAction SilentlyContinue
 }
 
-Function Move-Docker-CE-Sources() {
+Function Move-DockerCE-Sources() {
     Write-Host -ForegroundColor green "INFO: Attempting to copy engine"
     Write-Host -ForegroundColor green "INFO: SOURCE -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\engine"
     Write-Host -ForegroundColor green "INFO: TARGET -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
