@@ -118,7 +118,7 @@ Function Get-DockerCEVersion() {
 }
 
 Function Build-DockerCE-Client() {
-    $DockerVersion = Get-DockerVersion
+    $DockerVersion = Get-DockerCEVersion
     Push-Location "..\cli\cmd\docker"
     $buildDateTime=$(Get-Date).ToUniversalTime()
     Write-Host -ForegroundColor Green "INFO: Building the CLI binary"
