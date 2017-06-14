@@ -47,6 +47,9 @@
 
 .Parameter AzurePassword
    The password for the Azure user (jenkins)
+
+.Parameter IgnoreMissingImages
+   Don't error out if images are missing
    
 .EXAMPLE
     #TODO
@@ -64,7 +67,8 @@ param(
     [Parameter(Mandatory=$false)][int]   $DebugPort,
     [Parameter(Mandatory=$false)][string]$ConfigSet,
     [Parameter(Mandatory=$false)][int]   $AzureImageVersion,
-    [Parameter(Mandatory=$false)][string]$AzurePassword
+    [Parameter(Mandatory=$false)][string]$AzurePassword,
+	[Parameter(Mandatory=$false)][string]$IgnoreMissingImages
 
 )
 
@@ -171,17 +175,32 @@ Try {
 		Write-Host "INFO: Using non-VL VHD"
 	}
 	
-    
     Write-Host "INFO: VHD found"
     
     # Verify the container images exist
     $wscImageLocation="\\winbuilds\release\$branch\$build"+".$timestamp\amd64fre\ContainerBaseOsPkgs\cbaseospkg_serverdatacentercore_en-us\CBaseOs_$branch"+"_$build"+".$timestamp"+"_amd64fre_ServerDatacenterCore_en-us.tar.gz"
-    if (-not (Test-Path $wscImageLocation)) { Throw "$wscImageLocation could not be found" }
-    Write-Host "INFO: windowsservercore base image found"
+    if (-not (Test-Path $wscImageLocation)) {
+		if ($IgnoreMissingImages -eq "Yes") {
+			$wscImageLocation=""
+			Write-Host "WARN: windowsservercore image is missing"
+		} else {
+			Throw "$wscImageLocation could not be found"
+		}
+	} else {
+		Write-Host "INFO: windowsservercore base image found"
+	}
 
     $nanoImageLocation="\\winbuilds\release\$branch\$build"+".$timestamp\amd64fre\ContainerBaseOsPkgs\cbaseospkg_nanoserver_en-us\CBaseOs_$branch"+"_$build"+".$timestamp"+"_amd64fre_NanoServer_en-us.tar.gz"
-    if (-not (Test-Path $nanoImageLocation)) { Throw "$nanoImageLocation could not be found" }
-    Write-Host "INFO: nanoserver base image found"
+    if (-not (Test-Path $nanoImageLocation)) {
+		if ($IgnoreMissingImages -eq "Yes") {
+			$nanoImageLocation = ""
+			Write-Host "WARN: nanoserver image is missing"
+		} else { 
+			Throw "$nanoImageLocation could not be found"
+		}
+	} else {
+		Write-Host "INFO: nanoserver base image found"
+	}
 
     # Make sure the target location exists
     if (-not (Test-Path $target)) { Throw "$target could not be found" }
@@ -273,12 +292,16 @@ Try {
         Import-Module Containers.Layers | Out-Null
 
         if (-not (Test-Path "$driveLetter`:\BaseImages\nanoserver.tar")) {
-            Write-Host "INFO: Converting nanoserver base image"
-            Export-ContainerLayer -SourceFilePath $nanoImageLocation -DestinationFilePath "$driveLetter`:\BaseImages\nanoserver.tar" -Repository "microsoft/nanoserver" -latest
+			if (-not ($nanoImageLocation -eq "")) {
+				Write-Host "INFO: Converting nanoserver base image"
+				Export-ContainerLayer -SourceFilePath $nanoImageLocation -DestinationFilePath "$driveLetter`:\BaseImages\nanoserver.tar" -Repository "microsoft/nanoserver" -latest
+			}
         }
         if (-not (Test-Path "$driveLetter`:\BaseImages\windowsservercore.tar")) {
-            Write-Host "INFO: Converting windowsservercore base image"
-            Export-ContainerLayer -SourceFilePath $wscImageLocation -DestinationFilePath "$driveLetter`:\BaseImages\windowsservercore.tar" -Repository "microsoft/windowsservercore" -latest
+			if (-not ($wscImageLocation -eq "")) {
+				Write-Host "INFO: Converting windowsservercore base image"
+				Export-ContainerLayer -SourceFilePath $wscImageLocation -DestinationFilePath "$driveLetter`:\BaseImages\windowsservercore.tar" -Repository "microsoft/windowsservercore" -latest
+			}
         }
     }
 
@@ -332,6 +355,9 @@ Try {
     Write-Host "INFO: Creating a VM"
     $vm = New-VM -generation 1 -Path $Target -Name (split-path $targetSubdir -leaf) -NoVHD
     Set-VMProcessor $vm -ExposeVirtualizationExtensions $true -Count 8
+	Set-VM $vm -MemoryStartupBytes 4GB
+	Set-VM $vm -CheckpointType Standard
+	Set-VM $vm -AutomaticCheckpointsEnabled $False
     Add-VMHardDiskDrive $vm -ControllerNumber 0 -ControllerLocation 0 -Path (Join-Path $targetSubdir -ChildPath $vhdFilename)
     if ($switch -ne "") {
         Connect-VMNetworkAdapter -VMName (split-path $targetSubdir -leaf) -SwitchName $switch

@@ -510,11 +510,13 @@ Try {
             git -C $gitRepoLocation status --porcelain --untracked-files=no | Write-Warning
              Write-Host ""
         }
+
         if ($DockerCE) {
             $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Daemon | Out-Host })
         } else {
-            $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Binary | Out-Host })
+            $Duration=$(Measure-Command {docker run --name $COMMITHASH -e DOCKER_GITCOMMIT=$COMMITHASH$CommitUnsupported docker hack\make.ps1 -Binary -Client | Out-Host })
         }
+
         $ErrorActionPreference = "Stop"
         if (-not($LastExitCode -eq 0)) {
             Throw "ERROR: Failed to build binary"
@@ -893,12 +895,12 @@ Catch [Exception] {
     Write-Host -ForegroundColor Red ("`r`n`r`nERROR: Failed '$_' at $(Get-Date)")
     Write-Host "`n`n"
 
-    # Exit to ensure Jenkins captures it. Don't do this in the ISE or interactive Powershell - they will catch the Throw onwards.
-    if ( ([bool]([Environment]::GetCommandLineArgs() -Like '*-NonInteractive*')) -and `
-         ([bool]([Environment]::GetCommandLineArgs() -NotLike "*Powershell_ISE.exe*"))) {
+Â  Â  # Exit to ensure Jenkins captures it. Don't do this in the ISE or interactive Powershell - they will catch the Throw onwards.
+Â  Â  if ( ([bool]([Environment]::GetCommandLineArgs() -Like '*-NonInteractive*')) -and `
+Â  Â  Â  Â Â  ([bool]([Environment]::GetCommandLineArgs() -NotLike "*Powershell_ISE.exe*"))) {
         exit 1
-    }
-    Throw $_
+Â  Â  }
+Â  Â  Throw $_
 }
 Finally {
     $ErrorActionPreference="SilentlyContinue"

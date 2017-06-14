@@ -14,7 +14,7 @@ $JDK_LOCATION="http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095
 
 
 $NPP_LOCATION="https://notepad-plus-plus.org/repository/7.x/7.3.3/npp.7.3.3.Installer.x64.exe" # 3/21/2017 - CIA hack...
-$DOCKER_LOCATION="https://master.dockerproject.org/windows/amd64"
+$DOCKER_LOCATION="https://master.dockerproject.org/windows/x86_64"
 $DELVE_LOCATION="github.com/derekparker/delve/cmd/dlv"
 
 # Stop on error
