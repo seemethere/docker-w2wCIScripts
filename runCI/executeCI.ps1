@@ -134,25 +134,25 @@ Function Build-DockerCE-Client() {
 }
 
 Function Move-DockerCE-Sources() {
-    Write-Host -ForegroundColor green "INFO: Attempting to copy engine"
-    Write-Host -ForegroundColor green "INFO: SOURCE -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\engine"
-    Write-Host -ForegroundColor green "INFO: TARGET -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
+    Write-Host -ForegroundColor green "INFO: Copying engine from docker-ce"
+    Write-Host -ForegroundColor green "INFO: Source -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\engine"
+    Write-Host -ForegroundColor green "INFO: Target -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
     cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
     if (-Not (Test-Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker")) {
          md -path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
     }
     Copy-Item "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\engine\*" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker" -Force -Recurse
-    ls "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
+    Get-ChildItem "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
 
-    Write-Host -ForegroundColor green "INFO: Attempting to copy cli"
-    Write-Host -ForegroundColor green "INFO: SOURCE -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\cli"
-    Write-Host -ForegroundColor green "INFO: TARGET -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
+    Write-Host -ForegroundColor green "INFO: Copying cli from docker-ce"
+    Write-Host -ForegroundColor green "INFO: Source -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\cli"
+    Write-Host -ForegroundColor green "INFO: Target -> $env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
     cd "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR"
     if (-Not (Test-Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli")) {
          md -path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
     }
     Copy-Item "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\cli\*" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli" -Force -Recurse
-    ls "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
+    Get-ChildItem "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
 }
 
 Function Nuke-Everything {
