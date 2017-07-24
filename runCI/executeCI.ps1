@@ -140,6 +140,7 @@ Function Move-DockerCE-Sources() {
     if (-Not (Test-Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker")) {
          md -path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
     }
+    Get-ChildItem -Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker" -Recurse | Remove-Item -force -recurse
     Copy-Item "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\engine\*" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker" -Force -Recurse
     Get-ChildItem "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker"
 
@@ -150,6 +151,7 @@ Function Move-DockerCE-Sources() {
     if (-Not (Test-Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli")) {
          md -path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
     }
+    Get-ChildItem -Path "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli" -Recurse | Remove-Item -force -recurse
     Copy-Item "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\components\cli\*" "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli" -Force -Recurse
     Get-ChildItem "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\cli"
 }
