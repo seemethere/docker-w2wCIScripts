@@ -113,8 +113,11 @@ $FinallyColour="Cyan"
 #$env:SKIP_COPY_GO="yes"
 
 Function Get-DockerCEVersion() {
-    if (-not (Test-Path ".\VERSION")) { Throw "VERSION file not found. Is this running from the root of a docker repository?" }
-    return $(Get-Content ".\VERSION" -raw).ToString().Replace("`n","").Trim()
+    $VersionPath = "$env:SOURCES_DRIVE`:\$env:SOURCES_SUBDIR\src\github.com\docker\docker-ce\VERSION"
+    if (-not (Test-Path $VersionPath)) {
+        Throw "VERSION file not found at $VersionPath"
+    }
+    return $(Get-Content "$VersionPath" -raw).ToString().Replace("`n","").Trim()
 }
 
 Function Build-DockerCE-Client() {
